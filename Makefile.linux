@@ -1,0 +1,43 @@
+.PHONY: all clean opt 
+  
+TARGET = impossible
+
+CC  := gcc
+CXX := g++
+
+INCLUDE = 
+
+all: CFLAGS = $(INCLUDE) -std=c++11 
+opt: CFLAGS = $(INCLUDE) -O3 -ffast-math -pipe -std=c++11 
+
+CXXFLAGS = $(CFLAGS)
+
+LDFLAGS = 
+
+# Find all source files
+SOURCE = .
+SRC_CPP = $(foreach dir, $(SOURCE), $(wildcard $(dir)/*.cpp)) impossible.tab.cpp
+SRC_C   = $(foreach dir, $(SOURCE), $(wildcard $(dir)/*.c)) lex.yy.c
+OBJ_CPP = $(patsubst %.cpp, %.o, $(SRC_CPP))
+OBJ_C   = $(patsubst %.c, %.o, $(SRC_C))
+OBJS    = $(OBJ_CPP) $(OBJ_C)
+
+all opt : $(TARGET)
+
+lex.yy.c: parser/impossible.l
+	flex --header-file=lex.yy.h $<
+
+impossible.tab.cpp: parser/impossible.ypp lex.yy.c
+	bison -d -v $<
+
+$(TARGET) : $(OBJS)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+
+%.o: %.c
+	$(CC) -x c++ $(CFLAGS) -c $< -o $@
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+clean:
+	rm -f $(OBJS) $(TARGET) lex.yy.* impossible.tab.*

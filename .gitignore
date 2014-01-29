@@ -11,3 +11,9 @@
 *.lai
 *.la
 *.a
+lex.yy.*
+impossible.tab.*
+examples.txt
+.svn
+bison.h
+Impossible.1

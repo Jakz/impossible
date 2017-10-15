@@ -134,7 +134,7 @@
 "-"?[0-9]+"kk" {
   char *tmp = strdup(yytext);
   char *index = strstr(tmp, "kk") - 1;
-  *index = NULL;
+  *index = '\0';
   
   free(tmp);
   yylval.v = new Int(atoi(yytext)*1000000); return INTEGER;

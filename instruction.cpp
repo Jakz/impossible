@@ -9,6 +9,8 @@
 
 #include "vm.h"
 
+#include <cassert>
+
 static void iter(TCollection *values, Code *code, VM *vm)
 {
   values->iterate();
@@ -208,6 +210,8 @@ string OpcodeInstruction::svalue() const
     case OP_RECURV: return "{#}";
     case OP_WHILE: return "<>";
   }
+  
+  assert(false);
 }
 
 

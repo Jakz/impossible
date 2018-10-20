@@ -9,6 +9,8 @@
 #define _CODE_H_
 
 #include "defines.h"
+
+#include <vector>
 #include <string>
 
 class Instruction;

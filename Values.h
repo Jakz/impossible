@@ -6,11 +6,8 @@
 //
 //
 
-#ifndef _VALUES_H_
-#define _VALUES_H_
+#pragma once
 
 #include "Value.h"
 #include "SimpleValue.h"
 #include "CompositeValue.h"
-
-#endif /* defined(__Impossible__Values__) */

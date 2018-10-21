@@ -7,7 +7,7 @@
 //
 
 #include "CompositeValue.h"
-#include "TypeUtils.h"
+#include "TypeTraits.h"
 #include "instruction.h"
 
 #include <iostream>

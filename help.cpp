@@ -307,7 +307,7 @@ void Help::printOperator(string op, OpHelpEntry o)
   
   for (int i = 0; i < o.io; ++i)
   {
-    cout << Value::typeName(o.i[i]);
+    cout << TypeTraits::nameForType(o.i[i]);
     
     if (i < o.io - 1)
       cout << ", ";
@@ -320,7 +320,7 @@ void Help::printOperator(string op, OpHelpEntry o)
   
   for (int i = 0; i < o.oo; ++i)
   {
-    cout << Value::typeName(o.o[i]);
+    cout << TypeTraits::nameForType(o.o[i]);
     
     if (i < o.oo - 1)
       cout << ", ";
@@ -371,9 +371,9 @@ bool Help::printHelpForOperator(string op)
   return false;
 }
 
-bool Help::printHelpForType(string stype)
+bool Help::printHelpForType(const std::string& stype)
 {
-  Type type = Value::typeValue(stype);
+  Type type = TypeTraits::typeForName(stype);
   
   if (type != TYPE_INVALID)
   {
@@ -450,7 +450,7 @@ void Help::printTypes()
   set<string> ops;
   
   for (it = operators.begin(); it != operators.end(); ++it)
-    ops.insert(Value::typeName(it->second.i[0]));
+    ops.insert(TypeTraits::nameForType(it->second.i[0]));
   
   set<string>::iterator it2;
 

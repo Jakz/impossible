@@ -13,6 +13,8 @@
 #include "code.h"
 #include "lazy.h"
 
+#include "TypeTraits.h"
+
 #include <cmath>
 
 #include <string>
@@ -25,140 +27,46 @@ using namespace std;
 
 #define TYPES(x, y) (x << 4 | y)
 
-enum Type : s16
+union value_data
 {
-  TYPE_INVALID = -1,
+  s64 i;
+  double f;
+  char c;
+  bool b;
+  void* ptr;
   
-  TYPE_NIL = 0,
-  TYPE_INT,
-  TYPE_FLOAT,
+  value_data(s64 i) : i(i) { }
+  value_data(void* ptr) : ptr(nullptr) { }
   
-  TYPE_BOOL,
-  TYPE_CHAR,
-  TYPE_STRING,
-  TYPE_RANGE,
-  
-  TYPE_LIST,
-  TYPE_ARRAY,
-  TYPE_SET,
-  TYPE_MAP,
-  TYPE_STACK,
-  TYPE_QUEUE,
-  TYPE_LAZY_ARRAY,
-  
-  TYPE_LAMBDA,
-  TYPE_GENERIC,
-  TYPE_COLLECTION,
-  
-  TYPES_COUNT,
-  
-  TYPE_GENERIC2 = 500,
-  TYPE_GENERIC3,
-  TYPE_UNKNOWN,
-  
-  TYPE_NONE
+  bool operator==(const value_data& o) const { return i == o.i; }
 };
 
 class Value
 {
-  public:
-    Value(Type type) : type(type) { }
+public:
+  value_data data;
 
-    virtual string svalue() const = 0;
-    virtual string lvalue();
+public:
+  Value(Value& other) : type(other.type), data(other.data) { }
   
-    virtual bool equals(const Value *value) const = 0;
-    virtual Value* clone() const = 0;
+  Value(Type type) : type(type), data(nullptr) { }
   
-    const Type type;
+  Value(s64 value) : type(TYPE_INT), data(value) { }
 
-    virtual ~Value() { };
-  
-    template<typename T> T* as() { return static_cast<T*>(this); }
-  
-    static bool isCollection(Type type)
-    {
-      switch (type)
-      {
-        case TYPE_LIST:
-        case TYPE_ARRAY:
-        case TYPE_SET:
-        case TYPE_MAP:
-        case TYPE_STACK:
-        case TYPE_QUEUE:
-        case TYPE_RANGE:
-        case TYPE_LAZY_ARRAY:
-        case TYPE_STRING:
-          return true;
-        default:
-          return false;
-      }
-    }
-  
-    static const char* typeName(Type type)
-    { 
-      switch (type)
-      {
-        case TYPE_INT: return "int";
-        case TYPE_FLOAT: return "float";
-        case TYPE_BOOL: return "bool";
-        case TYPE_CHAR: return "char";
-        case TYPE_STRING: return "string";
-        case TYPE_RANGE: return "range";
-        case TYPE_LIST: return "list";
-        case TYPE_ARRAY: return "array";
+  virtual string svalue() const = 0;
+  virtual string lvalue();
 
-        case TYPE_SET: return "set";
-        case TYPE_STACK: return "stack";
-        case TYPE_QUEUE: return "queue";
-          
-        case TYPE_LAZY_ARRAY: return "larray";
-          
-        case TYPE_MAP: return "map";
-        case TYPE_LAMBDA: return "lambda";
-        case TYPE_NIL: return "nil";
-          
-        case TYPE_GENERIC: return "A";
-        case TYPE_GENERIC2: return "B";
-        case TYPE_GENERIC3: return "C";
-        case TYPE_UNKNOWN: return "?";
-          
-        case TYPE_COLLECTION: return "collection";
-          
-        case TYPES_COUNT:
-        case TYPE_NONE: return "NONE";
-        case TYPE_INVALID: return "ERROR";
-      }
-    }
+  virtual bool equals(const Value *value) const = 0;
+  virtual Value* clone() const = 0;
+
+  const TypeInfo type;
+
+  virtual ~Value() { };
+
+  template<typename T> auto as() const -> typename std::enable_if<std::is_integral<T>::value, T>::type { return static_cast<T>(data.i); }
+  template<typename T> auto as() -> typename std::enable_if<std::is_pointer<T>::value, T>::type { return reinterpret_cast<T>(this); }
   
-    static Type typeValue(string string)
-    {
-      if (string.compare("int") == 0) return TYPE_INT;
-      else if (string.compare("float") == 0) return TYPE_FLOAT;
-      else if (string.compare("bool") == 0) return TYPE_BOOL;
-      else if (string.compare("char") == 0) return TYPE_CHAR;
-      else if (string.compare("string") == 0) return TYPE_STRING;
-      else if (string.compare("range") == 0) return TYPE_RANGE;
-      
-      else if (string.compare("list") == 0) return TYPE_LIST;
-      else if (string.compare("array") == 0) return TYPE_ARRAY;
-      else if (string.compare("set") == 0) return TYPE_SET;
-      else if (string.compare("queue") == 0) return TYPE_QUEUE;
-      else if (string.compare("stack") == 0) return TYPE_STACK;
-      
-      else if (string.compare("larray") == 0) return TYPE_LAZY_ARRAY;
-      
-      else if (string.compare("map") == 0) return TYPE_MAP;
-      else if (string.compare("lambda") == 0) return TYPE_LAMBDA;
-      
-      
-      else if (string.compare("nil") == 0) return TYPE_NIL;
-      
-      
-      else if (string.compare("A") == 0) return TYPE_GENERIC;
-      else if (string.compare("?") == 0) return TYPE_UNKNOWN;
-      else return TYPE_INVALID;
-    }
+  integral integral() const { return data.i; }
 };
 
 class TCollection

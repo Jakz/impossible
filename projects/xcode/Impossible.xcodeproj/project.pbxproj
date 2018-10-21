@@ -21,6 +21,7 @@
 		04F6E08F217BE93D0037C307 /* Values.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E07E217BE93D0037C307 /* Values.cpp */; };
 		04F6E090217BE93D0037C307 /* vm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E080217BE93D0037C307 /* vm.cpp */; };
 		04F6E091217BE93D0037C307 /* VTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E082217BE93D0037C307 /* VTable.cpp */; };
+		04F6E094217CCB9C0037C307 /* TypeTraits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E092217CCB9C0037C307 /* TypeTraits.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -58,7 +59,6 @@
 		04F6E078217BE93D0037C307 /* SimpleValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SimpleValue.h; path = ../../SimpleValue.h; sourceTree = "<group>"; };
 		04F6E079217BE93D0037C307 /* tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tests.cpp; path = ../../tests.cpp; sourceTree = "<group>"; };
 		04F6E07A217BE93D0037C307 /* tests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tests.h; path = ../../tests.h; sourceTree = "<group>"; };
-		04F6E07B217BE93D0037C307 /* TypeUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TypeUtils.h; path = ../../TypeUtils.h; sourceTree = "<group>"; };
 		04F6E07C217BE93D0037C307 /* Value.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Value.cpp; path = ../../Value.cpp; sourceTree = "<group>"; };
 		04F6E07D217BE93D0037C307 /* Value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Value.h; path = ../../Value.h; sourceTree = "<group>"; };
 		04F6E07E217BE93D0037C307 /* Values.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Values.cpp; path = ../../Values.cpp; sourceTree = "<group>"; };
@@ -67,6 +67,10 @@
 		04F6E081217BE93D0037C307 /* vm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vm.h; path = ../../vm.h; sourceTree = "<group>"; };
 		04F6E082217BE93D0037C307 /* VTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VTable.cpp; path = ../../VTable.cpp; sourceTree = "<group>"; };
 		04F6E083217BE93D0037C307 /* VTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VTable.h; path = ../../VTable.h; sourceTree = "<group>"; };
+		04F6E092217CCB9C0037C307 /* TypeTraits.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TypeTraits.cpp; path = ../../TypeTraits.cpp; sourceTree = "<group>"; };
+		04F6E093217CCB9C0037C307 /* TypeTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TypeTraits.h; path = ../../TypeTraits.h; sourceTree = "<group>"; };
+		04F6E095217CD02B0037C307 /* impossible.l */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.lex; name = impossible.l; path = ../../parser/impossible.l; sourceTree = "<group>"; };
+		04F6E096217CD02B0037C307 /* impossible.ypp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.yacc; name = impossible.ypp; path = ../../parser/impossible.ypp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +110,8 @@
 				04F6E06A217BE93D0037C307 /* defines.h */,
 				04F6E06B217BE93D0037C307 /* help.cpp */,
 				04F6E06C217BE93D0037C307 /* help.h */,
+				04F6E095217CD02B0037C307 /* impossible.l */,
+				04F6E096217CD02B0037C307 /* impossible.ypp */,
 				04F6E06D217BE93D0037C307 /* impossible.tab.cpp */,
 				04F6E06E217BE93D0037C307 /* impossible.tab.hpp */,
 				04F6E06F217BE93D0037C307 /* instruction.cpp */,
@@ -118,9 +124,10 @@
 				04F6E076217BE93D0037C307 /* range.h */,
 				04F6E077217BE93D0037C307 /* SimpleValue.cpp */,
 				04F6E078217BE93D0037C307 /* SimpleValue.h */,
+				04F6E092217CCB9C0037C307 /* TypeTraits.cpp */,
+				04F6E093217CCB9C0037C307 /* TypeTraits.h */,
 				04F6E079217BE93D0037C307 /* tests.cpp */,
 				04F6E07A217BE93D0037C307 /* tests.h */,
-				04F6E07B217BE93D0037C307 /* TypeUtils.h */,
 				04F6E07C217BE93D0037C307 /* Value.cpp */,
 				04F6E07D217BE93D0037C307 /* Value.h */,
 				04F6E07E217BE93D0037C307 /* Values.cpp */,
@@ -201,6 +208,7 @@
 				04F6E089217BE93D0037C307 /* lazy.cpp in Sources */,
 				04F6E08B217BE93D0037C307 /* main.cpp in Sources */,
 				04F6E08A217BE93D0037C307 /* lex.yy.c in Sources */,
+				04F6E094217CCB9C0037C307 /* TypeTraits.cpp in Sources */,
 				04F6E08E217BE93D0037C307 /* Value.cpp in Sources */,
 				04F6E08D217BE93D0037C307 /* tests.cpp in Sources */,
 				04F6E08F217BE93D0037C307 /* Values.cpp in Sources */,

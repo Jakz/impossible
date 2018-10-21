@@ -21,7 +21,7 @@ string Value::lvalue()
   
   string v(svalue());
   v.append(" : ");
-  v.append(typeName(type));
+  v.append(type.name());
   return v;
 }
 

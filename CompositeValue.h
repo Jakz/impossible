@@ -95,7 +95,7 @@ public:
   virtual void put(Value *value) override
   {
     if (value->type == TYPE_INT)
-      this->value.merge(((Int*)value)->get());
+      this->value.merge(value->as<int>());
     else if (value->type == TYPE_RANGE)
       this->value.rangeUnion(((Range*)value)->get());
   }
@@ -110,7 +110,7 @@ struct hash<Value*>
     {
       case TYPE_INT:  {
         hash<int> i;
-        return i(((Int*)v)->get());
+        return i(v->as<int>());
       }
       case TYPE_FLOAT: {
         hash<float> i;
@@ -163,8 +163,8 @@ struct less<Value*>
         {
           case TYPE_INT:
           {
-            less<int> i;
-            const int v1 = ((Int*)x)->get(), v2 = ((Int*)y)->get();
+            less<integral> i;
+            const integral v1 = x->as<integral>(), v2 = x->as<integral>();
             return i(v1, v2);
           }
           case TYPE_FLOAT:

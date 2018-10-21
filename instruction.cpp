@@ -135,7 +135,7 @@ static void cartesian(TCollection *values1, TCollection* values2, TCollection* n
 
 struct Arguments
 {
-  Type t1, t2, t3;
+  TypeInfo t1, t2, t3;
   
   Arguments(Type t1 = TYPE_NONE, Type t2 = TYPE_NONE, Type t3 = TYPE_NONE) : t1(t1), t2(t2), t3(t3) { }
   bool operator==(const Arguments& o) const
@@ -272,9 +272,9 @@ private:
     /* then try replacing collection types with generic */
     s = Signature(
                   s.opcode,
-                  Value::isCollection(s.args.t1) ? TYPE_COLLECTION : s.args.t1,
-                  Value::isCollection(s.args.t2) ? TYPE_COLLECTION : s.args.t2,
-                  Value::isCollection(s.args.t3) ? TYPE_COLLECTION : s.args.t3
+                  s.args.t1.isCollection() ? TypeInfo(TYPE_COLLECTION) : s.args.t1,
+                  s.args.t2.isCollection() ? TypeInfo(TYPE_COLLECTION) : s.args.t2,
+                  s.args.t3.isCollection() ? TypeInfo(TYPE_COLLECTION) : s.args.t3
                   );
     
     it = microCode.find(s);
@@ -322,11 +322,11 @@ public:
   {
     registerUnary({ OP_DUPE, TYPE_GENERIC }, [] (VM* vm, Value* v1) { vm->push(v1); vm->push(v1->clone()); });
     
-    registerBinary({ OP_PLUS, TYPE_INT, TYPE_INT }, [] (VM* vm, Value* v1, Value* v2) { vm->push(new Int(v1->as<Int>()->get() + v2->as<Int>()->get())); });
+    registerBinary({ OP_PLUS, TYPE_INT, TYPE_INT }, [] (VM* vm, Value* v1, Value* v2) { vm->push(new Int(v1->integral() + v2->integral())); });
   
-    registerBinary({ OP_MINUS, TYPE_INT, TYPE_INT }, [] (VM* vm, Value* v1, Value* v2) { vm->push(new Int(v1->as<Int>()->get() - v2->as<Int>()->get())); });
+    registerBinary({ OP_MINUS, TYPE_INT, TYPE_INT }, [] (VM* vm, Value* v1, Value* v2) { vm->push(new Int(v1->integral() - v2->integral())); });
     
-    registerUnary({ OP_NEG, TYPE_COLLECTION }, [] (VM* vm, Value* v1) { vm->push(new Int(v1->as<TValue<TCollection*>>()->get()->size())); });
+    registerUnary({ OP_NEG, TYPE_COLLECTION }, [] (VM* vm, Value* v1) { vm->push(new Int((integral)v1->as<TValue<TCollection*>*>()->get()->size())); });
 
   }
   
@@ -521,7 +521,7 @@ void OpcodeInstruction::execute(VM *vm) const
     {
       if (vm->popOne(&v1) && v1->type == TYPE_INT)
       {
-        int i = ((Int*)v1)->get();
+        integral i = v1->as<integral>();
         vm->push(vm->pick(i));
       }
       break;
@@ -560,10 +560,10 @@ void OpcodeInstruction::execute(VM *vm) const
         {        
           switch (TYPES(v1->type, v2->type))
           {
-            case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(((Float*)v1)->get() + ((Int*)v2)->get())); break;
-            case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(((Int*)v1)->get() + ((Float*)v2)->get())); break;
+            case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(((Float*)v1)->get() + v2->as<integral>())); break;
+            case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1->as<integral>() + ((Float*)v2)->get())); break;
             case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(((Float*)v1)->get() + ((Float*)v2)->get())); break;
-            case TYPES(TYPE_CHAR, TYPE_INT): vm->push(new Char(((Char*)v1)->get() + ((Int*)v2)->get())); break;
+            case TYPES(TYPE_CHAR, TYPE_INT): vm->push(new Char(((Char*)v1)->get() + v2->as<integral>())); break;
             case TYPES(TYPE_CHAR, TYPE_CHAR): vm->push(new String(string(1,((Char*)v1)->get()) += ((Char*)v2)->get())); break;
           }
         }
@@ -576,10 +576,10 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         switch (TYPES(v1->type, v2->type))
         {
-          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(((Float*)v1)->get() - ((Int*)v2)->get())); break;
-          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(((Int*)v1)->get() - ((Float*)v2)->get())); break;
+          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(((Float*)v1)->get() - v2->as<integral>())); break;
+          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1->integral() - ((Float*)v2)->get())); break;
           case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(((Float*)v1)->get() - ((Float*)v2)->get())); break;
-          case TYPES(TYPE_CHAR, TYPE_INT): vm->push(new Char(((Char*)v1)->get() - ((Int*)v2)->get())); break;
+          case TYPES(TYPE_CHAR, TYPE_INT): vm->push(new Char(((Char*)v1)->get() - v2->as<integral>())); break;
         }
       }
       break;
@@ -590,9 +590,9 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         switch (TYPES(v1->type, v2->type))
         {
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(((Int*)v1)->get() * ((Int*)v2)->get())); break;
-          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(((Float*)v1)->get() * ((Int*)v2)->get())); break;
-          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(((Int*)v1)->get() * ((Float*)v2)->get())); break;
+          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1->integral() * v2->integral())); break;
+          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(((Float*)v1)->get() * v2->integral())); break;
+          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1->integral() * ((Float*)v2)->get())); break;
           case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(((Float*)v1)->get() * ((Float*)v2)->get())); break;
         }
       }
@@ -604,9 +604,9 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         switch (TYPES(v1->type, v2->type))
         {
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(((Int*)v1)->get() / ((Int*)v2)->get())); break;
-          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(((Float*)v1)->get() / ((Int*)v2)->get())); break;
-          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(((Int*)v1)->get() / ((Float*)v2)->get())); break;
+          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1->integral() / v2->integral())); break;
+          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(((Float*)v1)->get() / v2->integral())); break;
+          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1->integral() / ((Float*)v2)->get())); break;
           case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(((Float*)v1)->get() / ((Float*)v2)->get())); break;            
           case TYPES(TYPE_SET, TYPE_SET):
           {
@@ -636,7 +636,7 @@ void OpcodeInstruction::execute(VM *vm) const
       {
         switch (v1->type)  
         {
-          case TYPE_INT: vm->push(new Int(-((Int*)v1)->get())); break;
+          case TYPE_INT: vm->push(new Int(-v1->integral())); break;
           case TYPE_FLOAT: vm->push(new Float(-((Float*)v1)->get())); break;
           default: break;
         }
@@ -668,7 +668,7 @@ void OpcodeInstruction::execute(VM *vm) const
               {
                 case TYPES(TYPE_INT, TYPE_INT):
                 {
-                  vm->push(new Int(((Int*)v1)->get() % ((Int*)v2)->get()));
+                  vm->push(new Int(v1->integral() % v2->integral()));
                   break;
                 }
               }
@@ -687,7 +687,7 @@ void OpcodeInstruction::execute(VM *vm) const
         switch (TYPES(v1->type, v2->type))
         {
           case TYPES(TYPE_BOOL, TYPE_BOOL): vm->push(new Bool(((Bool*)v1)->get() & ((Bool*)v2)->get())); break;
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(((Int*)v1)->get() & ((Int*)v2)->get())); break;
+          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1->integral() & v2->integral())); break;
           case TYPES(TYPE_SET, TYPE_SET):
           {
             unordered_set<Value*>* s1 = ((Set*)v1)->get();
@@ -717,7 +717,7 @@ void OpcodeInstruction::execute(VM *vm) const
         switch (TYPES(v1->type, v2->type))
         {
           case TYPES(TYPE_BOOL, TYPE_BOOL): vm->push(new Bool(((Bool*)v1)->get() | ((Bool*)v2)->get())); break;
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(((Int*)v1)->get() | ((Int*)v2)->get())); break;
+          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1->integral() | v2->integral())); break;
           case TYPES(TYPE_RANGE, TYPE_RANGE):
           {
             vm->push(new Range(((Range*)v1)->get().rangeUnion(((Range*)v2)->get())));
@@ -725,7 +725,7 @@ void OpcodeInstruction::execute(VM *vm) const
           }
           case TYPES(TYPE_RANGE, TYPE_INT):
           {
-            RangeVector rv = RangeVector(((Int*)v2)->get(), ((Int*)v2)->get());
+            RangeVector rv = RangeVector(v2->integral(), v2->integral());
             vm->push(new Range(((Range*)v1)->get().rangeUnion(rv)));
             break;
           }
@@ -759,7 +759,7 @@ void OpcodeInstruction::execute(VM *vm) const
         switch (v1->type)
         {
           case TYPE_BOOL: vm->push(new Bool(!((Bool*)v1)->get())); break;
-          case TYPE_INT: vm->push(new Int(~((Int*)v1)->get())); break;
+          case TYPE_INT: vm->push(new Int(~v1->integral())); break;
           case TYPE_FLOAT: vm->push(new Float(1.0 / ((Float*)v1)->get())); break;
           case TYPE_LIST:
           {
@@ -820,7 +820,7 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         switch (TYPES(v1->type, v2->type))
         {
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(((Int*)v1)->get() >> ((Int*)v2)->get())); break;
+          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1->integral() >> v2->integral())); break;
           case TYPES(TYPE_LIST, TYPE_LAMBDA):
           {
             list<Value*>* v = ((List*)v1)->get();
@@ -884,7 +884,7 @@ void OpcodeInstruction::execute(VM *vm) const
         {
           switch (TYPES(v1->type, v2->type))
           {
-            case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(((Int*)v1)->get() << ((Int*)v2)->get())); break;
+            case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1->integral() << v2->integral())); break;
           }
         }
       }
@@ -932,9 +932,9 @@ void OpcodeInstruction::execute(VM *vm) const
           {  
             switch (TYPES(v1->type, v2->type))
             {
-              case TYPES(TYPE_INT, TYPE_INT): vm->push(new Bool(((Int*)v1)->get() < ((Int*)v2)->get())); break;
-              case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Bool(((Float*)v1)->get() < ((Int*)v2)->get())); break;
-              case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Bool(((Int*)v1)->get() < ((Float*)v2)->get())); break;
+              case TYPES(TYPE_INT, TYPE_INT): vm->push(new Bool(v1->integral() < v2->integral())); break;
+              case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Bool(((Float*)v1)->get() < v2->integral())); break;
+              case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Bool(v1->integral() < ((Float*)v2)->get())); break;
               case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Bool(((Float*)v1)->get() < ((Float*)v2)->get())); break;
             }
           }
@@ -974,9 +974,9 @@ void OpcodeInstruction::execute(VM *vm) const
           {   
             switch (TYPES(v1->type, v2->type))
             {
-              case TYPES(TYPE_INT, TYPE_INT): vm->push(new Bool(((Int*)v1)->get() > ((Int*)v2)->get())); break;
-              case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Bool(((Float*)v1)->get() > ((Int*)v2)->get())); break;
-              case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Bool(((Int*)v1)->get() > ((Float*)v2)->get())); break;
+              case TYPES(TYPE_INT, TYPE_INT): vm->push(new Bool(v1->integral() > v2->integral())); break;
+              case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Bool(((Float*)v1)->get() > v2->integral())); break;
+              case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Bool(v1->integral() > ((Float*)v2)->get())); break;
               case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Bool(((Float*)v1)->get() > ((Float*)v2)->get())); break;
             }
           }
@@ -996,7 +996,7 @@ void OpcodeInstruction::execute(VM *vm) const
         else if (v1->type == TYPE_INT)
         {
           double res = 1.0;
-          double v = ((Int*)v1)->get();
+          double v = v1->integral();
           
           while (v > 1)
             res *= v--;
@@ -1169,8 +1169,8 @@ void OpcodeInstruction::execute(VM *vm) const
               {
                 case TYPES(TYPE_INT, TYPE_INT):
                 {
-                  int m = ((Int*)v2)->get();
-                  int M = ((Int*)v1)->get();
+                  integral m = v2->integral();
+                  integral M = v1->integral();
                   
                   if (m > M)
                   {
@@ -1297,7 +1297,7 @@ void OpcodeInstruction::execute(VM *vm) const
                 case TYPES(TYPE_ARRAY, TYPE_INT):
                 {
                   Array *values = (Array*)v1;
-                  int i = ((Int*)v2)->get();
+                  integral i = v2->integral();
                   
                   vm->push(v1);
                   
@@ -1336,7 +1336,7 @@ void OpcodeInstruction::execute(VM *vm) const
                 case TYPES(TYPE_LAZY_ARRAY, TYPE_INT):
                 {
                   LazyArray *array = (LazyArray*)v1;
-                  int i = ((Int*)v2)->get();
+                  integral i = v2->integral();
                   
                   Value *v = array->get().at(vm, i);
                   
@@ -1414,12 +1414,12 @@ void OpcodeInstruction::execute(VM *vm) const
                 case TYPES(TYPE_ARRAY, TYPE_INT):
                 {
                   Array *values = (Array*)v1;
-                  int i = ((Int*)v2)->get();
+                  integral i = v2->integral();
                   
                   if (i >= values->size() && i >= values->get()->capacity())
                     values->get()->resize(i+1, TValue<void*>::NIL->clone());
                   
-                  (*values->get())[((Int*)v2)->get()] = v3;
+                  (*values->get())[v2->integral()] = v3;
                   
                   vm->push(v1);
                   break;
@@ -1767,8 +1767,8 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPES(TYPE_INT, TYPE_FLOAT):
           case TYPES(TYPE_FLOAT, TYPE_INT):
           {
-            double x = v1->type == TYPE_INT ? ((Int*)v1)->get() : ((Float*)v1)->get();
-            double y = v2->type == TYPE_INT ? ((Int*)v2)->get() : ((Float*)v2)->get();            
+            double x = v1->type == TYPE_INT ? v1->integral() : ((Float*)v1)->get();
+            double y = v2->type == TYPE_INT ? v2->integral() : ((Float*)v2)->get();            
             vm->push(x < y ? v1 : v2);
             break;
           }
@@ -1812,8 +1812,8 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPES(TYPE_INT, TYPE_FLOAT):
           case TYPES(TYPE_FLOAT, TYPE_INT):
           {
-            double x = v1->type == TYPE_INT ? ((Int*)v1)->get() : ((Float*)v1)->get();
-            double y = v2->type == TYPE_INT ? ((Int*)v2)->get() : ((Float*)v2)->get();            
+            double x = v1->type == TYPE_INT ? v1->integral() : ((Float*)v1)->get();
+            double y = v2->type == TYPE_INT ? v2->integral() : ((Float*)v2)->get();            
             vm->push(x > y ? v1 : v2);
             break;
           }
@@ -2001,7 +2001,7 @@ void OpcodeInstruction::execute(VM *vm) const
       {
         if (vm->popOne(&v1) && v1->type == TYPE_INT)
         {
-          vm->push(vm->lazy->at(vm, vm->lazy->index-((Int*)v1)->get()));
+          vm->push(vm->lazy->at(vm, vm->lazy->index-v1->integral()));
         }
       }
       else if (vm->popTwo(&v1, &v2))
@@ -2025,7 +2025,7 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPES(TYPE_INT, TYPE_LAMBDA):
           {
             Code *c = ((Lambda*)v2)->get();
-            int j = ((Int*)v1)->get();
+            int j = v1->integral();
             
             for (int i = 0; i < j; ++i)
             {
@@ -2119,7 +2119,7 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPES(TYPE_LAZY_ARRAY, TYPE_INT):
           {
             LazyArray *lazy = (LazyArray*)v1;
-            int i = ((Int*)v2)->get();
+            integral i = v2->integral();
             
             for (int j = lazy->size(); j < i; ++j)
               lazy->get().at(vm, j);
@@ -2153,7 +2153,7 @@ void OpcodeInstruction::execute(VM *vm) const
     { 
       if (vm->popOne(&v1) && v1->type == TYPE_INT)
       {
-        int t = ((Int*)v1)->get();
+        integral t = v1->integral();
         
         if (vm->stackHasValues(t))
         {
@@ -2178,7 +2178,7 @@ void OpcodeInstruction::execute(VM *vm) const
     { 
       if (vm->popOne(&v1) && v1->type == TYPE_INT)
       {
-        int t = ((Int*)v1)->get();
+        integral t = v1->integral();
         
         if (vm->stackHasValues(t))
         {

@@ -15,7 +15,7 @@
 string Int::svalue() const
 {
   stringstream ss(stringstream::out);
-  ss << value;
+  ss << data.i;
   return ss.str();
 }
 

@@ -14,7 +14,21 @@
 using s16 = int16_t;
 using u16 = uint16_t;
 using u32 = uint32_t;
+using s64 = uint64_t;
 using u64 = uint64_t;
+
+using integral = s64;
+
+struct enum_hash
+{
+  template <typename T>
+  inline
+  typename std::enable_if<std::is_enum<T>::value, size_t>::type
+  operator ()(T const value) const
+  {
+    return static_cast<size_t>(static_cast<size_t>(value));
+  }
+};
 
 class Util
 {
@@ -101,6 +115,40 @@ enum Opcode : u16
   
   
   OPCODES_COUNT
+};
+
+enum Type : s16
+{
+  TYPE_INVALID = -1,
+  
+  TYPE_NIL = 0,
+  TYPE_INT,
+  TYPE_FLOAT,
+  
+  TYPE_BOOL,
+  TYPE_CHAR,
+  TYPE_STRING,
+  TYPE_RANGE,
+  
+  TYPE_LIST,
+  TYPE_ARRAY,
+  TYPE_SET,
+  TYPE_MAP,
+  TYPE_STACK,
+  TYPE_QUEUE,
+  TYPE_LAZY_ARRAY,
+  
+  TYPE_LAMBDA,
+  TYPE_GENERIC,
+  TYPE_COLLECTION,
+  
+  TYPES_COUNT,
+  
+  TYPE_GENERIC2 = 500,
+  TYPE_GENERIC3,
+  TYPE_UNKNOWN,
+  
+  TYPE_NONE
 };
 
 #endif

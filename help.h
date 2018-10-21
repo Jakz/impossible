@@ -207,7 +207,7 @@ class Help
   public:
     static void init();
     static bool printHelpForOperator(string op);
-    static bool printHelpForType(string stype);
+  static bool printHelpForType(const std::string& stype);
     static bool printHelpForSearch(string search);
     static void printOperators();
     static void printTypes();

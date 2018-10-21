@@ -250,40 +250,47 @@ struct OpcodePage
 class MicroCode
 {
 private:
-  OpcodePage pages;
+  std::unordered_map<Signature, VariantFunction, Signature::hash> microCode;
   
-  inline const VariantFunction* findBetterOverload(VM* vm, Opcode opcode)
+  struct OpcodeData
   {
-    const size_t stackSize = vm->stackSize();
-    auto* page = &pages;
+    bool hasNullary;
+    bool hasUnary;
+    bool hasBinary;
+    bool hasTernary;
+    OpcodeData() : hasNullary(false), hasUnary(false), hasBinary(false), hasTernary(false) { }
+  };
+  
+  std::array<OpcodeData, Opcode::OPCODES_COUNT> opcodeData;
+  
+  const VariantFunction* findBestOverload(Signature s)
+  {
+    /* search for perfect match first */
+    auto it = microCode.find(s);
+    if (it != microCode.end()) return &it->second;
     
-    Value *v1 = nullptr, *v2 = nullptr, *v3 = nullptr;
+    /* then try replacing collection types with generic */
+    s = Signature(
+                  s.opcode,
+                  Value::isCollection(s.args.t1) ? TYPE_COLLECTION : s.args.t1,
+                  Value::isCollection(s.args.t2) ? TYPE_COLLECTION : s.args.t2,
+                  Value::isCollection(s.args.t3) ? TYPE_COLLECTION : s.args.t3
+                  );
     
-    if (stackSize >= 3)
-    {
-      v3 = vm->pop(), v2 = vm->pop(), v1 = vm->pop();
-      Type t3 = v3->type, t2 = v2->type, t1 = v1->type;
-      
-      if ((page = page->children[t1]) != nullptr)
-      {
-        if ((page = page->children[t2]) != nullptr)
-        {
-          if ((page = page->children[t3]) != nullptr)
-          {
-            if (page->opcodes[opcode] != nullptr)
-            {
-              return page->opcodes[opcode];
-            }
-          }
-        }
-      }
-    }
+    it = microCode.find(s);
+    if (it != microCode.end()) return &it->second;
     
-    if (stackSize >= 2)
-    {
-      
-    }
-
+    /* then try with generic types */
+    s = Signature(
+                  s.opcode,
+                  s.args.t1 != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE,
+                  s.args.t2 != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE,
+                  s.args.t3 != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE
+                  );
+    it = microCode.find(s);
+    if (it != microCode.end()) return &it->second;
+    
+    return nullptr;
   }
   
 public:
@@ -318,6 +325,8 @@ public:
     registerBinary({ OP_PLUS, TYPE_INT, TYPE_INT }, [] (VM* vm, Value* v1, Value* v2) { vm->push(new Int(v1->as<Int>()->get() + v2->as<Int>()->get())); });
   
     registerBinary({ OP_MINUS, TYPE_INT, TYPE_INT }, [] (VM* vm, Value* v1, Value* v2) { vm->push(new Int(v1->as<Int>()->get() - v2->as<Int>()->get())); });
+    
+    registerUnary({ OP_NEG, TYPE_COLLECTION }, [] (VM* vm, Value* v1) { vm->push(new Int(v1->as<TCollection>()->size())); });
 
   }
   
@@ -334,11 +343,11 @@ public:
       v2 = vm->pop();
       v1 = vm->pop();
       
-      auto it = microCode.find({ opcode, v1->type, v2->type, v3->type });
+      auto function = findBestOverload({ opcode, v1->type, v2->type, v3->type });
       
-      if (it != microCode.end())
+      if (function)
       {
-        it->second.ternary(vm, v1, v2, v3);
+        function->ternary(vm, v1, v2, v3);
         return true;
       }
     }
@@ -356,11 +365,11 @@ public:
         v1 = vm->pop();
       }
       
-      auto it = microCode.find({ opcode, v1->type, v2->type, TYPE_NONE });
+      auto function = findBestOverload({ opcode, v1->type, v2->type, TYPE_NONE });
       
-      if (it != microCode.end())
+      if (function)
       {
-        it->second.binary(vm, v1, v2);
+        function->binary(vm, v1, v2);
         return true;
       }
     }
@@ -374,20 +383,20 @@ public:
       else
         v1 = vm->pop();
       
-      auto it = microCode.find({ opcode, v1->type, TYPE_NONE, TYPE_NONE });
+      auto function = findBestOverload({ opcode, v1->type, TYPE_NONE, TYPE_NONE });
       
-      if (it != microCode.end())
+      if (function)
       {
-        it->second.unary(vm, v1);
+        function->unary(vm, v1);
         return true;
       }
     }
     
-    auto it = microCode.find({ opcode, TYPE_NONE, TYPE_NONE, TYPE_NONE });
+    auto function = findBestOverload({ opcode, TYPE_NONE, TYPE_NONE, TYPE_NONE });
     
-    if (it != microCode.end())
+    if (function)
     {
-      it->second.nullary(vm);
+      function->nullary(vm);
       return true;
     }
     
@@ -629,13 +638,6 @@ void OpcodeInstruction::execute(VM *vm) const
         {
           case TYPE_INT: vm->push(new Int(-((Int*)v1)->get())); break;
           case TYPE_FLOAT: vm->push(new Float(-((Float*)v1)->get())); break;
-          case TYPE_LIST: vm->push(v1); vm->push(new Int(((List*)v1)->size())); break;
-          case TYPE_ARRAY: vm->push(v1); vm->push(new Int(((Array*)v1)->size())); break;
-          case TYPE_LAZY_ARRAY: vm->push(v1); vm->push(new Int(((LazyArray*)v1)->size())); break;
-          case TYPE_STRING: vm->push(v1); vm->push(new Int(((String*)v1)->size())); break;
-          case TYPE_STACK: vm->push(v1); vm->push(new Int(((Stack*)v1)->size())); break;
-          case TYPE_QUEUE: vm->push(v1); vm->push(new Int(((Queue*)v1)->size())); break;
-          case TYPE_MAP: vm->push(v1); vm->push(new Int(((Map*)v1)->size())); break;
           default: break;
         }
       }

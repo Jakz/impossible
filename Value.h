@@ -48,7 +48,7 @@ enum Type : s16
   
   TYPE_LAMBDA,
   TYPE_GENERIC,
-
+  TYPE_COLLECTION,
   
   TYPES_COUNT,
   
@@ -123,6 +123,8 @@ class Value
         case TYPE_GENERIC2: return "B";
         case TYPE_GENERIC3: return "C";
         case TYPE_UNKNOWN: return "?";
+          
+        case TYPE_COLLECTION: return "collection";
           
         case TYPES_COUNT:
         case TYPE_NONE: return "NONE";

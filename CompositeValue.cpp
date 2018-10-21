@@ -14,10 +14,7 @@
 #include <iomanip>
 #include <sstream>
 
-
-
-
-Value *String::next()
+Value* String::next() const
 {
   if (it == value.end())
     return NULL;
@@ -27,6 +24,38 @@ Value *String::next()
     return new Char(v);
   }
 }
+
+template<typename T>
+struct CollectionPrinter
+{
+  std::string prefix;
+  std::string suffix;
+  std::string separator;
+  std::function<std::string(const T&)> valuePrinter;
+  
+  std::string svalue(const TCollection* collection) const
+  {
+    stringstream ss(stringstream::out);
+    bool first = true;
+    collection->iterate();
+    
+    ss << prefix;
+    
+    while (collection->hasNext())
+    {
+      auto it = collection->next();
+      
+      if (first) first = false;
+      else ss << separator;
+      
+      ss << valuePrinter(it);
+    }
+    
+    ss << suffix;
+    
+    return ss.str();
+  }
+};
 
 string Range::svalue() const
 {
@@ -50,97 +79,18 @@ string Range::svalue() const
   return ss.str();
 }
 
-string List::svalue() const
-{
-  stringstream ss(stringstream::out);
-  
-  ss << "{";
-  
-  bool first = true;
-  
-  for (list<Value*>::const_iterator it = value->begin(); it != value->end(); ++it)
-  {
-    if (first)
-      first = false;
-    else
-      ss << " ";
-    
-    ss << (*it)->svalue();
-  }
-  
-  ss << "}";
-  
-  return ss.str();
-}
+static const CollectionPrinter<Value*> ListPrinter = { "{", "}", " ", [] (const Value* v) { return v->svalue(); } };
+static const CollectionPrinter<Value*> StackPrinter = { "{>", "}", " ", [] (const Value* v) { return v->svalue(); } };
+static const CollectionPrinter<Value*> QueuePrinter = { "{<", "}", " ", [] (const Value* v) { return v->svalue(); } };
+static const CollectionPrinter<Value*> ArrayPrinter = { "(", ")", " ", [] (const Value* v) { return v->svalue(); } };
+static const CollectionPrinter<Value*> SetPrinter = { "{.", "}", " ", [] (const Value* v) { return v->svalue(); } };
 
-string Stack::svalue() const
-{
-  stringstream ss(stringstream::out);
-  
-  ss << "{>";
-  
-  bool first = true;
-  
-  for (list<Value*>::const_iterator it = value->begin(); it != value->end(); ++it)
-  {
-    if (first)
-      first = false;
-    else
-      ss << " ";
-    
-    ss << (*it)->svalue();
-  }
-  
-  ss << "}";
-  
-  return ss.str();
-}
+std::string List::svalue() const { return ListPrinter.svalue(this); }
+std::string Stack::svalue() const { return StackPrinter.svalue(this); }
+std::string Queue::svalue() const { return QueuePrinter.svalue(this); }
+std::string Array::svalue() const { return ArrayPrinter.svalue(this); }
+std::string Set::svalue() const { return SetPrinter.svalue(this); }
 
-string Queue::svalue() const
-{
-  stringstream ss(stringstream::out);
-  
-  ss << "{<";
-  
-  bool first = true;
-  
-  for (list<Value*>::const_iterator it = value->begin(); it != value->end(); ++it)
-  {
-    if (first)
-      first = false;
-    else
-      ss << " ";
-    
-    ss << (*it)->svalue();
-  }
-  
-  ss << "}";
-  
-  return ss.str();
-}
-
-string Array::svalue() const
-{
-  stringstream ss(stringstream::out);
-  
-  bool first = true;
-  
-  ss << "(";
-  for (vector<Value*>::const_iterator it = value->begin(); it != value->end(); ++it)
-  {
-    if (first)
-      first = false;
-    else
-      ss << " ";
-    
-    ss << (*it)->svalue();
-    
-  }
-  
-  ss << ")";
-  
-  return ss.str();
-}
 
 string LazyArray::svalue() const
 {
@@ -150,28 +100,6 @@ string LazyArray::svalue() const
   return s;
 }
 
-string Set::svalue() const
-{
-  stringstream ss(stringstream::out);
-  
-  ss << "{. ";
-  
-  bool first = true;
-  
-  for (unordered_set<Value*>::const_iterator it = value->begin(); it != value->end(); ++it)
-  {
-    if (first)
-      first = false;
-    else
-      ss << " ";
-    
-    ss << (*it)->svalue();
-  }
-  
-  ss << "}";
-  
-  return ss.str();
-}
 
 string Map::svalue() const
 {
@@ -234,7 +162,7 @@ bool List::equals(const Value *value) const
   return false;
 }
 
-Value *List::clone() const
+Value* List::clone() const
 {
   /*list<Value*>::const_iterator it;
    list<Value*> nvalues;

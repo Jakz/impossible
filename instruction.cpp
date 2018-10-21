@@ -326,7 +326,7 @@ public:
   
     registerBinary({ OP_MINUS, TYPE_INT, TYPE_INT }, [] (VM* vm, Value* v1, Value* v2) { vm->push(new Int(v1->as<Int>()->get() - v2->as<Int>()->get())); });
     
-    registerUnary({ OP_NEG, TYPE_COLLECTION }, [] (VM* vm, Value* v1) { vm->push(new Int(v1->as<TCollection>()->size())); });
+    registerUnary({ OP_NEG, TYPE_COLLECTION }, [] (VM* vm, Value* v1) { vm->push(new Int(v1->as<TValue<TCollection*>>()->get()->size())); });
 
   }
   

@@ -165,9 +165,11 @@ class Value
 class TCollection
 {
   public:
-    virtual void iterate() = 0;
-    virtual bool hasNext() = 0;
-    virtual Value *next() = 0;
+    virtual void iterate() const = 0;
+    virtual bool hasNext() const = 0;
+  
+    virtual Value *next() const = 0;
+
     virtual void put(Value *value) = 0;
     virtual u32 size() const = 0;
     virtual bool empty() const = 0;

@@ -15,7 +15,7 @@
 class String : public TValue<string>, public TCollection
 {
 private:
-  string::iterator it;
+  mutable string::const_iterator it;
   
 public:
   String(string value) : TValue<string>(TYPE_STRING, true, value) { }
@@ -26,9 +26,11 @@ public:
   virtual bool equals(const Value *value) const { return this->value.compare(((TValue<string>*)value)->get()) == 0; }
   virtual Value *clone() const { return new String(value); }
   
-  virtual void iterate() { it = value.begin(); }
-  virtual bool hasNext() { return it != value.end(); }
-  virtual Value *next();
+  virtual void iterate() const { it = value.begin(); }
+  virtual bool hasNext() const { return it != value.end(); }
+  
+  virtual Value* next() const;
+
   
   virtual void put(Value *value)
   {
@@ -44,22 +46,22 @@ public:
 class Range : public TValue<RangeVector>, public TCollection
 {
 private:
-  int currentPair;
-  int currentIndex;
+  mutable int currentPair;
+  mutable int currentIndex;
   
 public:
   Range(RangeVector value) : TValue<RangeVector>(TYPE_RANGE, true, value) { }
   
-  virtual string svalue() const;
+  virtual string svalue() const override;
   
   // TODO
-  virtual bool equals(const Value *value) const { return false; }
-  virtual Value *clone() const { return new Range(RangeVector(value.data)); }
+  virtual bool equals(const Value *value) const override { return false; }
+  virtual Value* clone() const override { return new Range(RangeVector(value.data)); }
   
-  virtual u32 size() const { return value.size(); }
-  virtual bool empty() const { return this->value.data->empty(); }
+  virtual u32 size() const override { return value.size(); }
+  virtual bool empty() const override { return this->value.data->empty(); }
   
-  virtual void iterate()
+  virtual void iterate() const override
   {
     currentPair = 0;
     if (value.data->size() > 0)
@@ -71,12 +73,12 @@ public:
     }
   }
   
-  virtual bool hasNext()
+  virtual bool hasNext() const override
   {
     return currentPair >= 0 && (currentIndex < value.data->at(currentPair).b || currentPair < value.data->size() -1);
   }
-  
-  virtual Value *next()
+
+  virtual Value* next() const override
   {
     if (currentIndex <= value.data->at(currentPair).b)
       return new Int(currentIndex++);
@@ -90,7 +92,7 @@ public:
     return NULL;
   }
   
-  virtual void put(Value *value)
+  virtual void put(Value *value) override
   {
     if (value->type == TYPE_INT)
       this->value.merge(((Int*)value)->get());
@@ -195,28 +197,38 @@ struct less<Value*>
       }
       };
 
-
-
-class List : public TValue<list<Value*>* >, public TCollection
+template<typename T>
+class CollectionBase : public TValue<T>, public TCollection
 {
-private:
-  list<Value*>::iterator it;
   
 public:
-  List(list<Value*>* value) : TValue<list<Value*>* >(TYPE_LIST, true, value) { }
-  List() : TValue<list<Value *>* >(TYPE_LIST, true, new list<Value*>()) { }
+  CollectionBase(Type type, bool iterable, T t) : TValue<T>(type, iterable, t) { }
+  CollectionBase(Type type, bool iterable) : TValue<T>(type, iterable, new T()) { }
+  CollectionBase(Type type) : TValue<T>(type, true, new T()) { }
+};
+
+
+class List : public CollectionBase<list<Value*>*>
+{
+private:
+  mutable list<Value*>::const_iterator it;
   
-  List(list<Value*>* value, Type type) : TValue<list<Value*>* >(type, true, value) { }
-  List(Type type) : TValue<list<Value*>* >(type, true, new list<Value*>()) { }
+public:
+  List(list<Value*>* value) : CollectionBase(TYPE_LIST, true, value) { }
+  List() : CollectionBase(TYPE_LIST, true, new list<Value*>()) { }
+  List(Type type, list<Value*>* value) : CollectionBase(type, true, value) { }
   
-  virtual string svalue() const;
+  List(Type type) : CollectionBase(type, true, new list<Value*>()) { }
+
   
-  virtual bool equals(const Value *value) const;
-  virtual Value *clone() const;
+  virtual string svalue() const override;
   
-  virtual void iterate() { it = value->begin(); }
-  virtual bool hasNext() { return it != value->end(); }
-  virtual Value *next()
+  virtual bool equals(const Value *value) const override;
+  virtual Value *clone() const override;
+  
+  virtual void iterate() const override { it = value->begin(); }
+  virtual bool hasNext() const override { return it != value->end(); }
+  virtual Value *next() const override
   {
     if (it == value->end())
       return NULL;
@@ -227,19 +239,19 @@ public:
     }
   }
   
-  virtual void put(Value *value)
+  virtual void put(Value *value) override
   {
     this->value->push_back(value);
   }
   
-  virtual u32 size() const { return (u32)value->size(); }
-  virtual bool empty() const { return this->value->empty(); }
+  virtual u32 size() const override { return (u32)value->size(); }
+  virtual bool empty() const override { return this->value->empty(); }
 };
 
 class Stack : public List
 {
 public:
-  Stack(list<Value*>*value) : List(value, TYPE_STACK) { }
+  Stack(list<Value*>*value) : List(TYPE_STACK, value) { }
   Stack() : List(TYPE_STACK) { }
   
   virtual string svalue() const;
@@ -251,7 +263,7 @@ public:
 class Queue : public List
 {
 public:
-  Queue(list<Value*>*value) : List(value, TYPE_QUEUE) { }
+  Queue(list<Value*>*value) : List(TYPE_QUEUE, value) { }
   Queue() : List(TYPE_QUEUE) { }
   
   virtual string svalue() const;
@@ -264,21 +276,21 @@ public:
 class Array : public TValue<vector<Value*>* >, public TCollection
 {
 private:
-  vector<Value*>::iterator it;
+  mutable vector<Value*>::iterator it;
   
 public:
   Array(vector<Value*>* value) : TValue<vector<Value*>* >(TYPE_ARRAY, true, value) { }
   Array() : TValue<vector<Value*>* >(TYPE_ARRAY, true, new vector<Value*>()) { }
   Array(int size, Value *value) : TValue<vector<Value *>* >(TYPE_ARRAY, true, new vector<Value*>(size, !value ? new TValue<void*>(TYPE_NIL) : value)) { }
   
-  virtual string svalue() const;
+  virtual string svalue() const override;
   
-  virtual bool equals(const Value *value) const;
-  virtual Value *clone() const;
+  virtual bool equals(const Value *value) const override;
+  virtual Value *clone() const override;
   
-  virtual void iterate() { it = value->begin(); }
-  virtual bool hasNext() { return it != value->end(); }
-  virtual Value *next()
+  virtual void iterate() const override { it = value->begin(); }
+  virtual bool hasNext() const override { return it != value->end(); }
+  virtual Value *next() const override
   {
     if (it == value->end())
       return NULL;
@@ -290,20 +302,20 @@ public:
   }
   
   
-  virtual void put(Value *value)
+  virtual void put(Value *value) override
   {
     this->value->push_back(value);
   }
   
-  virtual u32 size() const { return (u32)value->size(); }
-  virtual bool empty() const { return this->value->empty(); }
+  virtual u32 size() const override { return (u32)value->size(); }
+  virtual bool empty() const override { return this->value->empty(); }
   
 };
 
 class LazyArray : public TValue<LazyArrayHolder>, public TCollection
 {
 private:
-  vector<Value*>::iterator it;
+  mutable vector<Value*>::iterator it;
   
 public:
   LazyArray(LazyArrayHolder holder) : TValue<LazyArrayHolder>(TYPE_LAZY_ARRAY, true, holder) { }
@@ -314,9 +326,9 @@ public:
   virtual bool equals(const Value *value) const { return false; }
   virtual Value* clone() const { return new LazyArray(value); }
   
-  virtual void iterate() { it = value.data()->begin(); }
-  virtual bool hasNext() { return it != value.data()->end(); }
-  virtual Value *next()
+  virtual void iterate() const { it = value.data()->begin(); }
+  virtual bool hasNext() const { return it != value.data()->end(); }
+  virtual Value *next() const
   {
     if (it == value.data()->end())
       return NULL;
@@ -353,20 +365,20 @@ public:
 class Set : public TValue<unordered_set<Value*>* >, public TCollection
 {
 private:
-  unordered_set<Value*>::iterator it;
+  mutable unordered_set<Value*>::iterator it;
   
 public:
   Set(unordered_set<Value*>* value) : TValue<unordered_set<Value*>* >(TYPE_SET, true, value) { }
   Set() : TValue<unordered_set<Value*>* >(TYPE_SET, true, new unordered_set<Value*>()) { }
   
-  virtual string svalue() const;
+  virtual string svalue() const override;
   
-  virtual bool equals(const Value *value) const;
-  virtual Value *clone() const;
+  virtual bool equals(const Value *value) const override;
+  virtual Value *clone() const override;
   
-  virtual void iterate() { it = value->begin(); }
-  virtual bool hasNext() { return it != value->end(); }
-  virtual Value* next()
+  virtual void iterate() const override { it = value->begin(); }
+  virtual bool hasNext() const override { return it != value->end(); }
+  virtual Value* next() const override
   {
     if (it == value->end())
       return NULL;
@@ -377,34 +389,34 @@ public:
     }
   }
   
-  virtual void put(Value *value)
+  virtual void put(Value *value) override
   {
     this->value->insert(value);
   }
   
-  virtual u32 size() const { return (u32)value->size(); }
-  virtual bool empty() const { return this->value->empty(); }
+  virtual u32 size() const override { return (u32)value->size(); }
+  virtual bool empty() const override { return this->value->empty(); }
   
 };
 
 class Map : public TValue<unordered_map<Value*, Value*>* >, public TCollection
 {
 private:
-  unordered_map<Value*,Value*>::iterator it;
+  mutable unordered_map<Value*,Value*>::iterator it;
   
 public:
   Map(unordered_map<Value*, Value*>* value) : TValue<unordered_map<Value*, Value*>* >(TYPE_MAP, true, value) { };
   Map() : TValue<unordered_map<Value *, Value *>* >(TYPE_MAP, true, new unordered_map<Value*, Value*>()) { };
   
-  virtual string svalue() const;
+  virtual string svalue() const override;
   
   // TODO
-  virtual bool equals(const Value *value) const { return false; }
-  virtual Value *clone() const { return new Map(value); }
+  virtual bool equals(const Value *value) const override { return false; }
+  virtual Value *clone() const override { return new Map(value); }
   
-  virtual void iterate() { it = value->begin(); }
-  virtual bool hasNext() { return it != value->end(); }
-  virtual Value *next()
+  virtual void iterate() const override { it = value->begin(); }
+  virtual bool hasNext() const override { return it != value->end(); }
+  virtual Value *next() const override
   {
     if (it == value->end())
       return NULL;
@@ -416,13 +428,13 @@ public:
     }
   }
   
-  virtual void put(Value *value)
+  virtual void put(Value *value) override
   {
     //this->value->push_back(value);
   }
   
-  virtual u32 size() const { return (u32)value->size(); }
-  virtual bool empty() const { return this->value->empty(); }
+  virtual u32 size() const override { return (u32)value->size(); }
+  virtual bool empty() const override { return this->value->empty(); }
 };
 
 class Lambda : public TValue<Code*>

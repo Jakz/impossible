@@ -400,6 +400,13 @@ public:
       return true;
     }
     
+    
+    /* push values back */
+    if (v1) vm->push(v1);
+    if (v2) vm->push(v2);
+    if (v3) vm->push(v3);
+    
+    
     return false;
   }
 };

@@ -10,6 +10,7 @@
 
 #include <unordered_map>
 #include <string>
+#include <cassert>
 
 #include "defines.h"
 
@@ -40,7 +41,9 @@ public:
   static const char* nameForType(Type type)
   {
     auto it = specs.find(type);
-    return it != specs.end() ? it->second.name.c_str() : nullptr;
+    if (it != specs.end())
+      return it->second.name.c_str();
+    assert(false);
   }
 
   static Type typeForName(const std::string& name)

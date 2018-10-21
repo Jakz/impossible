@@ -138,7 +138,20 @@ struct Arguments
   Type t1, t2, t3;
   
   Arguments(Type t1 = TYPE_NONE, Type t2 = TYPE_NONE, Type t3 = TYPE_NONE) : t1(t1), t2(t2), t3(t3) { }
-  bool operator==(const Arguments& o) const { return t1 == o.t1 && t2 == o.t2 && t3 == o.t3; }
+  bool operator==(const Arguments& o) const
+  {
+    return t1 == o.t1
+      && t2 == o.t2
+      && t3 == o.t3;
+  }
+  
+  bool matches(const Arguments& o) const
+  {
+    return
+      (t1 == o.t1 || (t1 == TYPE_GENERIC && o.t1 != TYPE_NONE)) &&
+      (t2 == o.t2 || (t2 == TYPE_GENERIC && o.t2 != TYPE_NONE)) &&
+      (t3 == o.t3 || (t3 == TYPE_GENERIC && o.t3 != TYPE_NONE));
+  }
 };
 
 struct Signature
@@ -153,8 +166,7 @@ struct Signature
   };
   
   Signature(Opcode opcode, Type t1 = TYPE_NONE, Type t2 = TYPE_NONE, Type t3 = TYPE_NONE) : opcode(opcode), args({t1, t2, t3}) { }
-  bool operator==(const Signature& o) const { return opcode == o.opcode && args == o.args; }
-  bool operator==(const Arguments& o) const { return args == o; }
+  bool operator==(const Signature& o) const { return opcode == o.opcode && args.matches(o.args); }
 
   struct hash
   {
@@ -168,11 +180,13 @@ struct VariantFunction
   size_t args;
   union
   {
+    std::function<void(VM*)> nullary;
     std::function<void(VM*, Value*)> unary;
     std::function<void(VM*, Value*, Value*)> binary;
     std::function<void(VM*, Value*, Value*, Value*)> ternary;
   };
   
+  VariantFunction(const decltype(nullary)& nullary) : args(0), nullary(nullary) { }
   VariantFunction(const decltype(unary)& unary) : args(1), unary(unary) { }
   VariantFunction(const decltype(binary)& binary) : args(2), binary(binary) { }
   VariantFunction(const decltype(ternary)& ternary) : args(3), ternary(ternary) { }
@@ -184,6 +198,10 @@ struct VariantFunction
    
     switch (o.args)
     {
+      case 0:
+        new (&this->nullary) std::function<void(VM*)>();
+        this->nullary.operator=(o.nullary);
+        break;
       case 1:
         new (&this->unary) std::function<void(VM*, Value*)>();
         this->unary.operator=(o.unary);
@@ -204,6 +222,7 @@ struct VariantFunction
   {
     switch (args)
     {
+      case 0: nullary.~function<void(VM*)>(); break;
       case 1: unary.~function<void(VM*, Value*)>(); break;
       case 2: binary.~function<void(VM*, Value*, Value*)>(); break;
       case 3: ternary.~function<void(VM*, Value*, Value*, Value*)>(); break;
@@ -212,21 +231,60 @@ struct VariantFunction
   }
 };
 
+struct OpcodePage
+{
+  std::array<VariantFunction*, Type::TYPES_COUNT> opcodes;
+  std::array<OpcodePage*, Type::TYPES_COUNT> children;
+  
+  bool anyChildren;
+  
+  OpcodePage() : anyChildren(false)
+  {
+    std::fill(opcodes.begin(), opcodes.end(), nullptr);
+    std::fill(children.begin(), children.end(), nullptr);
+  }
+};
+
+
+
 class MicroCode
 {
 private:
-  using lambda_t = std::function<void(VM*)>;
-  std::unordered_map<Signature, VariantFunction, Signature::hash> microCode;
+  OpcodePage pages;
   
-  struct OpcodeData
+  inline const VariantFunction* findBetterOverload(VM* vm, Opcode opcode)
   {
-    bool hasUnary;
-    bool hasBinary;
-    bool hasTernary;
-    OpcodeData() : hasUnary(false), hasBinary(false), hasTernary(false) { }
-  };
-  
-  std::array<OpcodeData, Opcode::OPCODES_COUNT> opcodeData;
+    const size_t stackSize = vm->stackSize();
+    auto* page = &pages;
+    
+    Value *v1 = nullptr, *v2 = nullptr, *v3 = nullptr;
+    
+    if (stackSize >= 3)
+    {
+      v3 = vm->pop(), v2 = vm->pop(), v1 = vm->pop();
+      Type t3 = v3->type, t2 = v2->type, t1 = v1->type;
+      
+      if ((page = page->children[t1]) != nullptr)
+      {
+        if ((page = page->children[t2]) != nullptr)
+        {
+          if ((page = page->children[t3]) != nullptr)
+          {
+            if (page->opcodes[opcode] != nullptr)
+            {
+              return page->opcodes[opcode];
+            }
+          }
+        }
+      }
+    }
+    
+    if (stackSize >= 2)
+    {
+      
+    }
+
+  }
   
 public:
   MicroCode()
@@ -247,10 +305,18 @@ public:
     opcodeData[signature.opcode].hasBinary = true;
   }
   
+  void registerNullary(Signature signature, const decltype(VariantFunction::nullary)&& function)
+  {
+    microCode.emplace(std::make_pair(signature, VariantFunction(function)));
+    opcodeData[signature.opcode].hasNullary = true;
+  }
+  
   void init()
   {
-    registerBinary({ OP_PLUS, TYPE_INT, TYPE_INT }, [] (VM* vm, Value* v1, Value* v2) { vm->push(new Int(v1->as<Int>()->get() + v2->as<Int>()->get())); });
+    registerUnary({ OP_DUPE, TYPE_GENERIC }, [] (VM* vm, Value* v1) { vm->push(v1); vm->push(v1->clone()); });
     
+    registerBinary({ OP_PLUS, TYPE_INT, TYPE_INT }, [] (VM* vm, Value* v1, Value* v2) { vm->push(new Int(v1->as<Int>()->get() + v2->as<Int>()->get())); });
+  
     registerBinary({ OP_MINUS, TYPE_INT, TYPE_INT }, [] (VM* vm, Value* v1, Value* v2) { vm->push(new Int(v1->as<Int>()->get() - v2->as<Int>()->get())); });
 
   }
@@ -315,6 +381,14 @@ public:
         it->second.unary(vm, v1);
         return true;
       }
+    }
+    
+    auto it = microCode.find({ opcode, TYPE_NONE, TYPE_NONE, TYPE_NONE });
+    
+    if (it != microCode.end())
+    {
+      it->second.nullary(vm);
+      return true;
     }
     
     return false;
@@ -417,17 +491,6 @@ void OpcodeInstruction::execute(VM *vm) const
   
   switch (opcode)
   {
-    case OP_DUPE:
-    {
-      v1 = vm->peek();
-      
-      if (v1)
-      {
-        vm->push(v1->clone());
-      }
-      
-      break;
-    }
     case OP_SWAP:
     {
       if (vm->popTwo(&v1, &v2))

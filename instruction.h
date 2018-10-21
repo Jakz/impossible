@@ -49,12 +49,13 @@ class PushInstruction : public Instruction
 
 class OpcodeInstruction : public Instruction
 {
-  Opcode opcode;
+public:
+  const Opcode opcode;
 
-  public:
-    OpcodeInstruction(Opcode opcode) : Instruction(true), opcode(opcode) {}
-    virtual void execute(VM *vm) const;
-    virtual string svalue() const;
+public:
+  OpcodeInstruction(Opcode opcode) : Instruction(true), opcode(opcode) {}
+  virtual void execute(VM *vm) const;
+  virtual string svalue() const;
 };
 
 struct InstructionTree

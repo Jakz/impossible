@@ -50,10 +50,12 @@ enum Type : s16
   
   TYPES_COUNT,
   
-  TYPE_GENERIC = 20,
-  TYPE_GENERIC2 = 21,
-  TYPE_GENERIC3 = 22,
-  TYPE_UNKNOWN = 23,
+  TYPE_GENERIC = 500,
+  TYPE_GENERIC2,
+  TYPE_GENERIC3,
+  TYPE_UNKNOWN,
+  
+  TYPE_NONE
 };
 
 class Value
@@ -71,6 +73,8 @@ class Value
     const bool iterable;
 
     virtual ~Value() { };
+  
+    template<typename T> T* as() { return static_cast<T*>(this); }
   
     static bool isCollection(Type type)
     {
@@ -120,6 +124,7 @@ class Value
         case TYPE_UNKNOWN: return "?";
           
         case TYPES_COUNT:
+        case TYPE_NONE: return "NONE";
         case TYPE_INVALID: return "ERROR";
       }
     }

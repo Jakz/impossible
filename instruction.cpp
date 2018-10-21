@@ -10,6 +10,7 @@
 #include "vm.h"
 
 #include <cassert>
+#include <array>
 
 static void iter(TCollection *values, Code *code, VM *vm)
 {
@@ -132,6 +133,198 @@ static void cartesian(TCollection *values1, TCollection* values2, TCollection* n
   }
 }
 
+struct Arguments
+{
+  Type t1, t2, t3;
+  
+  Arguments(Type t1 = TYPE_NONE, Type t2 = TYPE_NONE, Type t3 = TYPE_NONE) : t1(t1), t2(t2), t3(t3) { }
+  bool operator==(const Arguments& o) const { return t1 == o.t1 && t2 == o.t2 && t3 == o.t3; }
+};
+
+struct Signature
+{
+  union
+  {
+    struct {
+      Opcode opcode;
+      Arguments args;
+    };
+    u64 data;
+  };
+  
+  Signature(Opcode opcode, Type t1 = TYPE_NONE, Type t2 = TYPE_NONE, Type t3 = TYPE_NONE) : opcode(opcode), args({t1, t2, t3}) { }
+  bool operator==(const Signature& o) const { return opcode == o.opcode && args == o.args; }
+  bool operator==(const Arguments& o) const { return args == o; }
+
+  struct hash
+  {
+  public:
+    size_t operator()(const Signature& v) const { return std::hash<u64>()(v.data); }
+  };
+};
+
+struct VariantFunction
+{
+  size_t args;
+  union
+  {
+    std::function<void(VM*, Value*)> unary;
+    std::function<void(VM*, Value*, Value*)> binary;
+    std::function<void(VM*, Value*, Value*, Value*)> ternary;
+  };
+  
+  VariantFunction(const decltype(unary)& unary) : args(1), unary(unary) { }
+  VariantFunction(const decltype(binary)& binary) : args(2), binary(binary) { }
+  VariantFunction(const decltype(ternary)& ternary) : args(3), ternary(ternary) { }
+
+  
+  VariantFunction(const VariantFunction& o)
+  {
+    this->args = o.args;
+   
+    switch (o.args)
+    {
+      case 1:
+        new (&this->unary) std::function<void(VM*, Value*)>();
+        this->unary.operator=(o.unary);
+        break;
+      case 2:
+        new (&this->binary) std::function<void(VM*, Value*, Value*)>();
+        this->binary = o.binary;
+        break;
+      case 3:
+        new (&this->ternary) std::function<void(VM*, Value*, Value*, Value*)>();
+        this->ternary.operator=(o.ternary); break;
+      default:
+        assert(false);
+    }
+  }
+  
+  ~VariantFunction()
+  {
+    switch (args)
+    {
+      case 1: unary.~function<void(VM*, Value*)>(); break;
+      case 2: binary.~function<void(VM*, Value*, Value*)>(); break;
+      case 3: ternary.~function<void(VM*, Value*, Value*, Value*)>(); break;
+      default: assert(false);
+    }
+  }
+};
+
+class MicroCode
+{
+private:
+  using lambda_t = std::function<void(VM*)>;
+  std::unordered_map<Signature, VariantFunction, Signature::hash> microCode;
+  
+  struct OpcodeData
+  {
+    bool hasUnary;
+    bool hasBinary;
+    bool hasTernary;
+    OpcodeData() : hasUnary(false), hasBinary(false), hasTernary(false) { }
+  };
+  
+  std::array<OpcodeData, Opcode::OPCODES_COUNT> opcodeData;
+  
+public:
+  MicroCode()
+  {
+    static_assert(sizeof(Signature) == sizeof(u64), "");
+    init();
+  }
+  
+  void registerUnary(Signature signature, const decltype(VariantFunction::unary)&& function)
+  {
+    microCode.emplace(std::make_pair(signature, VariantFunction(function)));
+    opcodeData[signature.opcode].hasUnary = true;
+  }
+  
+  void registerBinary(Signature signature, const decltype(VariantFunction::binary)&& function)
+  {
+    microCode.emplace(std::make_pair(signature, VariantFunction(function)));
+    opcodeData[signature.opcode].hasBinary = true;
+  }
+  
+  void init()
+  {
+    registerBinary({ OP_PLUS, TYPE_INT, TYPE_INT }, [] (VM* vm, Value* v1, Value* v2) { vm->push(new Int(v1->as<Int>()->get() + v2->as<Int>()->get())); });
+    
+    registerBinary({ OP_MINUS, TYPE_INT, TYPE_INT }, [] (VM* vm, Value* v1, Value* v2) { vm->push(new Int(v1->as<Int>()->get() - v2->as<Int>()->get())); });
+
+  }
+  
+  bool execute(VM* vm, const OpcodeInstruction& instruction)
+  {
+    const Opcode opcode = instruction.opcode;
+    const size_t stackSize = vm->stackSize();
+    
+    Value *v1 = nullptr, *v2 = nullptr, *v3 = nullptr;
+    
+    if (opcodeData[opcode].hasTernary && stackSize >= 3)
+    {
+      v3 = vm->pop();
+      v2 = vm->pop();
+      v1 = vm->pop();
+      
+      auto it = microCode.find({ opcode, v1->type, v2->type, v3->type });
+      
+      if (it != microCode.end())
+      {
+        it->second.ternary(vm, v1, v2, v3);
+        return true;
+      }
+    }
+    
+    if (opcodeData[opcode].hasBinary && stackSize >= 2)
+    {
+      if (v3)
+      {
+        v2 = v3;
+        v1 = v2;
+      }
+      else
+      {
+        v2 = vm->pop();
+        v1 = vm->pop();
+      }
+      
+      auto it = microCode.find({ opcode, v1->type, v2->type, TYPE_NONE });
+      
+      if (it != microCode.end())
+      {
+        it->second.binary(vm, v1, v2);
+        return true;
+      }
+    }
+    
+    if (opcodeData[opcode].hasUnary && stackSize >= 1)
+    {
+      if (v3)
+        v1 = v3;
+      else if (v2)
+        v1 = v2;
+      else
+        v1 = vm->pop();
+      
+      auto it = microCode.find({ opcode, v1->type, TYPE_NONE, TYPE_NONE });
+      
+      if (it != microCode.end())
+      {
+        it->second.unary(vm, v1);
+        return true;
+      }
+    }
+    
+    return false;
+  }
+};
+
+
+MicroCode microCode;
+
+
 void PushInstruction::execute(VM *vm) const
 {
   vm->push(value);
@@ -219,6 +412,9 @@ void OpcodeInstruction::execute(VM *vm) const
 {
   Value *v1, *v2, *v3;
   
+  if (microCode.execute(vm, *this))
+    return;
+  
   switch (opcode)
   {
     case OP_DUPE:
@@ -292,7 +488,6 @@ void OpcodeInstruction::execute(VM *vm) const
         {        
           switch (TYPES(v1->type, v2->type))
           {
-            case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(((Int*)v1)->get() + ((Int*)v2)->get())); break;
             case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(((Float*)v1)->get() + ((Int*)v2)->get())); break;
             case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(((Int*)v1)->get() + ((Float*)v2)->get())); break;
             case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(((Float*)v1)->get() + ((Float*)v2)->get())); break;
@@ -309,7 +504,6 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         switch (TYPES(v1->type, v2->type))
         {
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(((Int*)v1)->get() - ((Int*)v2)->get())); break;
           case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(((Float*)v1)->get() - ((Int*)v2)->get())); break;
           case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(((Int*)v1)->get() - ((Float*)v2)->get())); break;
           case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(((Float*)v1)->get() - ((Float*)v2)->get())); break;

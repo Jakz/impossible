@@ -11,9 +11,10 @@
 #include <stdlib.h>
 #include <algorithm>
 
-typedef unsigned int u32;
-typedef signed int u16;
-typedef signed short s16;
+using s16 = int16_t;
+using u16 = uint16_t;
+using u32 = uint32_t;
+using u64 = uint64_t;
 
 class Util
 {
@@ -22,7 +23,7 @@ class Util
   
 };
 
-enum Opcode
+enum Opcode : u16
 {
   OP_PLUS = 0,
   OP_MINUS,

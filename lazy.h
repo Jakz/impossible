@@ -43,7 +43,7 @@ class LazyArrayHolder
     u32 index;
   
     Lambda *code() const { return lambda; }
-    //vector<Value*>* data() const { return values; }
+    vector<Value*>* data() const { return values; }
 };
 
 

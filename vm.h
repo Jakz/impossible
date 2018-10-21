@@ -62,7 +62,7 @@ class VM
   
     void raiseStack()
     {
-      list<Value*>* next = NULL;
+      list<Value*>* next = nullptr;
       
       if (!highStacks.empty())
       {
@@ -78,7 +78,7 @@ class VM
   
     void lowerStack()
     {
-      list<Value*>* next = NULL;
+      list<Value*>* next = nullptr;
       
       if (!lowStacks.empty())
       {
@@ -92,12 +92,12 @@ class VM
       valueStack = next;
     }
     
-    Value *pop()
+    Value* pop()
     {
       if (valueStack->empty())
       {
         stop();
-        return NULL;
+        return nullptr;
       }
       
       Value *v = valueStack->front();
@@ -105,7 +105,7 @@ class VM
       return v;
     }
   
-    Value *pick(int nth)
+    Value* pick(int nth)
     {
       //TODO: rotto
       
@@ -120,7 +120,7 @@ class VM
       return (*it)->clone();
     }
   
-    Value *peek()
+    Value* peek()
     {
       if (valueStack->empty())
       {
@@ -131,7 +131,9 @@ class VM
       return valueStack->front();
     }
   
-    bool stackHasValues(int count) { return valueStack->size() >= count; }
+    size_t stackSize() const { return valueStack->size(); }
+  
+    bool stackHasValues(int count) const{ return valueStack->size() >= count; }
   
     bool popThree(Value ** v1, Value ** v2, Value ** v3)
     {

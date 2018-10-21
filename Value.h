@@ -62,7 +62,7 @@ enum Type : s16
 class Value
 {
   public:
-    Value(Type type, bool iterable) : type(type), iterable(iterable) { }
+    Value(Type type) : type(type) { }
 
     virtual string svalue() const = 0;
     virtual string lvalue();
@@ -71,7 +71,6 @@ class Value
     virtual Value* clone() const = 0;
   
     const Type type;
-    const bool iterable;
 
     virtual ~Value() { };
   
@@ -183,7 +182,7 @@ class TValue : public Value
     T value;
     
   public:
-    TValue(Type type, bool iterable, T value) : Value(type, iterable), value(value) {}
+    TValue(Type type, T value) : Value(type), value(value) {}
     
     void set(T value) { this->value = value; }
     T get() const { return this->value; }
@@ -193,7 +192,7 @@ template <>
 class TValue<void*> : public Value
 {
   public:
-    TValue(Type type) : Value(TYPE_NIL, false) {}
+    TValue(Type type) : Value(TYPE_NIL) {}
     //TValue(const TValue &o) { }
     //TValue &operator= (const TValue &o) { }
   

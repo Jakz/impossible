@@ -18,8 +18,8 @@ private:
   mutable string::const_iterator it;
   
 public:
-  String(string value) : TValue<string>(TYPE_STRING, true, value) { }
-  String() : TValue<string>(TYPE_STRING, true, string()) { }
+  String(string value) : TValue<string>(TYPE_STRING, value) { }
+  String() : TValue<string>(TYPE_STRING, string()) { }
   
   virtual string svalue() const { return value; }
   
@@ -50,7 +50,7 @@ private:
   mutable int currentIndex;
   
 public:
-  Range(RangeVector value) : TValue<RangeVector>(TYPE_RANGE, true, value) { }
+  Range(RangeVector value) : TValue<RangeVector>(TYPE_RANGE, value) { }
   
   virtual string svalue() const override;
   
@@ -197,14 +197,14 @@ struct less<Value*>
       }
       };
 
+
 template<typename T>
 class CollectionBase : public TValue<T>, public TCollection
 {
   
 public:
-  CollectionBase(Type type, bool iterable, T t) : TValue<T>(type, iterable, t) { }
-  CollectionBase(Type type, bool iterable) : TValue<T>(type, iterable, new T()) { }
-  CollectionBase(Type type) : TValue<T>(type, true, new T()) { }
+  CollectionBase(Type type, T t) : TValue<T>(type, t) { }
+  CollectionBase(Type type) : TValue<T>(type, new T()) { }
 };
 
 
@@ -214,11 +214,11 @@ private:
   mutable list<Value*>::const_iterator it;
   
 public:
-  List(list<Value*>* value) : CollectionBase(TYPE_LIST, true, value) { }
-  List() : CollectionBase(TYPE_LIST, true, new list<Value*>()) { }
-  List(Type type, list<Value*>* value) : CollectionBase(type, true, value) { }
+  List(list<Value*>* value) : CollectionBase(TYPE_LIST, value) { }
+  List() : CollectionBase(TYPE_LIST, new list<Value*>()) { }
+  List(Type type, list<Value*>* value) : CollectionBase(type, value) { }
   
-  List(Type type) : CollectionBase(type, true, new list<Value*>()) { }
+  List(Type type) : CollectionBase(type, new list<Value*>()) { }
 
   
   virtual string svalue() const override;
@@ -279,9 +279,9 @@ private:
   mutable vector<Value*>::iterator it;
   
 public:
-  Array(vector<Value*>* value) : TValue<vector<Value*>* >(TYPE_ARRAY, true, value) { }
-  Array() : TValue<vector<Value*>* >(TYPE_ARRAY, true, new vector<Value*>()) { }
-  Array(int size, Value *value) : TValue<vector<Value *>* >(TYPE_ARRAY, true, new vector<Value*>(size, !value ? new TValue<void*>(TYPE_NIL) : value)) { }
+  Array(vector<Value*>* value) : TValue<vector<Value*>* >(TYPE_ARRAY, value) { }
+  Array() : TValue<vector<Value*>* >(TYPE_ARRAY, new vector<Value*>()) { }
+  Array(int size, Value *value) : TValue<vector<Value *>* >(TYPE_ARRAY, new vector<Value*>(size, !value ? new TValue<void*>(TYPE_NIL) : value)) { }
   
   virtual string svalue() const override;
   
@@ -318,8 +318,8 @@ private:
   mutable vector<Value*>::iterator it;
   
 public:
-  LazyArray(LazyArrayHolder holder) : TValue<LazyArrayHolder>(TYPE_LAZY_ARRAY, true, holder) { }
-  LazyArray(Lambda *lambda, bool useIndices) : TValue<LazyArrayHolder>(TYPE_LAZY_ARRAY, true, LazyArrayHolder(lambda, useIndices)) { }
+  LazyArray(LazyArrayHolder holder) : TValue<LazyArrayHolder>(TYPE_LAZY_ARRAY, holder) { }
+  LazyArray(Lambda *lambda, bool useIndices) : TValue<LazyArrayHolder>(TYPE_LAZY_ARRAY, LazyArrayHolder(lambda, useIndices)) { }
   
   virtual string svalue() const;
   //TODO: finire
@@ -368,8 +368,8 @@ private:
   mutable unordered_set<Value*>::iterator it;
   
 public:
-  Set(unordered_set<Value*>* value) : TValue<unordered_set<Value*>* >(TYPE_SET, true, value) { }
-  Set() : TValue<unordered_set<Value*>* >(TYPE_SET, true, new unordered_set<Value*>()) { }
+  Set(unordered_set<Value*>* value) : TValue<unordered_set<Value*>* >(TYPE_SET, value) { }
+  Set() : TValue<unordered_set<Value*>* >(TYPE_SET, new unordered_set<Value*>()) { }
   
   virtual string svalue() const override;
   
@@ -405,8 +405,8 @@ private:
   mutable unordered_map<Value*,Value*>::iterator it;
   
 public:
-  Map(unordered_map<Value*, Value*>* value) : TValue<unordered_map<Value*, Value*>* >(TYPE_MAP, true, value) { };
-  Map() : TValue<unordered_map<Value *, Value *>* >(TYPE_MAP, true, new unordered_map<Value*, Value*>()) { };
+  Map(unordered_map<Value*, Value*>* value) : TValue<unordered_map<Value*, Value*>* >(TYPE_MAP, value) { };
+  Map() : TValue<unordered_map<Value *, Value *>* >(TYPE_MAP, new unordered_map<Value*, Value*>()) { };
   
   virtual string svalue() const override;
   
@@ -442,7 +442,7 @@ class Lambda : public TValue<Code*>
 private:
   
 public:
-  Lambda(Code* value) : TValue<Code*>(TYPE_LAMBDA, false, value) { };
+  Lambda(Code* value) : TValue<Code*>(TYPE_LAMBDA, value) { };
   
   virtual string svalue() const;
   

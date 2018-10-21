@@ -16,7 +16,7 @@ class Int : public TValue<int>
   private:
     
   public:
-    Int(int value) : TValue<int>(TYPE_INT, false, value) { }
+    Int(int value) : TValue<int>(TYPE_INT, value) { }
     
     virtual string svalue() const;
     
@@ -29,7 +29,7 @@ class Float : public TValue<double>
   private:
     
   public:
-    Float(float value) : TValue<double>(TYPE_FLOAT, false, value) { }
+    Float(float value) : TValue<double>(TYPE_FLOAT, value) { }
     
     virtual string svalue() const;
     
@@ -42,7 +42,7 @@ class Char : public TValue<char>
   private:
     
   public:
-    Char(float value) : TValue<char>(TYPE_CHAR, false, value) { }
+    Char(float value) : TValue<char>(TYPE_CHAR, value) { }
     
     virtual string svalue() const;
     
@@ -55,7 +55,7 @@ class Bool : public TValue<bool>
 private:
   
 public:
-  Bool(bool value) : TValue<bool>(TYPE_BOOL, false, value) { }
+  Bool(bool value) : TValue<bool>(TYPE_BOOL, value) { }
   
   virtual string svalue() const;
   

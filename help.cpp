@@ -371,6 +371,7 @@ bool Help::printHelpForOperator(string op)
   return false;
 }
 
+
 bool Help::printHelpForType(const std::string& stype)
 {
   Type type = TypeTraits::typeForName(stype);

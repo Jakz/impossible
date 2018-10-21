@@ -116,5 +116,37 @@ class TValue<void*> : public Value
     static const Value *NIL;
 };
 
+struct managed_value
+{
+  virtual ~managed_value() { }
+};
+
+
+class Heap
+{
+private:
+  using refcount_t = u16;
+  
+  struct heap_value
+  {
+    managed_value* value;
+    mutable refcount_t refs;
+    
+    heap_value(managed_value* value ) : value(value), refs(0) { }
+    void retain() const { ++refs; }
+    bool release() const { return --refs == 0; }
+  };
+
+private:
+  std::vector<heap_value> heap;
+  
+public:
+  
+  void insert(managed_value* value)
+  {
+    heap.emplace_back(value);
+  }
+};
+
 
 #endif

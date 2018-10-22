@@ -264,7 +264,7 @@ void Help::init()
   addConstructor(TYPE_MAP, TypeConstructor::make("{'a:1 2:\"foo\"}", "creates a map with specified pairs"));
   addConstructor(TYPE_MAP, TypeConstructor::make("{:}", "creates an empty map"));
   
-  cout << "Impossible++ v0.2 (build 36) by Jack (jack@pixbits.com)" << endl;
+  cout << "Impossible++ v0.3-r50" << endl;
   printHelpSummary();
 }
 

@@ -16,24 +16,17 @@ class Int : public Value
 private:
   
 public:
-  Int(s64 value) : Value(value) { }
-  Int(int value) : Value(value) { }
-  
-  virtual bool equals(const Value* value) const { return type == value->type && data == value->data; }
+  Int(integral_t value) : Value(value) { }
   virtual Value *clone() const { return new Int(data.i); }
 };
 
-class Float : public TValue<double>
+class Float : public Value
 {
 private:
   
 public:
-  Float(float value) : TValue<double>(TYPE_FLOAT, value) { }
-  
-  virtual string svalue() const;
-  
-  virtual bool equals(const Value *value) const { return this->value == ((TValue<double>*)value)->get(); }
-  virtual Value *clone() const { return new Float(value); }
+  Float(real_t value) : Value(value) { }
+  virtual Value *clone() const { return new Float(data.f); }
 };
 
 class Char : public TValue<char>

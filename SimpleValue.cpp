@@ -12,13 +12,6 @@
 #include <iomanip>
 #include <sstream>
 
-string Float::svalue() const
-{
-  stringstream ss(stringstream::out);
-  ss << setiosflags(ios::fixed) << setprecision(4) << value;
-  return ss.str();
-}
-
 string Bool::svalue() const
 {
   return value ? "true" : "false";

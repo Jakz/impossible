@@ -34,13 +34,14 @@ struct managed_value
 
 union value_data
 {
-  s64 i;
-  double f;
+  integral_t i;
+  real_t f;
   char c;
   bool b;
   managed_value* ptr;
   
-  value_data(s64 i) : i(i) { }
+  value_data(integral_t i) : i(i) { }
+  value_data(real_t f) : f(f) { }
   value_data(managed_value* ptr) : ptr(ptr) { }
   
   bool operator==(const value_data& o) const { return i == o.i; }
@@ -56,12 +57,13 @@ public:
   
   Value(Type type) : type(type), data(nullptr) { }
   
-  Value(s64 value) : type(TYPE_INT), data(value) { }
+  Value(integral_t value) : type(TYPE_INT), data(value) { }
+  Value(real_t value) : type(TYPE_FLOAT), data(value) { }
 
   virtual string svalue() const { return type.traits().to_string(*this); }
   std::string lvalue();
 
-  virtual bool equals(const Value *value) const = 0;
+  virtual bool equals(const Value *value) const { return type.traits().equal_to(*this, *value); }
   virtual Value* clone() const = 0;
 
   const TypeInfo type;
@@ -71,7 +73,8 @@ public:
   template<typename T> auto as() const -> typename std::enable_if<std::is_integral<T>::value, T>::type { return static_cast<T>(data.i); }
   template<typename T> auto as() -> typename std::enable_if<std::is_pointer<T>::value, T>::type { return reinterpret_cast<T>(this); }
   
-  integral integral() const { return data.i; }
+  integral_t integral() const { return data.i; }
+  real_t real() const { return data.f; }
 };
 
 class TCollection

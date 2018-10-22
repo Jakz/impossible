@@ -42,7 +42,7 @@ void LazyArrayHolder::generateNth(VM* vm, u32 index)
   //std::cout << "generating lazy at " << index << endl;
 
   if (useIndices)
-    vm->push(new Int((integral)index));
+    vm->push(new Int((integral_t)index));
   
   unordered_map<u32, Lambda*>::iterator it = indices.find(index);
   

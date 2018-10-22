@@ -110,11 +110,11 @@ struct hash<Value*>
     {
       case TYPE_INT:  {
         hash<int> i;
-        return i(v->as<int>());
+        return i(v->integral());
       }
       case TYPE_FLOAT: {
         hash<float> i;
-        return i(((Float*)v)->get());
+        return i(v->integral());
       }
       case TYPE_CHAR: {
         hash<char> i;
@@ -163,14 +163,14 @@ struct less<Value*>
         {
           case TYPE_INT:
           {
-            less<integral> i;
-            const integral v1 = x->as<integral>(), v2 = x->as<integral>();
+            less<integral_t> i;
+            const integral_t v1 = x->integral(), v2 = x->integral();
             return i(v1, v2);
           }
           case TYPE_FLOAT:
           {
-            less<double> i;
-            const double v1 = ((Float*)x)->get(), v2 = ((Float*)y)->get();
+            less<real_t> i;
+            const real_t v1 = x->real(), v2 = x->real();
             return i(v1, v2);
           }
           case TYPE_CHAR:

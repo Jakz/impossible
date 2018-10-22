@@ -2,6 +2,9 @@
 
 #include "Value.h"
 
+#include <sstream>
+#include <iomanip>
+
 const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::specs =
 {
   { TYPE_INT,
@@ -10,7 +13,16 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_INT && v2.data.i == v1.data.i; }
     }
   },
-  { TYPE_FLOAT, { TYPE_FLOAT, true, false, "float" } },
+  { TYPE_FLOAT,
+    { TYPE_FLOAT, true, false, "float",
+      [] (const Value& v) {
+        stringstream ss(stringstream::out);
+        ss << setiosflags(ios::fixed) << setprecision(4) << v.data.f;
+        return ss.str();
+      },
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_FLOAT && v2.data.f == v1.data.f; }
+    }
+  },
   { TYPE_BOOL, { TYPE_BOOL, true, false, "bool" } },
   { TYPE_CHAR, { TYPE_CHAR, true, false, "char" } },
   

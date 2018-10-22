@@ -42,6 +42,9 @@ union value_data
   
   value_data(integral_t i) : i(i) { }
   value_data(real_t f) : f(f) { }
+  value_data(char c) : c(c) { }
+  value_data(bool b) : b(b) { }
+  
   value_data(managed_value* ptr) : ptr(ptr) { }
   
   bool operator==(const value_data& o) const { return i == o.i; }
@@ -59,7 +62,9 @@ public:
   
   Value(integral_t value) : type(TYPE_INT), data(value) { }
   Value(real_t value) : type(TYPE_FLOAT), data(value) { }
-
+  Value(char value) : type(TYPE_CHAR), data(value) { }
+  Value(bool value) : type(TYPE_BOOL), data(value) { }
+  
   virtual string svalue() const { return type.traits().to_string(*this); }
   std::string lvalue();
 
@@ -75,6 +80,8 @@ public:
   
   integral_t integral() const { return data.i; }
   real_t real() const { return data.f; }
+  char character() const { return data.c; }
+  bool boolean() const { return data.b; }
 };
 
 class TCollection

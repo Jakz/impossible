@@ -570,8 +570,8 @@ void OpcodeInstruction::execute(VM *vm) const
             case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(v1->real() + v2->integral())); break;
             case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1->integral() + v2->real())); break;
             case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(v1->real() + v2->real())); break;
-            case TYPES(TYPE_CHAR, TYPE_INT): vm->push(new Char(((Char*)v1)->get() + v2->integral())); break;
-            case TYPES(TYPE_CHAR, TYPE_CHAR): vm->push(new String(string(1,((Char*)v1)->get()) += ((Char*)v2)->get())); break;
+            case TYPES(TYPE_CHAR, TYPE_INT): vm->push(new Char(v1->character() + v2->integral())); break;
+            case TYPES(TYPE_CHAR, TYPE_CHAR): vm->push(new String(string(1,v1->character()) += v2->character())); break;
           }
         }
       }
@@ -586,7 +586,7 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(v1->real() - v2->integral())); break;
           case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1->integral() - v2->real())); break;
           case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(v1->real() - v2->real())); break;
-          case TYPES(TYPE_CHAR, TYPE_INT): vm->push(new Char(((Char*)v1)->get() - v2->integral())); break;
+          case TYPES(TYPE_CHAR, TYPE_INT): vm->push(new Char(v1->character() - v2->integral())); break;
         }
       }
       break;
@@ -693,7 +693,7 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         switch (TYPES(v1->type, v2->type))
         {
-          case TYPES(TYPE_BOOL, TYPE_BOOL): vm->push(new Bool(((Bool*)v1)->get() & ((Bool*)v2)->get())); break;
+          case TYPES(TYPE_BOOL, TYPE_BOOL): vm->push(new Bool(v1->boolean() && v2->boolean())); break;
           case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1->integral() & v2->integral())); break;
           case TYPES(TYPE_SET, TYPE_SET):
           {
@@ -723,7 +723,7 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         switch (TYPES(v1->type, v2->type))
         {
-          case TYPES(TYPE_BOOL, TYPE_BOOL): vm->push(new Bool(((Bool*)v1)->get() | ((Bool*)v2)->get())); break;
+          case TYPES(TYPE_BOOL, TYPE_BOOL): vm->push(new Bool(v1->boolean() || v2->boolean())); break;
           case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1->integral() | v2->integral())); break;
           case TYPES(TYPE_RANGE, TYPE_RANGE):
           {
@@ -765,7 +765,7 @@ void OpcodeInstruction::execute(VM *vm) const
       {
         switch (v1->type)
         {
-          case TYPE_BOOL: vm->push(new Bool(!((Bool*)v1)->get())); break;
+          case TYPE_BOOL: vm->push(new Bool(!v1->boolean())); break;
           case TYPE_INT: vm->push(new Int(~v1->integral())); break;
           case TYPE_FLOAT: vm->push(new Float(1.0 / v1->real())); break;
           case TYPE_LIST:
@@ -842,7 +842,7 @@ void OpcodeInstruction::execute(VM *vm) const
               
               if (vm->popOne(&v3))
               {
-                if (v3->type == TYPE_BOOL && ((Bool*)v3)->get())
+                if (v3->type == TYPE_BOOL && v3->boolean())
                   ot->push_back(*it);
               }
             }
@@ -864,7 +864,7 @@ void OpcodeInstruction::execute(VM *vm) const
               
               if (vm->popOne(&v3))
               {
-                if (v3->type == TYPE_BOOL && ((Bool*)v3)->get())
+                if (v3->type == TYPE_BOOL && v3->boolean())
                   ot->push_back(*it);
               }
             }
@@ -1086,7 +1086,7 @@ void OpcodeInstruction::execute(VM *vm) const
             {
               case TYPES(TYPE_BOOL,TYPE_LAMBDA):
               {
-                if (((Bool*)v1)->get())
+                if (v1->boolean())
                   vm->execute(((Lambda*)v2)->get());
                 break;
               }
@@ -1103,7 +1103,7 @@ void OpcodeInstruction::execute(VM *vm) const
       {
         if (v1->type == TYPE_BOOL && v2->type == TYPE_LAMBDA && v3->type == TYPE_LAMBDA)
         {
-          if (((Bool*)v1)->get())
+          if (v1->boolean())
             vm->execute(((Lambda*)v2)->get());
           else
             vm->execute(((Lambda*)v3)->get());
@@ -1328,7 +1328,7 @@ void OpcodeInstruction::execute(VM *vm) const
                     if (j < 0)
                       j += (u32)ov->size();
                     
-                    if (size_t < ov->size())
+                    if (j < ov->size())
                       nv->push_back(ov->at(j));
                   }
                   
@@ -2018,7 +2018,7 @@ void OpcodeInstruction::execute(VM *vm) const
             
             vm->execute(condition);
             
-            while (vm->popOne(&v3) && v3->type == TYPE_BOOL && ((Bool*)v3)->get())
+            while (vm->popOne(&v3) && v3->type == TYPE_BOOL && v3->boolean())
             {
               vm->execute(body);
               vm->execute(condition);
@@ -2052,7 +2052,7 @@ void OpcodeInstruction::execute(VM *vm) const
               
               if (vm->popOne(&v3))
               {
-                if (v3->type == TYPE_BOOL && ((Bool*)v3)->get())
+                if (v3->type == TYPE_BOOL && v3->boolean())
                   ot->push_back(*it);
                 else
                   of->push_back(*it);
@@ -2080,7 +2080,7 @@ void OpcodeInstruction::execute(VM *vm) const
               
               if (vm->popOne(&v3))
               {
-                if (v3->type == TYPE_BOOL && ((Bool*)v3)->get())
+                if (v3->type == TYPE_BOOL && v3->boolean())
                   ot->push_back(*it);
                 else
                   of->push_back(*it);
@@ -2106,7 +2106,7 @@ void OpcodeInstruction::execute(VM *vm) const
               
               if (vm->popOne(&v3))
               {
-                if (v3->type != TYPE_BOOL || !((Bool*)v3)->get())
+                if (v3->type != TYPE_BOOL || !v3->boolean())
                   finished = true;
               }
               

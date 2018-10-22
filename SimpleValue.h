@@ -29,30 +29,22 @@ public:
   virtual Value *clone() const { return new Float(data.f); }
 };
 
-class Char : public TValue<char>
+class Char : public Value
 {
 private:
   
 public:
-  Char(char value) : TValue<char>(TYPE_CHAR, value) { }
-  
-  virtual string svalue() const;
-  
-  virtual bool equals(const Value *value) const { return this->value == ((TValue<char>*)value)->get(); }
-  virtual Value *clone() const { return new Float(value); }
+  Char(char value) : Value(value) { }
+  virtual Value *clone() const { return new Char(data.c); }
 };
 
-class Bool : public TValue<bool>
+class Bool : public Value
 {
 private:
   
 public:
-  Bool(bool value) : TValue<bool>(TYPE_BOOL, value) { }
-  
-  virtual string svalue() const;
-  
-  virtual bool equals(const Value *value) const { return this->value == ((TValue<bool>*)value)->get(); }
-  virtual Value *clone() const { return new Bool(value); }
+  Bool(bool value) : Value(value) { }
+  virtual Value *clone() const { return new Bool(data.b); }
 };
 
 

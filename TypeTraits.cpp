@@ -23,8 +23,21 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_FLOAT && v2.data.f == v1.data.f; }
     }
   },
-  { TYPE_BOOL, { TYPE_BOOL, true, false, "bool" } },
-  { TYPE_CHAR, { TYPE_CHAR, true, false, "char" } },
+  { TYPE_BOOL,
+    {
+      TYPE_BOOL, true, false, "bool",
+      [] (const Value& v) { return v.data.b ? "true" : "false"; },
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_BOOL && v2.data.b == v1.data.b; }
+    }
+  
+  },
+  { TYPE_CHAR,
+    {
+      TYPE_CHAR, true, false, "char",
+      [] (const Value& v) { return std::string(1, v.data.c); },
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_CHAR && v2.data.c == v1.data.c; }
+    }
+  },
   
   { TYPE_STRING, { TYPE_STRING, false, true, "string" } },
 

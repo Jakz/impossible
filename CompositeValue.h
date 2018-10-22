@@ -118,7 +118,7 @@ struct hash<Value*>
       }
       case TYPE_CHAR: {
         hash<char> i;
-        return i(((Char*)v)->get());
+        return i(v->character());
       }
       case TYPE_STRING: {
         hash<string> i;
@@ -126,7 +126,7 @@ struct hash<Value*>
       }
       case TYPE_BOOL: {
         hash<bool> i;
-        return i(((Bool*)v)->get());
+        return i(v->boolean());
       }
       case TYPE_RANGE: {
         // TODO
@@ -176,7 +176,7 @@ struct less<Value*>
           case TYPE_CHAR:
           {
             less<char> i;
-            const char v1 = ((Char*)x)->get(), v2 = ((Char*)y)->get();
+            const char v1 = x->character(), v2 = y->character();
             return i(v1, v2);
           }
           case TYPE_STRING:
@@ -187,7 +187,7 @@ struct less<Value*>
           }
           case TYPE_BOOL:
           {
-            const bool v1 = ((Bool*)x)->get(), v2 = ((Bool*)y)->get();
+            const bool v1 = x->boolean(), v2 = x->boolean();
             return less<bool>()(v1, v2);
           }
             // TODO: collezioni

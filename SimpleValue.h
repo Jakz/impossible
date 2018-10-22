@@ -34,7 +34,7 @@ class Char : public TValue<char>
 private:
   
 public:
-  Char(float value) : TValue<char>(TYPE_CHAR, value) { }
+  Char(char value) : TValue<char>(TYPE_CHAR, value) { }
   
   virtual string svalue() const;
   

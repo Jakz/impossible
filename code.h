@@ -32,17 +32,17 @@ class CodeStandard : public Code
 {
   private:
     Instruction** code;
-    const u32 length;
+    const size_t length;
     
   public:
-    CodeStandard(Instruction **code, const u32 length) : code(code), length(length) { };
-    CodeStandard(const u32 length) : code(new Instruction*[length]), length(length) { };
+    CodeStandard(Instruction **code, size_t length) : code(code), length(length) { };
+    CodeStandard(size_t length) : code(new Instruction*[length]), length(length) { };
     CodeStandard(Instruction *i) : code(new Instruction*[1]), length(1) { code[0] = i; };
     
     virtual Code *append(Instruction *ins)
     {
       CodeStandard *c = new CodeStandard(this->length+1);
-      for (int i = 0; i < this->length; ++i)
+      for (size_t i = 0; i < this->length; ++i)
         c->code[i] = this->code[i];
       
       c->code[this->length] = ins;

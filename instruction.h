@@ -17,8 +17,7 @@
 using namespace std;
 
 class VM;
-
-struct Code;
+class Code;
 
 Code *assemble(const char *string);
 

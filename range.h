@@ -44,7 +44,7 @@ public:
     vector<int> v;
     v.reserve(size());
     
-    for (int i = 0; i < data->size(); ++i)
+    for (size_t i = 0; i < data->size(); ++i)
     {
       RangePair rp = data->at(i);
       for (int j = rp.a; j <= rp.b; ++j)
@@ -59,7 +59,7 @@ public:
     u32 size = 0;
     vector<RangePair> *d = data;
     
-    for (int i = 0; i < d->size(); ++i)
+    for (size_t i = 0; i < d->size(); ++i)
       size += d->at(i).b - d->at(i).a + 1;
     
     return size;

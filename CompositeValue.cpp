@@ -287,4 +287,3 @@ Value *Set::clone() const
 {
   return new Set(value);
 }
-

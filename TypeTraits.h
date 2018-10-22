@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <functional>
 #include <unordered_map>
 #include <string>
 #include <cassert>
@@ -53,7 +54,9 @@ public:
     auto it = specs.find(type);
     if (it != specs.end())
       return it->second.name.c_str();
+    
     assert(false);
+    return nullptr;
   }
 
   static Type typeForName(const std::string& name)

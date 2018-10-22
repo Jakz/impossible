@@ -109,12 +109,12 @@ struct hash<Value*>
     switch (v->type)
     {
       case TYPE_INT:  {
-        hash<int> i;
+        hash<integral_t> i;
         return i(v->integral());
       }
       case TYPE_FLOAT: {
-        hash<float> i;
-        return i(v->integral());
+        hash<real_t> i;
+        return i(v->real());
       }
       case TYPE_CHAR: {
         hash<char> i;
@@ -464,7 +464,7 @@ struct ValueTree
 {
   Value *v;
   ValueTree *n;
-  u32 depth;
+  size_t depth;
   
   ValueTree(Value *v, ValueTree *il)
   {
@@ -479,7 +479,7 @@ struct ValueTree
     list<Value*>* values = new list<Value*>();
     
     ValueTree *tree = this;
-    for (int i = 0; i < depth; ++i, tree = tree->n)
+    for (size_t i = 0; i < depth; ++i, tree = tree->n)
       values->push_front(tree->v);
     
     return values;
@@ -491,7 +491,7 @@ struct ValuePairTree
   Value *k;
   Value *v;
   ValuePairTree *n;
-  u32 depth;
+  size_t depth;
   
   ValuePairTree(Value *k, Value *v, ValuePairTree *il)
   {
@@ -507,7 +507,7 @@ struct ValuePairTree
     unordered_map<Value*, Value*>* values = new unordered_map<Value*, Value*>;
     
     ValuePairTree *tree = this;
-    for (int i = 0; i < depth; ++i, tree = tree->n)
+    for (size_t i = 0; i < depth; ++i, tree = tree->n)
       (*values)[tree->k] = tree->v;
     
     return values;

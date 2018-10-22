@@ -1321,14 +1321,14 @@ void OpcodeInstruction::execute(VM *vm) const
                   vector<int> iv = r.concretize();
                   nv->reserve(iv.size());
                   
-                  for (int i = 0; i < iv.size(); ++i)
+                  for (size_t i = 0; i < iv.size(); ++i)
                   {
                     int j = iv[i];
                     
                     if (j < 0)
                       j += (u32)ov->size();
                     
-                    if (j < ov->size())
+                    if (size_t < ov->size())
                       nv->push_back(ov->at(j));
                   }
                   

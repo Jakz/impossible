@@ -15,6 +15,7 @@
 #include "defines.h"
 
 enum Type : s16;
+class Value;
 
 class TypeTraits
 {
@@ -25,12 +26,21 @@ public:
     bool isPrimitive;
     bool isCollection;
     std::string name;
+    
+    std::function<std::string(const Value& v)> to_string;
+    std::function<bool(const Value& v1, const Value& v2)> equal_to;
   };
   
 private:
   static const std::unordered_map<Type, TypeSpec, enum_hash> specs;
 
 public:
+  
+  static const TypeSpec& traits(Type type)
+  {
+    auto it = specs.find(type);
+    return it->second;
+  }
 
   static bool isCollection(Type type)
   {
@@ -66,6 +76,8 @@ public:
   
   inline const char* name() const { return TypeTraits::nameForType(type); }
   inline bool isCollection() const { return TypeTraits::isCollection(type); }
+  
+  inline const TypeTraits::TypeSpec& traits() const { return TypeTraits::traits(type); }
   
   bool operator==(Type type) const { return this->type == type; }
   bool operator==(const TypeInfo& info) const { return this->type == info.type; }

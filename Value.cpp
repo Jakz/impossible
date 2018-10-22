@@ -18,11 +18,7 @@ const Value* TValue<void*>::NIL = new TValue<void*>(TYPE_NIL);
 
 string Value::lvalue()
 {
-  
-  string v(svalue());
-  v.append(" : ");
-  v.append(type.name());
-  return v;
+  return svalue() + " : " + type.name();
 }
 
 

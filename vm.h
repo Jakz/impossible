@@ -47,7 +47,7 @@ class VM
   VM() : valueStack(new list<Value*>()), exec(ExecEnv(NULL)), running(false), stackPreserve(false), lazy(NULL)
     { 
       for (int i = 0; i < 26; ++i)
-        memory[i] = new Int(0);
+        memory[i] = new TValue<void*>(TYPE_NIL);
     }
   
     Code *code()

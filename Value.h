@@ -27,16 +27,21 @@ using namespace std;
 
 #define TYPES(x, y) (x << 4 | y)
 
+struct managed_value
+{
+  virtual ~managed_value() { }
+};
+
 union value_data
 {
   s64 i;
   double f;
   char c;
   bool b;
-  void* ptr;
+  managed_value* ptr;
   
   value_data(s64 i) : i(i) { }
-  value_data(void* ptr) : ptr(nullptr) { }
+  value_data(managed_value* ptr) : ptr(ptr) { }
   
   bool operator==(const value_data& o) const { return i == o.i; }
 };
@@ -53,8 +58,8 @@ public:
   
   Value(s64 value) : type(TYPE_INT), data(value) { }
 
-  virtual string svalue() const = 0;
-  virtual string lvalue();
+  virtual string svalue() const { return type.traits().to_string(*this); }
+  std::string lvalue();
 
   virtual bool equals(const Value *value) const = 0;
   virtual Value* clone() const = 0;
@@ -105,7 +110,6 @@ class TValue<void*> : public Value
     //TValue &operator= (const TValue &o) { }
   
     virtual string svalue() const { return "nil"; }
-    virtual string lvalue() { return "nil"; }
     
     virtual bool equals(const Value *value) const { return value->type == TYPE_NIL; }
     virtual Value* clone() const { return (Value*)this; }
@@ -115,12 +119,6 @@ class TValue<void*> : public Value
   
     static const Value *NIL;
 };
-
-struct managed_value
-{
-  virtual ~managed_value() { }
-};
-
 
 class Heap
 {

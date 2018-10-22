@@ -19,8 +19,6 @@ public:
   Int(s64 value) : Value(value) { }
   Int(int value) : Value(value) { }
   
-  virtual string svalue() const;
-  
   virtual bool equals(const Value* value) const { return type == value->type && data == value->data; }
   virtual Value *clone() const { return new Int(data.i); }
 };

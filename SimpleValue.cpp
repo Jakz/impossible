@@ -12,13 +12,6 @@
 #include <iomanip>
 #include <sstream>
 
-string Int::svalue() const
-{
-  stringstream ss(stringstream::out);
-  ss << data.i;
-  return ss.str();
-}
-
 string Float::svalue() const
 {
   stringstream ss(stringstream::out);

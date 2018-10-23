@@ -60,6 +60,8 @@ bool collectionEquals(const Value& v1, const Value& v2)
 static const CollectionPrinter<Value*> ListPrinter = { "{", "}", " ", [] (const Value* v) { return v->svalue(); } };
 static const CollectionPrinter<Value*> StackPrinter = { "{>", "}", " ", [] (const Value* v) { return v->svalue(); } };
 static const CollectionPrinter<Value*> QueuePrinter = { "{<", "}", " ", [] (const Value* v) { return v->svalue(); } };
+static const CollectionPrinter<Value*> ArrayPrinter = { "(", ")", " ", [] (const Value* v) { return v->svalue(); } };
+static const CollectionPrinter<Value*> SetPrinter = { "{.", "}", " ", [] (const Value* v) { return v->svalue(); } };
 
 const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::specs =
 {
@@ -112,9 +114,17 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     }
   },
   
-  { TYPE_ARRAY, { TYPE_ARRAY, false, true, "array" } },
+  { TYPE_ARRAY,
+    { TYPE_ARRAY, false, true, "array",
+      [] (const Value& v) { return ArrayPrinter.svalue(v.queue()); }
+    }
+  },
 
-  { TYPE_SET, { TYPE_SET, false, true, "set" } },
+  { TYPE_SET,
+    { TYPE_SET, false, true, "set",
+      [] (const Value& v) { return SetPrinter.svalue(v.queue()); }
+    }
+  },
   { TYPE_STACK,
     { TYPE_STACK, false, true, "stack",
       [] (const Value& v) { return QueuePrinter.svalue(v.queue()); },
@@ -124,7 +134,8 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     { TYPE_QUEUE, false, true, "queue",
       [] (const Value& v) { return StackPrinter.svalue(v.stack()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_QUEUE && v2.list()->raw() == v1.list()->raw(); }
-    }  },
+    }
+  },
 
   { TYPE_LAZY_ARRAY, { TYPE_LAZY_ARRAY, false, true, "larray" } },
   

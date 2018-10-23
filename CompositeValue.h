@@ -394,8 +394,10 @@ public:
 
 class Map : public TCollection
 {
-private:
+public:
   using map_t = std::unordered_map<Value, Value, value_hash>;
+
+private:
   map_t data;
   mutable map_t::const_iterator it;
   
@@ -424,6 +426,8 @@ public:
   
   virtual u32 size() const override { return (u32)data.size(); }
   virtual bool empty() const override { return this->data.empty(); }
+  
+  const map_t& raw() const { return data; }
 };
 
 class Lambda : public TValue<Code*>

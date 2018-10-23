@@ -74,14 +74,6 @@
 
 %token T_OPCODE
 
-%token INTEGER FLOAT BOOLEAN CHARACTER STRING RANGE STRING_LITERAL
-
-%type<v> INTEGER FLOAT BOOLEAN CHARACTER RANGE
-%type<v> STRING STRING_LITERAL
-%type<v> lambda lazy_array opt_value
-
-%type<il> instructions;
-%type<i> instruction;
 %type<values> values;
 %type<v> value;
 %type<lip> lazy_pairs;
@@ -91,8 +83,26 @@
 
 %type<op> sinstruction T_OPCODE
 
+
+%token <Value>
+  INTEGER "integer
+  FLOAT "float"
+  BOOLEAN "bool"
+  CHARACTER "char"
+  STRING "string"
+  RANGE "range"
+  STRING_LITERAL "string"
+;
+
+%type <Value>
+  lambda "lambda"
+  lazy_array "larray"
+  opt_value "optional_value"
+;
+
 %type<Instruction*> instruction
-%type<std::list<Instructon*> instructions
+%type<std::list<Instructon*>> instructions
+
 
 %%
 

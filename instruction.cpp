@@ -146,7 +146,7 @@ void filter(VM* vm, const T& collection, Code* predicate)
   for (const auto& value : v)
   {
     vm->push(value);
-    vm->execute(predicate->get());
+    vm->execute(predicate);
     
     if (vm->popOne(&v3))
     {
@@ -1178,13 +1178,13 @@ void OpcodeInstruction::execute(VM *vm) const
         }
         else if (v2->type == TYPE_QUEUE)
         {
-          Queue *stack = (Queue*)v2;
-          vm->push(stack);
+          List::list_t& queue = v2->queue()->raw();
+          vm->push(v2);
           
-          if (!stack->empty())
+          if (!queue.empty())
           {
-            vm->push(stack->get()->front());
-            stack->get()->pop_front();
+            vm->push(queue.front());
+            queue.pop_front();
           }
         }
         else
@@ -1193,15 +1193,12 @@ void OpcodeInstruction::execute(VM *vm) const
           {
             if (v1->type == TYPE_MAP)
             {
-              Map* map = (Map*)v1;
-              std::unordered_map<Value*, Value*>::iterator it = map->get()->find(v2);
-              
+              const Map::map_t& map = v1->map()->raw();
               vm->push(v1);
               
-              if (it != map->get()->end())
-                vm->push(it->second);
-              else
-                vm->push(Nil());
+              auto it = map.find(v2);
+              
+              vm->push(it != map.end() ? it->second : Nil());
             }
             else
             {            
@@ -1209,37 +1206,32 @@ void OpcodeInstruction::execute(VM *vm) const
               {
                 case TYPES(TYPE_ARRAY, TYPE_INT):
                 {
-                  Array *values = (Array*)v1;
+                  const Array::utype_t& values = v1->array()->raw();
                   integral_t i = v2->integral();
                   
                   vm->push(v1);
-                  
-                  if (i < values->size())
-                    vm->push(values->get()->at(i));
-                  else
-                    vm->push(Nil());
-                  
+                  vm->push(i < values.size() ? values[i] : Value());
                   
                   break;
                 }
                 case TYPES(TYPE_ARRAY, TYPE_RANGE):
                 {
                   RangeVector r = ((Range*)v2)->get();
-                  std::vector<Value*>* nv = new std::vector<Value*>();
-                  std::vector<Value*>* ov = ((Array*)v1)->get();
+                  Array::utype_t nv;
+                  const Array::utype_t& ov = v1->array()->raw();
                   
                   std::vector<int> iv = r.concretize();
-                  nv->reserve(iv.size());
+                  nv.reserve(iv.size());
                   
                   for (size_t i = 0; i < iv.size(); ++i)
                   {
-                    int j = iv[i];
+                    s64 j = iv[i];
                     
                     if (j < 0)
-                      j += (u32)ov->size();
+                      j += ov.size();
                     
-                    if (j < ov->size())
-                      nv->push_back(ov->at(j));
+                    if (j < ov.size())
+                      nv.push_back(ov.at(j));
                   }
                   
                   vm->push(v1);
@@ -1260,20 +1252,20 @@ void OpcodeInstruction::execute(VM *vm) const
                 case TYPES(TYPE_LAZY_ARRAY, TYPE_RANGE):
                 {
                   RangeVector r = ((Range*)v2)->get();
-                  std::vector<Value*>* nv = new std::vector<Value*>();
+                  Array::utype_t nv;
                   LazyArray *ov = (LazyArray*)v1;
                   
                   std::vector<int> iv = r.concretize();
-                  nv->reserve(iv.size());
+                  nv.reserve(iv.size());
                   
-                  for (int i = 0; i < iv.size(); ++i)
+                  for (size_t i = 0; i < iv.size(); ++i)
                   {
-                    int j = iv[i];
+                    s64 j = iv[i];
                     
                     if (j < 0)
                       continue;
                     
-                    nv->push_back(ov->get().at(vm, j));
+                    nv.push_back(ov->get().at(vm, j));
                   }
                   
                   vm->push(v1);

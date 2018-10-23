@@ -11,6 +11,7 @@
 #include <iostream>
 #include <list>
 #include <stack>
+#include <array>
 
 #include "Values.h"
 #include "instruction.h"
@@ -33,7 +34,7 @@ class VM
     std::list<Value*>* valueStack;
     std::list<std::list<Value*>*> highStacks;
     std::list<std::list<Value*>*> lowStacks;
-    Value *memory[26];
+    std::array<Value, 26> memory;
   
     std::stack<ExecEnv> callStack;
     ExecEnv exec;
@@ -42,10 +43,8 @@ class VM
     bool stackPreserve;
     
   public:
-  VM() : valueStack(new std::list<Value*>()), exec(ExecEnv(NULL)), running(false), stackPreserve(false), lazy(NULL)
+    VM() : valueStack(new std::list<Value*>()), exec(ExecEnv(NULL)), running(false), stackPreserve(false), lazy(NULL), memory()
     { 
-      for (int i = 0; i < 26; ++i)
-        memory[i] = new TValue<void*>(TYPE_NIL);
     }
   
     Code *code()
@@ -118,7 +117,7 @@ class VM
       //TODO: rotto
       
       if (valueStack->size() == 0)
-        return TValue<void*>::NIL->clone();
+        return Value().clone();
       
       nth = nth >= valueStack->size() ? (int)valueStack->size() - 1 : nth;
       

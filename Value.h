@@ -63,6 +63,7 @@ public:
   value_data data;
 
 public:
+  Value() : type(TYPE_NIL), data(0LL) { }
   Value(const Value& other) : type(other.type), data(other.data) { }
   
   Value(Type type) : type(type), data(nullptr) { }

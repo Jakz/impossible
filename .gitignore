@@ -19,3 +19,8 @@ bison.h
 Impossible.1
 impossible.output
 impossible
+
+.DS_Store
+*.xcworkspacedata
+*.xcuserstate
+xcuserdata

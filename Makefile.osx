@@ -7,7 +7,7 @@ CXX := clang++
 
 INCLUDE = 
 
-all: CFLAGS = $(INCLUDE) -std=c++11 -stdlib=libc++ -Wno-deprecated-register
+all: CFLAGS = $(INCLUDE) -std=c++14 -stdlib=libc++ -Wno-deprecated-register
 opt: CFLAGS = $(INCLUDE) -O3 -ffast-math -pipe -std=c++11 -stdlib=libc++ -Wno-deprecated-register
 
 CXXFLAGS = $(CFLAGS)

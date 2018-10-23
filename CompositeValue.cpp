@@ -79,13 +79,6 @@ std::string Range::svalue() const
   return ss.str();
 }
 
-static const CollectionPrinter<Value*> ArrayPrinter = { "(", ")", " ", [] (const Value* v) { return v->svalue(); } };
-static const CollectionPrinter<Value*> SetPrinter = { "{.", "}", " ", [] (const Value* v) { return v->svalue(); } };
-
-std::string Array::svalue() const { return ArrayPrinter.svalue(this); }
-std::string Set::svalue() const { return SetPrinter.svalue(this); }
-
-
 std::string LazyArray::svalue() const
 {
   std::string s("(? ");
@@ -94,7 +87,7 @@ std::string LazyArray::svalue() const
   return s;
 }
 
-
+/*
 std::string Map::svalue() const
 {
   if (value->empty())
@@ -118,7 +111,7 @@ std::string Map::svalue() const
   ss << "}";
   
   return ss.str();
-}
+}*/
 
 std::string Lambda::svalue() const
 {
@@ -136,71 +129,4 @@ std::string Lambda::svalue() const
   ss << "]";
   
   return ss.str();
-}
-bool Array::equals(const Value *value) const
-{
-  if (value->type == TYPE_ARRAY)
-  {
-    std::vector<Value*>* cvalue = ((Array*)value)->value;
-    
-    std::vector<Value*>::const_iterator it, it2;
-    
-    for (it = this->value->begin(), it2 = cvalue->begin(); it != this->value->end() && it2 != cvalue->end(); ++it, ++it2)
-      if (!(*it)->equals((*it2)))
-        return false;
-    
-    return it == this->value->end() && it2 == cvalue->end();
-  }
-  
-  return false;
-}
-
-Value *Array::clone() const
-{
-  /*vector<Value*>::const_iterator it;
-   vector<Value*> nvalues;
-   
-   for (it = value.begin(); it != value.end(); ++it)
-   nvalues.push_back((*it)->clone());
-   
-   return new Array(nvalues);*/
-  return new Array(value);
-}
-
-bool Set::equals(const Value *value) const
-{
-  if (value->type == TYPE_SET)
-  {
-    std::unordered_set<Value*>* cvalue = ((Set*)value)->value;
-    
-    if (cvalue->size()== this->value->size())
-    {
-      std::unordered_set<Value*>::iterator it, it2;
-      
-      for (it = this->value->begin(); it != this->value->end(); ++it)
-      {
-        bool found = false;
-        for (it2 = cvalue->begin(); it2 != cvalue->end(); ++it2)
-        {
-          if ((*it)->equals(*it2))
-          {
-            found = true;
-            break;
-          }
-        }
-        
-        if (!found)
-          return false;
-      }
-      
-      return true;
-    }
-  }
-  
-  return false;
-}
-
-Value *Set::clone() const
-{
-  return new Set(value);
 }

@@ -21,18 +21,19 @@ Value::Value(Set* set) : type(TYPE_STRING), data(set) { }
 Value::Value(Array* array) : type(TYPE_STRING), data(array) { }
 Value::Value(Map* map) : type(TYPE_STRING), data(map) { }
 
-TCollection* Value::collection() const { return static_cast<TCollection*>(data.ptr); }
-String* Value::string() const { return object<String>(); }
-List* Value::list() const { return object<List>(); }
-Stack* Value::stack() const { return object<Stack>(); }
-Queue* Value::queue() const { return object<Queue>(); }
-Set* Value::set() const { return object<Set>(); }
-Array* Value::array() const { return object<Array>(); }
-Map* Value::map() const { return object<Map>(); }
+TCollection* Value::collection() const
+{
+  assert(type.isCollection());
+  return static_cast<TCollection*>(data.ptr);
+}
+String* Value::string() const { assert(type == TYPE_STRING); return object<String>(); }
+List* Value::list() const { assert(type == TYPE_LIST); return object<List>(); }
+Stack* Value::stack() const { assert(type == TYPE_STACK); return object<Stack>(); }
+Queue* Value::queue() const { assert(type == TYPE_QUEUE); return object<Queue>(); }
+Set* Value::set() const { assert(type == TYPE_SET); return object<Set>(); }
+Array* Value::array() const { assert(type == TYPE_ARRAY); return object<Array>(); }
+Map* Value::map() const { assert(type == TYPE_MAP); return object<Map>(); }
 
-
-
-const Value* TValue<void*>::NIL = new TValue<void*>(TYPE_NIL);
 
 std::string Value::lvalue()
 {

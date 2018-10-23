@@ -1530,7 +1530,7 @@ void OpcodeInstruction::execute(VM *vm) const
           }
           case TYPES(TYPE_STRING, TYPE_LAMBDA):
           {
-            iter((String*)v1, ((Lambda*)v2)->get(), vm);
+            iter(v1->string(), ((Lambda*)v2)->get(), vm);
             break;
           }
           case TYPES(TYPE_RANGE, TYPE_LAMBDA):

@@ -7,6 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		046E4F18217EA22300DB959C /* vm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E080217BE93D0037C307 /* vm.cpp */; };
+		046E4F19217EA22300DB959C /* code.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E066217BE93D0037C307 /* code.cpp */; };
+		046E4F1A217EA22300DB959C /* CompositeValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E068217BE93D0037C307 /* CompositeValue.cpp */; };
+		046E4F1B217EA22300DB959C /* help.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06B217BE93D0037C307 /* help.cpp */; };
+		046E4F1C217EA22300DB959C /* SimpleValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E077217BE93D0037C307 /* SimpleValue.cpp */; };
+		046E4F1D217EA22300DB959C /* VTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E082217BE93D0037C307 /* VTable.cpp */; };
+		046E4F1E217EA22300DB959C /* instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06F217BE93D0037C307 /* instruction.cpp */; };
+		046E4F1F217EA22300DB959C /* impossible.tab.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06D217BE93D0037C307 /* impossible.tab.cpp */; };
+		046E4F20217EA22300DB959C /* lazy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E071217BE93D0037C307 /* lazy.cpp */; };
+		046E4F22217EA22300DB959C /* lex.yy.c in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E073217BE93D0037C307 /* lex.yy.c */; };
+		046E4F23217EA22300DB959C /* TypeTraits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E092217CCB9C0037C307 /* TypeTraits.cpp */; };
+		046E4F24217EA22300DB959C /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E07C217BE93D0037C307 /* Value.cpp */; };
+		046E4F26217EA22300DB959C /* Values.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E07E217BE93D0037C307 /* Values.cpp */; };
+		046E4F2D217EA22D00DB959C /* tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04806510217EA1880063ACD5 /* tests.cpp */; };
 		04F6E084217BE93D0037C307 /* code.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E066217BE93D0037C307 /* code.cpp */; };
 		04F6E085217BE93D0037C307 /* CompositeValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E068217BE93D0037C307 /* CompositeValue.cpp */; };
 		04F6E086217BE93D0037C307 /* help.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06B217BE93D0037C307 /* help.cpp */; };
@@ -16,7 +30,6 @@
 		04F6E08A217BE93D0037C307 /* lex.yy.c in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E073217BE93D0037C307 /* lex.yy.c */; };
 		04F6E08B217BE93D0037C307 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E075217BE93D0037C307 /* main.cpp */; };
 		04F6E08C217BE93D0037C307 /* SimpleValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E077217BE93D0037C307 /* SimpleValue.cpp */; };
-		04F6E08D217BE93D0037C307 /* tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E079217BE93D0037C307 /* tests.cpp */; };
 		04F6E08E217BE93D0037C307 /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E07C217BE93D0037C307 /* Value.cpp */; };
 		04F6E08F217BE93D0037C307 /* Values.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E07E217BE93D0037C307 /* Values.cpp */; };
 		04F6E090217BE93D0037C307 /* vm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E080217BE93D0037C307 /* vm.cpp */; };
@@ -25,6 +38,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		046E4F28217EA22300DB959C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		04F6E059217BE8FB0037C307 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -37,6 +59,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		046E4F2C217EA22300DB959C /* Tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Tests; sourceTree = BUILT_PRODUCTS_DIR; };
+		0480650F217EA1880063ACD5 /* catch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = catch.h; sourceTree = "<group>"; };
+		04806510217EA1880063ACD5 /* tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = tests.cpp; sourceTree = "<group>"; };
 		04F6E05B217BE8FB0037C307 /* Impossible */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Impossible; sourceTree = BUILT_PRODUCTS_DIR; };
 		04F6E066217BE93D0037C307 /* code.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = code.cpp; path = ../../code.cpp; sourceTree = "<group>"; };
 		04F6E067217BE93D0037C307 /* code.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = code.h; path = ../../code.h; sourceTree = "<group>"; };
@@ -47,7 +72,7 @@
 		04F6E06C217BE93D0037C307 /* help.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = help.h; path = ../../help.h; sourceTree = "<group>"; };
 		04F6E06D217BE93D0037C307 /* impossible.tab.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = impossible.tab.cpp; path = ../../impossible.tab.cpp; sourceTree = "<group>"; };
 		04F6E06E217BE93D0037C307 /* impossible.tab.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = impossible.tab.hpp; path = ../../impossible.tab.hpp; sourceTree = "<group>"; };
-		04F6E06F217BE93D0037C307 /* instruction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = instruction.cpp; path = ../../instruction.cpp; sourceTree = "<group>"; };
+		04F6E06F217BE93D0037C307 /* instruction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = instruction.cpp; path = ../../instruction.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		04F6E070217BE93D0037C307 /* instruction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = instruction.h; path = ../../instruction.h; sourceTree = "<group>"; };
 		04F6E071217BE93D0037C307 /* lazy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lazy.cpp; path = ../../lazy.cpp; sourceTree = "<group>"; };
 		04F6E072217BE93D0037C307 /* lazy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lazy.h; path = ../../lazy.h; sourceTree = "<group>"; };
@@ -57,8 +82,6 @@
 		04F6E076217BE93D0037C307 /* range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = range.h; path = ../../range.h; sourceTree = "<group>"; };
 		04F6E077217BE93D0037C307 /* SimpleValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SimpleValue.cpp; path = ../../SimpleValue.cpp; sourceTree = "<group>"; };
 		04F6E078217BE93D0037C307 /* SimpleValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SimpleValue.h; path = ../../SimpleValue.h; sourceTree = "<group>"; };
-		04F6E079217BE93D0037C307 /* tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tests.cpp; path = ../../tests.cpp; sourceTree = "<group>"; };
-		04F6E07A217BE93D0037C307 /* tests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tests.h; path = ../../tests.h; sourceTree = "<group>"; };
 		04F6E07C217BE93D0037C307 /* Value.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Value.cpp; path = ../../Value.cpp; sourceTree = "<group>"; };
 		04F6E07D217BE93D0037C307 /* Value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Value.h; path = ../../Value.h; sourceTree = "<group>"; };
 		04F6E07E217BE93D0037C307 /* Values.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Values.cpp; path = ../../Values.cpp; sourceTree = "<group>"; };
@@ -74,6 +97,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		046E4F27217EA22300DB959C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		04F6E058217BE8FB0037C307 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -84,6 +114,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0480650E217EA1880063ACD5 /* tests */ = {
+			isa = PBXGroup;
+			children = (
+				0480650F217EA1880063ACD5 /* catch.h */,
+				04806510217EA1880063ACD5 /* tests.cpp */,
+			);
+			name = tests;
+			path = ../../tests;
+			sourceTree = "<group>";
+		};
 		04F6E052217BE8FB0037C307 = {
 			isa = PBXGroup;
 			children = (
@@ -96,6 +136,7 @@
 			isa = PBXGroup;
 			children = (
 				04F6E05B217BE8FB0037C307 /* Impossible */,
+				046E4F2C217EA22300DB959C /* Tests */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -103,6 +144,7 @@
 		04F6E065217BE9350037C307 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				0480650E217EA1880063ACD5 /* tests */,
 				04F6E066217BE93D0037C307 /* code.cpp */,
 				04F6E067217BE93D0037C307 /* code.h */,
 				04F6E068217BE93D0037C307 /* CompositeValue.cpp */,
@@ -126,8 +168,6 @@
 				04F6E078217BE93D0037C307 /* SimpleValue.h */,
 				04F6E092217CCB9C0037C307 /* TypeTraits.cpp */,
 				04F6E093217CCB9C0037C307 /* TypeTraits.h */,
-				04F6E079217BE93D0037C307 /* tests.cpp */,
-				04F6E07A217BE93D0037C307 /* tests.h */,
 				04F6E07C217BE93D0037C307 /* Value.cpp */,
 				04F6E07D217BE93D0037C307 /* Value.h */,
 				04F6E07E217BE93D0037C307 /* Values.cpp */,
@@ -143,6 +183,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		046E4F16217EA22300DB959C /* Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 046E4F29217EA22300DB959C /* Build configuration list for PBXNativeTarget "Tests" */;
+			buildPhases = (
+				046E4F17217EA22300DB959C /* Sources */,
+				046E4F27217EA22300DB959C /* Frameworks */,
+				046E4F28217EA22300DB959C /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Tests;
+			productName = Impossible;
+			productReference = 046E4F2C217EA22300DB959C /* Tests */;
+			productType = "com.apple.product-type.tool";
+		};
 		04F6E05A217BE8FB0037C307 /* Impossible */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 04F6E062217BE8FB0037C307 /* Build configuration list for PBXNativeTarget "Impossible" */;
@@ -188,11 +245,33 @@
 			projectRoot = "";
 			targets = (
 				04F6E05A217BE8FB0037C307 /* Impossible */,
+				046E4F16217EA22300DB959C /* Tests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		046E4F17217EA22300DB959C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				046E4F2D217EA22D00DB959C /* tests.cpp in Sources */,
+				046E4F18217EA22300DB959C /* vm.cpp in Sources */,
+				046E4F19217EA22300DB959C /* code.cpp in Sources */,
+				046E4F1A217EA22300DB959C /* CompositeValue.cpp in Sources */,
+				046E4F1B217EA22300DB959C /* help.cpp in Sources */,
+				046E4F1C217EA22300DB959C /* SimpleValue.cpp in Sources */,
+				046E4F1D217EA22300DB959C /* VTable.cpp in Sources */,
+				046E4F1E217EA22300DB959C /* instruction.cpp in Sources */,
+				046E4F1F217EA22300DB959C /* impossible.tab.cpp in Sources */,
+				046E4F20217EA22300DB959C /* lazy.cpp in Sources */,
+				046E4F22217EA22300DB959C /* lex.yy.c in Sources */,
+				046E4F23217EA22300DB959C /* TypeTraits.cpp in Sources */,
+				046E4F24217EA22300DB959C /* Value.cpp in Sources */,
+				046E4F26217EA22300DB959C /* Values.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		04F6E057217BE8FB0037C307 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -210,7 +289,6 @@
 				04F6E08A217BE93D0037C307 /* lex.yy.c in Sources */,
 				04F6E094217CCB9C0037C307 /* TypeTraits.cpp in Sources */,
 				04F6E08E217BE93D0037C307 /* Value.cpp in Sources */,
-				04F6E08D217BE93D0037C307 /* tests.cpp in Sources */,
 				04F6E08F217BE93D0037C307 /* Values.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -218,6 +296,20 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		046E4F2A217EA22300DB959C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		046E4F2B217EA22300DB959C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		04F6E060217BE8FB0037C307 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -322,6 +414,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		046E4F29217EA22300DB959C /* Build configuration list for PBXNativeTarget "Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				046E4F2A217EA22300DB959C /* Debug */,
+				046E4F2B217EA22300DB959C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		04F6E056217BE8FB0037C307 /* Build configuration list for PBXProject "Impossible" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

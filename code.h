@@ -19,65 +19,64 @@ class Value;
 
 class Code
 {
-  public:
-    virtual size_t len() = 0;
-    virtual void set(u32 i, Instruction *it) = 0;
-    virtual Instruction* at(u32 i) = 0;
-    virtual Code *append(Instruction *ins) = 0;
+public:
+  virtual size_t len() = 0;
+  virtual void set(u32 i, Instruction *it) = 0;
+  virtual Instruction* at(u32 i) = 0;
+  virtual Code *append(Instruction *ins) = 0;
   
-    virtual std::string svalue(u32 pc) = 0;
+  virtual std::string svalue(u32 pc) = 0;
 };
 
 class CodeStandard : public Code
 {
-  private:
-    Instruction** code;
-    const size_t length;
-    
-  public:
-    CodeStandard(Instruction **code, size_t length) : code(code), length(length) { };
-    CodeStandard(size_t length) : code(new Instruction*[length]), length(length) { };
-    CodeStandard(Instruction *i) : code(new Instruction*[1]), length(1) { code[0] = i; };
-    
-    virtual Code *append(Instruction *ins)
-    {
-      CodeStandard *c = new CodeStandard(this->length+1);
-      for (size_t i = 0; i < this->length; ++i)
-        c->code[i] = this->code[i];
-      
-      c->code[this->length] = ins;
-      
-      return c;
-    }
+private:
+  std::vector<Instruction*> code;
   
-    virtual std::string svalue(u32 pc);
-
-    
-    virtual void set(u32 i, Instruction *is) { code[i] = is; }
-    virtual Instruction* at(u32 i) { return code[i]; }
-    virtual size_t len() { return length; }
+public:
+  CodeStandard(const std::vector<Instruction*>& code) : code(code) { }
+  
+  CodeStandard(Instruction **code, size_t length) {
+    std::copy(code, code + length, std::back_inserter(this->code));
+  }
+  
+  CodeStandard(size_t length) { code.resize(length); }
+  CodeStandard(Instruction* i) { code.push_back(i); }
+  
+  virtual Code *append(Instruction *ins)
+  {
+    auto code = this->code;
+    code.push_back(ins);
+    return new CodeStandard(code);
+  }
+  
+  virtual std::string svalue(u32 pc);
+  
+  virtual void set(u32 i, Instruction *is) { code[i] = is; }
+  virtual Instruction* at(u32 i) { return code[i]; }
+  virtual size_t len() { return code.size(); }
   
   friend class CurriedCode;
 };
 
 class CurriedCode : public Code
 {
-  private:
-    Code *code;
-    PushInstruction *value;
-    
-  public:
-    CurriedCode(Code *code, Value *value);
-    CurriedCode(Code *code, PushInstruction *value);
+private:
+  Code *code;
+  PushInstruction *value;
   
-    virtual Code *append(Instruction *ins);
+public:
+  CurriedCode(Code *code, Value *value);
+  CurriedCode(Code *code, PushInstruction *value);
   
-    virtual void set(u32 i, Instruction *is);
-    virtual Instruction* at(u32 i);
-    virtual size_t len();
+  virtual Code *append(Instruction *ins);
   
-    virtual std::string svalue(u32 pc) { return ""; }
-    
+  virtual void set(u32 i, Instruction *is);
+  virtual Instruction* at(u32 i);
+  virtual size_t len();
+  
+  virtual std::string svalue(u32 pc) { return ""; }
+  
 };
 
 #endif

@@ -7,37 +7,39 @@ CXX := clang++
 
 INCLUDE = 
 
-all: CFLAGS = $(INCLUDE) -std=c++14 -stdlib=libc++ -Wno-deprecated-register
-opt: CFLAGS = $(INCLUDE) -O3 -ffast-math -pipe -std=c++11 -stdlib=libc++ -Wno-deprecated-register
+all: CFLAGS = $(INCLUDE) -std=c++14 -stdlib=libc++ -Wno-deprecated-register -Iparser -I.
+opt: CFLAGS = $(INCLUDE) -O3 -ffast-math -pipe -std=c++14 -stdlib=libc++ -Wno-deprecated-register -Iparser -I.
 
 CXXFLAGS = $(CFLAGS)
 
 LDFLAGS = 
 
 # Find all source files
+BUILD_DIR = ./objects
+
 SOURCE = .
-SRC_CPP = $(foreach dir, $(SOURCE), $(wildcard $(dir)/*.cpp)) impossible.tab.cpp
-SRC_C   = $(foreach dir, $(SOURCE), $(wildcard $(dir)/*.c)) lex.yy.c
+SRC_CPP = $(foreach dir, $(SOURCE), $(wildcard $(dir)/*.cpp)) parser/parser.cpp parser/lexer.cpp
+SRC_C   = $(foreach dir, $(SOURCE), $(wildcard $(dir)/*.c)) 
 OBJ_CPP = $(patsubst %.cpp, %.o, $(SRC_CPP))
 OBJ_C   = $(patsubst %.c, %.o, $(SRC_C))
-OBJS    = $(OBJ_CPP) $(OBJ_C)
+OBJS    = $(BUILD_DIR)/$(OBJ_CPP) $(BUILD_DIR)/$(OBJ_C)
 
 all opt: $(TARGET)
 
-lex.yy.c: parser/impossible.l
-	flex --header-file=lex.yy.h $<
+parser/lexer.cpp: parser/impossible.l
+	/usr/local/opt/flex/bin/flex -c++ --outfile=parser/lexer.cpp $<
 
-impossible.tab.cpp: parser/impossible.ypp lex.yy.c
-	/usr/local/Cellar/bison/3.0.4/bin/bison -d -v $<
+parser/parser.cpp: parser/impossible.ypp parser/lexer.cpp
+	/usr/local/opt/bison/bin/bison -d -v --output-file=parser/parser.cpp $<
 
 $(TARGET) : $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
-%.o: %.c
+$(BUILD_DIR)/%.o: %.c
 	$(CC) -x c++ $(CFLAGS) -c $< -o $@
 
-%.o: %.cpp
+$(BUILD_DIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS) $(TARGET) lex.yy.* impossible.tab.*
+	rm -f $(OBJS) $(TARGET) parser/parser.cpp parser/parser.h parser/lexer.cpp

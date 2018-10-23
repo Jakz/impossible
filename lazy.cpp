@@ -50,9 +50,9 @@ void LazyArrayHolder::generateNth(VM* vm, u32 index)
   this->index = index;
   
   if (it != indices.end())
-    vm->execute(it->second->get());
+    vm->execute(it->second->code());
   else
-    vm->execute(lambda->get());
+    vm->execute(lambda->code());
   
   Value *v;
   vm->popOne(&v);

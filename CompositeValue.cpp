@@ -119,10 +119,10 @@ std::string Lambda::svalue() const
   
   ss << "[";
   
-  for (int i = 0; i < value->len(); ++i)
+  for (int i = 0; i < _code->len(); ++i)
   {
-    ss << value->at(i)->svalue();
-    if (i < value->len() - 1)
+    ss << _code->at(i)->svalue();
+    if (i < _code->len() - 1)
       ss << " ";
   }
   

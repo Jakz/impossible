@@ -20,6 +20,11 @@ using u64 = uint64_t;
 using integral_t = s64;
 using real_t = double;
 
+struct managed_object
+{
+  virtual ~managed_object() { }
+};
+
 struct enum_hash
 {
   template <typename T>

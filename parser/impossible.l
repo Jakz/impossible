@@ -1,134 +1,147 @@
 %{
-	/*extern "C"
-	{
-    int yylex(void);
-	}*/
-
   #include "Values.h"
   #include "instruction.h"
   #include "defines.h"
   
-  #include "impossible.tab.hpp"
+  #include "parser.hpp"
+  #include "lexer.h"
+  #include "compiler.h"
+  
+  #define yyterminate() script::Parser::make_END(loc);
+
+  using token = compiler::Parser::token;
+
+  static compiler::location loc;
 %}
 
+%option nodefault
 %option noyywrap
+%option c++
+%option yyclass="Lexer"
+%option prefix="Base"
+
+%{
+  # define YY_USER_ACTION  loc.columns((int)yyleng);
+%}
 
 %%
 
-"[#]" { return T_RECUR; }
-"{#}" { return T_RECURV; }
+%{
+  loc.step();
+%}
 
-"(>" { return T_RISE; }
-"<)" { return T_SINK; }
+"{#}" { return Parser::make_OPCODE(OP_RECURV, loc); }
 
-"@>" { return T_RAND; }
-"#>" { return T_SORT; }
-"$>" { return T_SHUFFLE; }
+"(>" { return Parser::make_OPCODE(OP_RISE, loc); }
+"<)" { return Parser::make_OPCODE(OP_SINK, loc); }
 
-"<#" { return T_HASH_FRONT; }
-">#" { return T_HASH_BACK; }
-"<@" { return T_AT_FRONT; }
-">@" { return T_AT_BACK; }
+"@>" { return Parser::make_OPCODE(OP_RAND, loc); }
+"#>" { return Parser::make_OPCODE(OP_SORT, loc); }
+"$>" { return Parser::make_OPCODE(OP_SHUFFLE, loc); }
 
-"!!" { return T_DBANG; }
-"??" { return T_DQUESTION; }
-"<>" { return T_WHILE; }
+"<#" { return Parser::make_OPCODE(OP_HASH_FRONT, loc); }
+">#" { return Parser::make_OPCODE(OP_HASH_BACK, loc); }
+"<@" { return Parser::make_OPCODE(OP_AT_FRONT, loc); }
+">@" { return Parser::make_OPCODE(OP_AT_BACK, loc); }
 
-".>." { return T_MAP; }
-":>:" { return T_DMAP; }
-":>." { return T_FOLD; }
-":*." { return T_CARTESIAN; }
-".>:" { return T_ITERI; }
-".>" { return T_ITER; }
+"!!" { return Parser::make_OPCODE(OP_DBANG, loc); }
+"??" { return Parser::make_OPCODE(OP_DQUESTION, loc); }
+"<>" { return Parser::make_OPCODE(OP_WHILE, loc); }
 
-".?" { return T_ANY; }
-":?" { return T_EVERY; }
+".>." { return Parser::make_OPCODE(OP_MAP, loc); }
+":>:" { return Parser::make_OPCODE(OP_DMAP, loc); }
+":>." { return Parser::make_OPCODE(OP_FOLD, loc); }
+":*." { return Parser::make_OPCODE(OP_CARTESIAN, loc); }
+".>:" { return Parser::make_OPCODE(OP_ITERI, loc); }
+".>" { return Parser::make_OPCODE(OP_ITER, loc); }
 
-"+." { return T_PLUS_MON; }
-"+:" { return T_PLUS_DIA; }
-"-." { return T_MINUS_MON; }
-"-:" { return T_MINUS_DIA; }
-"*." { return T_TIMES_MON; }
-"*:" { return T_TIMES_DIA; }
-"/." { return T_DIVIDE_MON; }
-"/:" { return T_DIVIDE_DIA; }
+".?" { return Parser::make_OPCODE(OP_ANY, loc); }
+":?" { return Parser::make_OPCODE(OP_EVERY, loc); }
 
-"//" { return T_DDIVIDE; }
+"+." { return Parser::make_OPCODE(OP_PLUS_MON, loc); }
+"+:" { return Parser::make_OPCODE(OP_PLUS_DIA, loc); }
+"-." { return Parser::make_OPCODE(OP_MINUS_MON, loc); }
+"-:" { return Parser::make_OPCODE(OP_MINUS_DIA, loc); }
+"*." { return Parser::make_OPCODE(OP_TIMES_MON, loc); }
+"*:" { return Parser::make_OPCODE(OP_TIMES_DIA, loc); }
+"/." { return Parser::make_OPCODE(OP_DIVIDE_MON, loc); }
+"/:" { return Parser::make_OPCODE(OP_DIVIDE_DIA, loc); }
 
-"+" { return T_PLUS; }
-"-" { return T_MINUS; }
-"/" { return T_DIVIDE; }
-"*" { return T_TIMES; }
-"_" { return T_UNDERSCORE; }
+"//" { return Parser::make_OPCODE(OP_MOD, loc); }
 
-">>" { return T_RSHIFT; }
-"<<" { return T_LSHIFT; }
+"+" { return Parser::make_OPCODE(OP_PLUS, loc); }
+"-" { return Parser::make_OPCODE(OP_MINUS, loc); }
+"/" { return Parser::make_OPCODE(OP_DIVIDE, loc); }
+"*" { return Parser::make_OPCODE(OP_TIMES, loc); }
+"_" { return Parser::make_OPCODE(OP_NEG, loc); }
 
-"<" { return T_LESSER; }
-">" { return T_GREATER; }
+">>" { return Parser::make_OPCODE(OP_RSHIFT, loc); }
+"<<" { return Parser::make_OPCODE(OP_LSHIFT, loc); }
 
-"&" { return T_AND; }
-"|" { return T_OR; }
-"~" { return T_NOT; }
+"<" { return Parser::make_OPCODE(OP_LESSER, loc); }
+">" { return Parser::make_OPCODE(OP_GREATER, loc); }
 
-"@" { return T_AT; }
-"#" { return T_HASH; }
+"&" { return Parser::make_OPCODE(OP_AND, loc); }
+"|" { return Parser::make_OPCODE(OP_OR, loc); }
+"~" { return Parser::make_OPCODE(OP_NOT, loc); }
 
-"=" { return T_EQUAL; }
-"^" { return T_PEEK; }
+"@" { return Parser::make_OPCODE(OP_AT, loc); }
+"#" { return Parser::make_OPCODE(OP_HASH, loc); }
 
-"(" { return T_LPAREN; }
-")" { return T_RPAREN; }
-"{" { return T_LBRACE; }
-"}" { return T_RBRACE; }
-"[" { return T_LBRACK; }
-"]" { return T_RBRACK; }
+"=" { return Parser::make_OPCODE(OP_EQUAL, loc); }
+"^" { return Parser::make_OPCODE(OP_PEEK, loc); }
 
-"!" { return T_BANG; }
-"?" { return T_QUESTION; }
+"(" { return Parser::make_LPAREN(loc); }
+")" { return Parser::make_RPAREN(loc); }
+"{" { return Parser::make_LBRACE(loc); }
+"}" { return Parser::make_RBRACE(loc); }
+"[" { return Parser::make_LBRACK(loc); }
+"]" { return Parser::make_RBRACK(loc); }
+":" { return Parser::make_COLON(loc); }
 
-"$" { return T_DOLLAR; }
-"%" { return T_PERCENT; }
-";" { return T_SEMICOL; }
-"," { return T_COMMA; }
 
-"." { return T_PERIOD; }
-":" { return T_COLON; }
+"!" { return Parser::make_OPCODE(OP_BANG, loc); }
+"?" { return Parser::make_OPCODE(OP_QUESTION, loc); }
 
-"t" { yylval.v = new Bool(true); return BOOLEAN; }
-"f" { yylval.v = new Bool(false); return BOOLEAN; }
+"$" { return Parser::make_OPCODE(OP_DUPE, loc); }
+"%" { return Parser::make_OPCODE(OP_SWAP, loc); }
+";" { return Parser::make_OPCODE(OP_DROP, loc); }
+"," { return Parser::make_OPCODE(OP_PICK, loc); }
 
-"R" { yylval.op = OP_RAISE_STACK; return T_OPCODE; }
-"L" { yylval.op = OP_LOWER_STACK; return T_OPCODE; }
+"." { return Parser::make_OPCODE(OP_PERIOD, loc); }
 
-"r" { yylval.op = OP_RAISE_STACKV; return T_OPCODE; }
-"l" { yylval.op = OP_LOWER_STACKV; return T_OPCODE; }
+"t" { return Parser::make_BOOLEAN(true, loc); }
+"f" { return Parser::make_BOOLEAN(false, loc); }
 
-"s" { return T_S; }
+"R" { return Parser::make_OPCODE(OP_RAISE_STACK, loc); }
+"L" { return Parser::make_OPCODE(OP_LOWER_STACK, loc); }
 
-"i" { return T_I; }
+"r" { return Parser::make_OPCODE(OP_RAISE_STACKV, loc); }
+"l" { return Parser::make_OPCODE(OP_LOWER_STACKV, loc); }
 
-"'"[0-9a-zA-Z] { yylval.v = new Char(yytext[1]); return CHARACTER; }
+"s" { return Parser::make_OPCODE(OP_STRING_CAST, loc); }
+
+"'"[0-9a-zA-Z] { return Parser::make_CHARACTER(yytext[1], loc); }
 
 "-"?[0-9]+"..""-"?[0-9]+ {
   int i = 0;
   while (yytext[i] != '.') ++i;
   yytext[i] = '\0';
   
-  yylval.v = new Range(RangeVector(atoi(yytext), atoi(&yytext[i+2])));
-  return RANGE;
+  integral_t s = atoi(yytext), e = &yytext[i+2];
+  return Parser::make_RANGE(new Range(RangeVector(s, e)), loc);
 }
 
-"x"[0-9a-fA-F]+ { yylval.v = new Int((int)strtoul(&yytext[1], NULL, 16)); return INTEGER; }
-"b"[0-1]+ { yylval.v = new Int((int)strtoul(&yytext[1], NULL, 2)); return INTEGER; }
-"-"?[0-9]+ { yylval.v = new Int(atoi(yytext)); return INTEGER;}
+"x"[0-9a-fA-F]+ { return Parser::make_INTEGER(strtoul(&yytext[1], NULL, 16), loc); }
+"b"[0-1]+ { return Parser::make_INTEGER(strtoul(&yytext[1], NULL, 2), loc); }
+"-"?[0-9]+ { return Parser::make_INTEGER(atoi(yytext), loc);}
 "-"?[0-9]+"k" {
   char *tmp = strdup(yytext);
   char *index = strchr(tmp, 'k') - 1;
   *index = NULL;
 
   free(tmp);
-  yylval.v = new Int(atoi(yytext)*1000); return INTEGER;
+  return Parser::make_INTEGER(atoi(yytext)*1000, loc);
 }
 
 "-"?[0-9]+"kk" {
@@ -137,7 +150,7 @@
   *index = '\0';
   
   free(tmp);
-  yylval.v = new Int(atoi(yytext)*1000000); return INTEGER;
+  return Parser::make_INTEGER(atoi(yytext)*1000000, loc);
 }
 
 
@@ -156,17 +169,14 @@
   r *= atoi(i1);
   
   free(tmp);
-  yylval.v = new Int(r); return INTEGER;  
+  return Parser::make_INTEGER(r, loc);
 }
-"-"?[0-9]*\.[0-9]+"f"? { yylval.v = new Float(atof(yytext)); return FLOAT; }
+"-"?[0-9]*\.[0-9]+"f"? { return Parser::make_FLOAT(atof(yytext)); }
 
-\"(\\.|[^\\"])*\" { yytext[strlen(yytext)-1] = '\0'; yylval.v = new Value(TYPE_STRING, new String(&yytext[1])); return STRING_LITERAL; }
+\"(\\.|[^\\"])*\" { yytext[strlen(yytext)-1] = '\0'; return Parser::make_STRING(yytext, loc); }
 
-[a-zA-Z][a-zA-Z0-9]* { /*yylval.str = strdup(yytext);*/ return STRING; }
+\n|"\r\n" { Parser::make_EOL(loc); loc.lines((int)yyleng); }
 
-
-
-\n|"\r\n" { return T_EOL; }
 [ \t] { /* ignore whitespace */ }
 
 . { printf("Mystery character %c\n", *yytext); fflush(stdout); }

@@ -25,11 +25,6 @@
 
 #define TYPES(x, y) (x << 4 | y)
 
-struct managed_object
-{
-  virtual ~managed_object() { }
-};
-
 class TCollection;
 class String;
 class Array;
@@ -61,6 +56,7 @@ class Value
 {
 public:
   value_data data;
+  TypeInfo type;
 
 public:
   Value() : type(TYPE_NIL), data(0LL) { }
@@ -81,6 +77,9 @@ public:
   Value(Array* array);
   Value(Map* map);
   Value(Set* set);
+  Value(Lambda* lambda);
+  
+  Value& operator=(const Value& other) { this->data = other.data; this->type = other.type; return *this; }
   
   bool operator==(const Value& value) const { return type.traits().equal_to(*this, value); }
   
@@ -89,8 +88,6 @@ public:
 
   virtual bool equals(const Value *value) const { return this->operator==(*value); }
   virtual Value* clone() const { return new Value(*this); }
-
-  const TypeInfo type;
 
   virtual ~Value() { };
 
@@ -113,6 +110,8 @@ public:
   Set* set() const;
   Map* map() const;
   Array* array() const;
+  
+  Lambda* lambda() const;
 };
 
 class TCollection : public managed_object

@@ -36,10 +36,11 @@ class Value;
 class PushInstruction : public Instruction
 {
   private:
-    Value *value;
+    Value value;
 
   public:
-    PushInstruction(Value *value) : Instruction(false), value(value) { }
+    PushInstruction(Value& value) : Instruction(false), value(value) { }
+    PushInstruction(Value&& value) : Instruction(false), value(value) { }
     virtual void execute(VM *vm) const;
     virtual std::string svalue() const;
 };

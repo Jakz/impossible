@@ -78,7 +78,8 @@ private:
   
 public:
   TypeInfo(Type type) : type(type) { }
-  
+  //TypeInfo(const TypeInfo& other) : type(other.type) { }
+    
   inline const char* name() const { return TypeTraits::nameForType(type); }
   inline bool isCollection() const { return TypeTraits::isCollection(type); }
   
@@ -89,3 +90,4 @@ public:
   
   operator Type() const { return type; }
 };
+

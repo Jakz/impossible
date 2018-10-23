@@ -1,19 +1,45 @@
 %skeleton "lalr1.cc"
 %require "3.0.2"
 
+%defines
+%define api.namespace {compiler}
+%define parser_class_name {Parser}
+
 %define api.token.constructor
 %define api.value.type variant
 
-%{
+%code requires {
+  namespace compiler
+  {
+    class Compiler;
+    class Lexer;
+  }
+}
+
+%lex-param { compiler::Lexer &lexer }
+%lex-param { compiler::Compiler &compiler }
+%parse-param { compiler::Lexer &lexer }
+%parse-param { compiler::Compiler &compiler }
+
+%locations
+%define parse.trace
+%define parse.error verbose
+
+%code top
+{
   #define YYDEBUG 1
   
   #include <iostream>
 
   #include "Values.h"
+  #include "TypeTraits.h"
   #include "instruction.h"
   #include "defines.h"
   
-  #include "lex.yy.h"
+  #include "CompositeValue.h" //TODO: for value_hash
+  
+  #include "lexer.h"
+  #include "compiler.h"
 
 	//extern "C"
 	//{
@@ -29,172 +55,150 @@
     Code *code;
 	//}
   
-%}
-
-%union
-{
-	Value *v;
-  Instruction *i;
-  struct InstructionTree *il;
-
-  struct ValueTree *vl;
-  struct ValuePairTree *vpl;
-  struct LambdaIntPair *lip;
-  struct Code *code;
-  Opcode op;
   
-  std::list<Value> values;
+  static compiler::Parser::symbol_type yylex(compiler::Lexer& scanner, compiler::Compiler& compiler)
+  {
+    return scanner.get_next_token();
+  }
+  
+  using namespace compiler;
 }
 
+%token
+  END 0 "end of file"
+  EOL "\n"
 
-%token T_EOL
+  LPAREN "("
+  RPAREN ")"
+  LBRACE "{"
+  RBRACE "}"
+  LBRACK "["
+  RBRACK "]"
 
-%token T_DOLLAR T_PERCENT T_SEMICOL T_COMMA T_RISE T_SINK
+  COLON ":"
+;
 
-%token T_LPAREN T_RPAREN T_LBRACE T_RBRACE T_LBRACK T_RBRACK
+%define api.token.prefix {T_}
+%token <Opcode>
+  DOLLAR "$"
+  PERCENT "%"
+  SEMICOL ";"
+  COMMA ","
+  RISE "(>"
+  SINK "<)"
 
-%token T_PLUS T_MINUS T_DIVIDE T_TIMES
-%token T_DDIVIDE
-%token T_AND T_OR T_NOT T_RSHIFT T_LSHIFT T_UNDERSCORE
 
-%token T_PLUS_MON T_PLUS_DIA T_MINUS_MON T_MINUS_DIA T_TIMES_MON T_TIMES_DIA T_DIVIDE_MON T_DIVIDE_DIA
-%token T_RAND T_SORT T_SHUFFLE
 
-%token T_AT T_HASH T_AT_FRONT T_HASH_FRONT T_AT_BACK T_HASH_BACK
+  PLUS "+"
+  MINUS "-"
+  DIVIDE "/"
+  TIMES "*"
+  DDIVIDE "//"
 
-%token T_MAP T_FOLD T_DMAP T_ITER T_ITERI T_ANY T_EVERY T_CARTESIAN
+  AND "&"
+  OR "|"
+  NOT "~"
+  RSHIFT ">>"
+  LSHIFT "<<"
+  UNDERSCORE "_"
 
-%token T_EQUAL T_LESSER T_GREATER
+  PLUS_MON "+."
+  PLUS_DIA "+:"
+  MINUS_MON "-."
+  MINUS_DIA "-:"
+  TIMES_MON "*."
+  TIMES_DIA "*:"
+  DIVIDE_MON "/."
+  DIVIDE_DIA "/:"
 
-%token T_PERIOD T_COLON T_BANG T_DBANG T_QUESTION T_DQUESTION T_PEEK
+  RAND "@>"
+  SORT "#>"
+  SHUFFLE "$>"
 
-%token T_RECUR T_RECURV T_WHILE
+  AT "@"
+  HASH "#"
+  AT_FRONT "<@"
+  AT_BACK ">@"
+  HASH_FRONT "<#"
+  HASH_BACK ">#"
 
-%token T_I T_S
+  MAP ".>."
+  FOLD ":>."
+  DMAP ":>:"
+  ITER ".>"
+  ITERI ".>:"
+  CARTESIAN ":*."
 
-%token T_OPCODE
+  ANY ".?"
+  EVERY ":?"
 
-%type<values> values;
-%type<v> value;
-%type<lip> lazy_pairs;
-%type<vpl> value_pairs;
+  EQUAL "="
+  LESSER "<"
+  GREATER ">"
 
-%type<code> start;
+  PERIOD "."
 
-%type<op> sinstruction T_OPCODE
+  BANG "!"
+  DBANG "!!"
+
+  QUESTION "?"
+  DQUESTION "??"
+
+  PEEK "^"
+
+  RECUR "[#]"
+  RECURV "{#}"
+  WHILE "<>"
+
+  I "i"
+  S "s"
+;
+
+%token<Opcode> OPCODE
 
 
 %token <Value>
-  INTEGER "integer
+  INTEGER "integer"
   FLOAT "float"
   BOOLEAN "bool"
   CHARACTER "char"
   STRING "string"
   RANGE "range"
-  STRING_LITERAL "string"
 ;
 
 %type <Value>
   lambda "lambda"
   lazy_array "larray"
-  opt_value "optional_value"
 ;
 
-%type<Instruction*> instruction
-%type<std::list<Instructon*>> instructions
 
+%type<Code*> start
+
+%type<Value> value
+%type<std::pair<bool, Value>> opt_value "optional_value"
+
+%type<Instruction*> instruction
+%type<std::vector<Instruction*>> instructions
+
+%type<std::list<Value>> values
+%type<std::list<std::pair<Value, Value>>> value_pairs
+%type<std::list<std::pair<integral_t, Lambda*>>> lazy_pairs
 
 %%
 
 start:
-  instructions { if ($1) code = $1->assemble(); }
+  instructions { $$ = new CodeStandard($1); }
 ;
 
 instructions:
-  { $$ = std::list<Instruction*>(); }
+  { $$ = std::vector<Instruction*>(); }
   | instructions instruction { $1.push_back($2); $$ = $1; }
 ;
 
 instruction:
   value { $$ = new PushInstruction($1); }
-  | T_PLUS { $$ = new OpcodeInstruction(OP_PLUS); }
-  | T_MINUS { $$ = new OpcodeInstruction(OP_MINUS); }
-  | T_DIVIDE { $$ = new OpcodeInstruction(OP_DIVIDE); }
-  | T_TIMES { $$ = new OpcodeInstruction(OP_TIMES); }
-
-  | T_DDIVIDE { $$ = new OpcodeInstruction(OP_MOD); }
-
-  | T_UNDERSCORE { $$ = new OpcodeInstruction(OP_NEG); }
-
-  | T_RSHIFT { $$ = new OpcodeInstruction(OP_RSHIFT); }
-  | T_LSHIFT { $$ = new OpcodeInstruction(OP_LSHIFT); }
-  | T_AND { $$ = new OpcodeInstruction(OP_AND); }
-  | T_OR { $$ = new OpcodeInstruction(OP_OR); }
-  | T_NOT { $$ = new OpcodeInstruction(OP_NOT); }
-  
-  | T_RAND { $$ = new OpcodeInstruction(OP_RAND); }
-  | T_SORT { $$ = new OpcodeInstruction(OP_SORT); }
-  | T_SHUFFLE { $$ = new OpcodeInstruction(OP_SHUFFLE); }
-  
-  | T_PLUS_MON { $$ = new OpcodeInstruction(OP_PLUS_MON); }
-  | T_PLUS_DIA { $$ = new OpcodeInstruction(OP_PLUS_DIA); }
-  | T_MINUS_MON { $$ = new OpcodeInstruction(OP_MINUS_MON); }
-  | T_MINUS_DIA { $$ = new OpcodeInstruction(OP_MINUS_DIA); }
-  | T_TIMES_MON { $$ = new OpcodeInstruction(OP_TIMES_MON); }
-  | T_TIMES_DIA { $$ = new OpcodeInstruction(OP_TIMES_DIA); }
-  | T_DIVIDE_MON { $$ = new OpcodeInstruction(OP_DIVIDE_MON); }
-  | T_DIVIDE_DIA { $$ = new OpcodeInstruction(OP_DIVIDE_DIA); }
-
-  | T_BANG { $$ = new OpcodeInstruction(OP_BANG); }
-  | T_DBANG { $$ = new OpcodeInstruction(OP_DBANG); }
-  | T_QUESTION { $$ = new OpcodeInstruction(OP_QUESTION); }
-  | T_DQUESTION { $$ = new OpcodeInstruction(OP_DQUESTION); }
-
-  | T_DOLLAR { $$ = new OpcodeInstruction(OP_DUPE); }
-  | T_PERCENT { $$ = new OpcodeInstruction(OP_SWAP); }
-  | T_SEMICOL { $$ = new OpcodeInstruction(OP_DROP); }
-  | T_COMMA { $$ = new OpcodeInstruction(OP_PICK); }
-  | T_RISE { $$ = new OpcodeInstruction(OP_RISE); }
-  | T_SINK { $$ = new OpcodeInstruction(OP_SINK); }
-
-
-  | T_EQUAL { $$ = new OpcodeInstruction(OP_EQUAL); }
-  | T_LESSER { $$ = new OpcodeInstruction(OP_LESSER); }
-  | T_GREATER { $$ = new OpcodeInstruction(OP_GREATER); }
-  
-  | T_PEEK { $$ = new OpcodeInstruction(OP_PEEK); }
-  
-  | T_AT { $$ = new OpcodeInstruction(OP_AT); }
-  | T_HASH { $$ = new OpcodeInstruction(OP_HASH); }
-  | T_AT_FRONT { $$ = new OpcodeInstruction(OP_AT_FRONT); }
-  | T_HASH_FRONT { $$ = new OpcodeInstruction(OP_HASH_FRONT); }
-  | T_AT_BACK { $$ = new OpcodeInstruction(OP_AT_BACK); }
-  | T_HASH_BACK { $$ = new OpcodeInstruction(OP_HASH_BACK); }
-  
-
-  | T_MAP { $$ = new OpcodeInstruction(OP_MAP); }
-  | T_FOLD { $$ = new OpcodeInstruction(OP_FOLD); }
-  | T_DMAP { $$ = new OpcodeInstruction(OP_DMAP); }
-  | T_CARTESIAN { $$ = new OpcodeInstruction(OP_CARTESIAN); }
-  | T_ITER { $$ = new OpcodeInstruction(OP_ITER); }
-  | T_ITERI { $$ = new OpcodeInstruction(OP_ITERI); }
-
-  | T_S { $$ = new OpcodeInstruction(OP_STRING_CAST); }
-
-  | T_ANY { $$ = new OpcodeInstruction(OP_ANY); }
-  | T_EVERY { $$ = new OpcodeInstruction(OP_EVERY); }
-
-  | T_RECUR { $$ = new OpcodeInstruction(OP_RECUR); }
-  | T_RECURV { $$ = new OpcodeInstruction(OP_RECURV); }
-  | T_WHILE { $$ = new OpcodeInstruction(OP_WHILE); }
-  
-  | sinstruction { $$ = new OpcodeInstruction($1); }
+  | OPCODE { $$ = new OpcodeInstruction($1); }
 ;
-
-sinstruction:
-  T_OPCODE { $$ = $1; }
-;
-
 
 values:
   value { $$ = std::list<Value>(); $$.push_front($1); }
@@ -202,100 +206,80 @@ values:
 ;
 
 value_pairs:
-  value T_COLON value { $$ = new ValuePairTree($1, $3, NULL); }
-  | value_pairs value T_COLON value { $$ = new ValuePairTree($2, $4, $1); }
+  value COLON value { $$ = std::list<std::pair<Value, Value>>(); $$.push_front(std::make_pair($1, $3)); }
+  | value_pairs value COLON value { $1.push_back(std::make_pair($2, $4)); $$ = $1; }
 ;
 
 lazy_pairs:
-  { $$ = NULL; };
-  | lazy_pairs INTEGER T_COLON lambda { $$ = new LambdaIntPair($2->integral(), (Lambda*)$4, $1) };
+  { $$ = std::list<std::pair<integral_t, Lambda*>>(); };
+  | lazy_pairs INTEGER COLON lambda { $1.push_back(std::make_pair($2.integral(), $4.lambda())); $$ = $1; }
 ;
 
 lazy_array:
-  T_LPAREN T_QUESTION lazy_pairs lambda T_RPAREN {
-    LazyArrayHolder holder((Lambda*)$4, false);
+  LPAREN QUESTION lazy_pairs lambda RPAREN {
+    LazyArrayHolder holder($4.lambda(), false);
     
-    LambdaIntPair *lip = $3;
-    while (lip) {
-      holder.addMap(lip->i, lip->code);
-      lip = lip->n;
-    }
-    
+    for (const auto& pair : $3)
+      holder.addMap(pair.first, pair.second);
+
     $$ = new LazyArray(holder);
   }
-  | T_LPAREN T_QUESTION T_I lazy_pairs lambda T_RPAREN {
-  LazyArrayHolder holder((Lambda*)$5, true);
+
+  | LPAREN QUESTION I lazy_pairs lambda RPAREN {
+    LazyArrayHolder holder($5.lambda(), true);
   
-  LambdaIntPair *lip = $4;
-  while (lip) {
-    holder.addMap(lip->i, lip->code);
-    lip = lip->n;
+    for (const auto& pair : $4)
+      holder.addMap(pair.first, pair.second);
+  
+    $$ = new LazyArray(holder);
   }
-  
-  $$ = new LazyArray(holder);
-}
 
 opt_value:
-  { $$ = NULL; }
-  | value { $$ = $1; }
-;  
+  { $$ = std::make_pair(false, Value()); }
+  | value { $$ = std::make_pair(false, $1); }
+;
 
 value:
   INTEGER { $$ = $1; }
   | FLOAT { $$ = $1; }
   | BOOLEAN { $$ = $1; }
   | CHARACTER { $$ = $1; }
-  | STRING_LITERAL { $$ = $1; }
+  | STRING { $$ = $1; }
   | RANGE { $$ = $1; }
   
-  | T_LBRACE values T_RBRACE { $$ = new List($2); }
-  | T_LBRACE T_RBRACE { $$ = new List(); }
+  | LBRACE values RBRACE { $$ = new List($2); }
+  | LBRACE RBRACE { $$ = new List(); }
   
-  | T_LBRACE T_GREATER values T_RBRACE { $$ = new Stack($3); }
-  | T_LBRACE T_GREATER T_RBRACE { $$ = new Stack(); }
+  | LBRACE GREATER values RBRACE { $$ = new Stack($3); }
+  | LBRACE GREATER RBRACE { $$ = new Stack(); }
   
-  | T_LBRACE T_LESSER values T_RBRACE { $$ = new Queue($3); }
-  | T_LBRACE T_LESSER T_RBRACE { $$ = new Queue(); }
+  | LBRACE LESSER values RBRACE { $$ = new Queue($3); }
+  | LBRACE LESSER RBRACE { $$ = new Queue(); }
   
-  | T_LBRACE T_PERIOD values T_RBRACE {
-        $$ = new Set(std::unordered_set<Value>($3.begin(), $3.end()));
+  | LBRACE PERIOD values RBRACE {
+      $$ = new Set(Set::set_t($3.begin(), $3.end()));
     }
-  | T_LBRACE T_PERIOD T_RBRACE { $$ = new Set(); }
+  | LBRACE PERIOD RBRACE { $$ = new Set(); }
       
-  | T_LBRACE value_pairs T_RBRACE { $$ = new Map($2->assemble()) }
-  | T_LBRACE T_COLON T_RBRACE { $$ = new Map(); }
+  | LBRACE value_pairs RBRACE { $$ = new Map(Map::map_t($2.begin(), $2.end())); }
+  | LBRACE COLON RBRACE { $$ = new Map(); }
 
 
-  | T_LPAREN values T_RPAREN { $$ = new Array(std::vector<Value>($2.begin(), $2.end())); }
-  | T_LPAREN T_COLON INTEGER opt_value T_RPAREN { $$ = new Array($3->integral(), $4); }
-  | T_LPAREN T_RPAREN { $$ = new Array(); }
+  | LPAREN values RPAREN { $$ = new Array(Array::array_t($2.begin(), $2.end())); }
+  | LPAREN COLON INTEGER opt_value RPAREN { $$ = $4.first ? new Array($3.integral(), $4.second) : new Array($3.integral()); }
+  | LPAREN RPAREN { $$ = new Array(); }
   
   | lazy_array { $$ = $1; }
   | lambda { $$ = $1; }
 ;
     
 lambda:
-    T_LBRACK instructions T_RBRACK { $$ = new Lambda($2->assemble()); }
+    LBRACK instructions RBRACK { $$ = new CodeStandard($2); }
 ;
 
 %%
 
-Code* assemble(const char *string)
+void compiler::Parser::error(const location_type& l, const std::string& m)
 {
-  //yydebug = 1;
-  
-  code = NULL;
-  
-  YY_BUFFER_STATE state = yy_scan_string(string);
-  yyparse();
-  yy_delete_buffer(state);
-
-
-  return code;
-}
-
-void yyerror(const char *s)
-{
-	//failed = true;
-	std::cout << "[ASSEMBLER] Parse error: " << s << std::endl;
+  compiler.error(l,m);
 }

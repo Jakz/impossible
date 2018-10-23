@@ -26,7 +26,7 @@ private:
   const bool useIndices;
   
 public:
-  LazyArrayHolder(Lambda *lambda, bool useIndices) : values(new std::vector<Value*>()), lambda(lambda), useIndices(useIndices) { }
+  LazyArrayHolder(Lambda* lambda, bool useIndices) : values(new std::vector<Value*>()), lambda(lambda), useIndices(useIndices) { }
   //LazyArray(Lambda *lambda, u32 index) : values(new vector<Value*>()), lambda(lambda) { generateUpTo(index); }
   
   void shrinkBy(u32 i) { values->resize(values->size()-1); }

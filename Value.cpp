@@ -20,6 +20,8 @@ Value::Value(Queue* queue) : type(TYPE_STRING), data(queue) { }
 Value::Value(Set* set) : type(TYPE_STRING), data(set) { }
 Value::Value(Array* array) : type(TYPE_STRING), data(array) { }
 Value::Value(Map* map) : type(TYPE_STRING), data(map) { }
+Value::Value(Lambda* map) : type(TYPE_LAMBDA), data(map) { }
+
 
 TCollection* Value::collection() const
 {
@@ -33,6 +35,7 @@ Queue* Value::queue() const { assert(type == TYPE_QUEUE); return object<Queue>()
 Set* Value::set() const { assert(type == TYPE_SET); return object<Set>(); }
 Array* Value::array() const { assert(type == TYPE_ARRAY); return object<Array>(); }
 Map* Value::map() const { assert(type == TYPE_MAP); return object<Map>(); }
+Lambda* Value::lambda() const { assert(type == TYPE_LAMBDA); return object<Lambda>(); }
 
 
 std::string Value::lvalue()

@@ -142,53 +142,51 @@ struct std::equal_to<Value*>
 };
 
 template<>
-struct std::less<Value*>
+struct std::less<Value>
 {
-  bool operator() (const Value* x, const Value* y)
+  bool operator() (const Value& x, const Value& y) const
   {
-    if (x->type != y->type)
+    if (x.type != y.type)
+      return x.type < y.type;
+    else
     {
-      return x->type < y->type;
-      }
-      else
+      switch (x.type)
       {
-        switch (x->type)
+        case TYPE_INT:
         {
-          case TYPE_INT:
-          {
-            less<integral_t> i;
-            const integral_t v1 = x->integral(), v2 = x->integral();
-            return i(v1, v2);
-          }
-          case TYPE_FLOAT:
-          {
-            less<real_t> i;
-            const real_t v1 = x->real(), v2 = x->real();
-            return i(v1, v2);
-          }
-          case TYPE_CHAR:
-          {
-            less<char> i;
-            const char v1 = x->character(), v2 = y->character();
-            return i(v1, v2);
-          }
-          case TYPE_STRING:
-          {
-            less<string> i;
-            const string& v1 = x->string()->data(), &v2 = y->string()->data();
-            return i(v1, v2);
-          }
-          case TYPE_BOOL:
-          {
-            const bool v1 = x->boolean(), v2 = x->boolean();
-            return less<bool>()(v1, v2);
-          }
-            // TODO: collezioni
-          default: return false;
+          less<integral_t> i;
+          const integral_t v1 = x.integral(), v2 = x.integral();
+          return i(v1, v2);
         }
+        case TYPE_FLOAT:
+        {
+          less<real_t> i;
+          const real_t v1 = x.real(), v2 = x.real();
+          return i(v1, v2);
+        }
+        case TYPE_CHAR:
+        {
+          less<char> i;
+          const char v1 = x.character(), v2 = y.character();
+          return i(v1, v2);
+        }
+        case TYPE_STRING:
+        {
+          less<string> i;
+          const string& v1 = x.string()->data(), &v2 = y.string()->data();
+          return i(v1, v2);
+        }
+        case TYPE_BOOL:
+        {
+          const bool v1 = x.boolean(), v2 = x.boolean();
+          return less<bool>()(v1, v2);
+        }
+          // TODO: collezioni
+        default: return false;
       }
-      }
-      };
+    }
+  }
+};
 
 
 template<typename T>
@@ -273,7 +271,8 @@ public:
   Array(array_t& data) : data(data) { }
   Array(array_t&& data) : data(data) { }
   Array() { }
-  Array(int size, const Value& value) : data(size, value) { }
+  Array(integral_t size) { data.resize(size); }
+  Array(integral_t size, const Value& value) : data(size, value) { }
   
   virtual void iterate() const override { it = data.begin(); }
   virtual bool hasNext() const override { return it != data.end(); }
@@ -297,7 +296,8 @@ public:
   virtual u32 size() const override { return (u32)data.size(); }
   virtual bool empty() const override { return this->data.empty(); }
 
-  const array_t& raw() { return data; }
+  array_t& raw() { return data; }
+  const array_t& raw() const { return data; }
   
   array_t::iterator begin() { return data.begin(); }
   array_t::iterator end() { return data.end(); }
@@ -427,91 +427,20 @@ public:
   virtual u32 size() const override { return (u32)data.size(); }
   virtual bool empty() const override { return this->data.empty(); }
   
+  map_t& raw() { return data; }
   const map_t& raw() const { return data; }
 };
 
-class Lambda : public TValue<Code*>
+class Lambda : public managed_object
 {
 private:
+  Code* _code;
   
 public:
-  Lambda(Code* value) : TValue<Code*>(TYPE_LAMBDA, value) { };
+  Lambda(Code* code) : _code(code) { }
+  operator Code*() { return _code; }
   
-  virtual std::string svalue() const;
+  Code* code() { return _code; }
   
-  // TODO
-  virtual bool equals(const Value *value) const { return false; }
-  virtual Value *clone() const { return new Lambda(value); }
-};
-
-
-
-
-
-
-
-
-
-
-struct ValueTree
-{
-  Value *v;
-  ValueTree *n;
-  size_t depth;
-  
-  ValueTree(Value *v, ValueTree *il)
-  {
-    this->v = v;
-    this->n = il;
-    
-    this->depth = il ? il->depth + 1 : 1;
-  }
-  
-  std::list<Value*>* assemble()
-  {
-    std::list<Value*>* values = new std::list<Value*>();
-    
-    ValueTree *tree = this;
-    for (size_t i = 0; i < depth; ++i, tree = tree->n)
-      values->push_front(tree->v);
-    
-    return values;
-  }
-};
-
-struct ValuePairTree
-{
-  Value *k;
-  Value *v;
-  ValuePairTree *n;
-  size_t depth;
-  
-  ValuePairTree(Value *k, Value *v, ValuePairTree *il)
-  {
-    this->v = v;
-    this->k = k;
-    this->n = il;
-    
-    this->depth = il ? il->depth + 1 : 1;
-  }
-  
-  std::unordered_map<Value*, Value*>* assemble()
-  {
-    std::unordered_map<Value*, Value*>* values = new std::unordered_map<Value*, Value*>;
-    
-    ValuePairTree *tree = this;
-    for (size_t i = 0; i < depth; ++i, tree = tree->n)
-      (*values)[tree->k] = tree->v;
-    
-    return values;
-  }
-};
-
-struct LambdaIntPair
-{
-  u32 i;
-  Lambda *code;
-  LambdaIntPair *n;
-  
-  LambdaIntPair(u32 i, Lambda *code, LambdaIntPair *next) : i(i), code(code), n(next) { }
+  std::string svalue() const;
 };

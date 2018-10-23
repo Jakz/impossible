@@ -21,6 +21,14 @@
 		046E4F24217EA22300DB959C /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E07C217BE93D0037C307 /* Value.cpp */; };
 		046E4F26217EA22300DB959C /* Values.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E07E217BE93D0037C307 /* Values.cpp */; };
 		046E4F2D217EA22D00DB959C /* tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04806510217EA1880063ACD5 /* tests.cpp */; };
+		04A637EE217F92E600436B0F /* impossible.l in Sources */ = {isa = PBXBuildFile; fileRef = 04A637EB217F92E600436B0F /* impossible.l */; };
+		04A637EF217F92E600436B0F /* impossible.l in Sources */ = {isa = PBXBuildFile; fileRef = 04A637EB217F92E600436B0F /* impossible.l */; };
+		04A637F0217F92E600436B0F /* impossible.ypp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637EC217F92E600436B0F /* impossible.ypp */; };
+		04A637F1217F92E600436B0F /* impossible.ypp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637EC217F92E600436B0F /* impossible.ypp */; };
+		04A637F6217F977700436B0F /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637F4217F977700436B0F /* parser.cpp */; };
+		04A637F7217F977700436B0F /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637F4217F977700436B0F /* parser.cpp */; };
+		04A637FA217F992200436B0F /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637F9217F992200436B0F /* lexer.cpp */; };
+		04A637FB217F992200436B0F /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637F9217F992200436B0F /* lexer.cpp */; };
 		04F6E084217BE93D0037C307 /* code.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E066217BE93D0037C307 /* code.cpp */; };
 		04F6E085217BE93D0037C307 /* CompositeValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E068217BE93D0037C307 /* CompositeValue.cpp */; };
 		04F6E086217BE93D0037C307 /* help.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06B217BE93D0037C307 /* help.cpp */; };
@@ -62,6 +70,14 @@
 		046E4F2C217EA22300DB959C /* Tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Tests; sourceTree = BUILT_PRODUCTS_DIR; };
 		0480650F217EA1880063ACD5 /* catch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = catch.h; sourceTree = "<group>"; };
 		04806510217EA1880063ACD5 /* tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = tests.cpp; sourceTree = "<group>"; };
+		04A637EA217F92E600436B0F /* compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compiler.h; sourceTree = "<group>"; };
+		04A637EB217F92E600436B0F /* impossible.l */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.lex; path = impossible.l; sourceTree = "<group>"; };
+		04A637EC217F92E600436B0F /* impossible.ypp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.yacc; path = impossible.ypp; sourceTree = "<group>"; };
+		04A637F3217F977700436B0F /* lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexer.h; sourceTree = "<group>"; };
+		04A637F4217F977700436B0F /* parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parser.cpp; sourceTree = "<group>"; };
+		04A637F5217F977700436B0F /* parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = parser.hpp; sourceTree = "<group>"; };
+		04A637F8217F986B00436B0F /* FlexLexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlexLexer.h; sourceTree = "<group>"; };
+		04A637F9217F992200436B0F /* lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lexer.cpp; sourceTree = "<group>"; };
 		04F6E05B217BE8FB0037C307 /* Impossible */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Impossible; sourceTree = BUILT_PRODUCTS_DIR; };
 		04F6E066217BE93D0037C307 /* code.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = code.cpp; path = ../../code.cpp; sourceTree = "<group>"; };
 		04F6E067217BE93D0037C307 /* code.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = code.h; path = ../../code.h; sourceTree = "<group>"; };
@@ -92,8 +108,6 @@
 		04F6E083217BE93D0037C307 /* VTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VTable.h; path = ../../VTable.h; sourceTree = "<group>"; };
 		04F6E092217CCB9C0037C307 /* TypeTraits.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TypeTraits.cpp; path = ../../TypeTraits.cpp; sourceTree = "<group>"; };
 		04F6E093217CCB9C0037C307 /* TypeTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TypeTraits.h; path = ../../TypeTraits.h; sourceTree = "<group>"; };
-		04F6E095217CD02B0037C307 /* impossible.l */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.lex; name = impossible.l; path = ../../parser/impossible.l; sourceTree = "<group>"; };
-		04F6E096217CD02B0037C307 /* impossible.ypp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.yacc; name = impossible.ypp; path = ../../parser/impossible.ypp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +138,22 @@
 			path = ../../tests;
 			sourceTree = "<group>";
 		};
+		04A637E9217F92E600436B0F /* parser */ = {
+			isa = PBXGroup;
+			children = (
+				04A637F8217F986B00436B0F /* FlexLexer.h */,
+				04A637F9217F992200436B0F /* lexer.cpp */,
+				04A637F3217F977700436B0F /* lexer.h */,
+				04A637F4217F977700436B0F /* parser.cpp */,
+				04A637F5217F977700436B0F /* parser.hpp */,
+				04A637EA217F92E600436B0F /* compiler.h */,
+				04A637EB217F92E600436B0F /* impossible.l */,
+				04A637EC217F92E600436B0F /* impossible.ypp */,
+			);
+			name = parser;
+			path = ../../parser;
+			sourceTree = "<group>";
+		};
 		04F6E052217BE8FB0037C307 = {
 			isa = PBXGroup;
 			children = (
@@ -145,6 +175,7 @@
 			isa = PBXGroup;
 			children = (
 				0480650E217EA1880063ACD5 /* tests */,
+				04A637E9217F92E600436B0F /* parser */,
 				04F6E066217BE93D0037C307 /* code.cpp */,
 				04F6E067217BE93D0037C307 /* code.h */,
 				04F6E068217BE93D0037C307 /* CompositeValue.cpp */,
@@ -152,8 +183,6 @@
 				04F6E06A217BE93D0037C307 /* defines.h */,
 				04F6E06B217BE93D0037C307 /* help.cpp */,
 				04F6E06C217BE93D0037C307 /* help.h */,
-				04F6E095217CD02B0037C307 /* impossible.l */,
-				04F6E096217CD02B0037C307 /* impossible.ypp */,
 				04F6E06D217BE93D0037C307 /* impossible.tab.cpp */,
 				04F6E06E217BE93D0037C307 /* impossible.tab.hpp */,
 				04F6E06F217BE93D0037C307 /* instruction.cpp */,
@@ -257,8 +286,10 @@
 			files = (
 				046E4F2D217EA22D00DB959C /* tests.cpp in Sources */,
 				046E4F18217EA22300DB959C /* vm.cpp in Sources */,
+				04A637FB217F992200436B0F /* lexer.cpp in Sources */,
 				046E4F19217EA22300DB959C /* code.cpp in Sources */,
 				046E4F1A217EA22300DB959C /* CompositeValue.cpp in Sources */,
+				04A637F7217F977700436B0F /* parser.cpp in Sources */,
 				046E4F1B217EA22300DB959C /* help.cpp in Sources */,
 				046E4F1C217EA22300DB959C /* SimpleValue.cpp in Sources */,
 				046E4F1D217EA22300DB959C /* VTable.cpp in Sources */,
@@ -267,6 +298,8 @@
 				046E4F20217EA22300DB959C /* lazy.cpp in Sources */,
 				046E4F22217EA22300DB959C /* lex.yy.c in Sources */,
 				046E4F23217EA22300DB959C /* TypeTraits.cpp in Sources */,
+				04A637F1217F92E600436B0F /* impossible.ypp in Sources */,
+				04A637EF217F92E600436B0F /* impossible.l in Sources */,
 				046E4F24217EA22300DB959C /* Value.cpp in Sources */,
 				046E4F26217EA22300DB959C /* Values.cpp in Sources */,
 			);
@@ -278,8 +311,10 @@
 			files = (
 				04F6E090217BE93D0037C307 /* vm.cpp in Sources */,
 				04F6E084217BE93D0037C307 /* code.cpp in Sources */,
+				04A637FA217F992200436B0F /* lexer.cpp in Sources */,
 				04F6E085217BE93D0037C307 /* CompositeValue.cpp in Sources */,
 				04F6E086217BE93D0037C307 /* help.cpp in Sources */,
+				04A637F6217F977700436B0F /* parser.cpp in Sources */,
 				04F6E08C217BE93D0037C307 /* SimpleValue.cpp in Sources */,
 				04F6E091217BE93D0037C307 /* VTable.cpp in Sources */,
 				04F6E088217BE93D0037C307 /* instruction.cpp in Sources */,
@@ -288,6 +323,8 @@
 				04F6E08B217BE93D0037C307 /* main.cpp in Sources */,
 				04F6E08A217BE93D0037C307 /* lex.yy.c in Sources */,
 				04F6E094217CCB9C0037C307 /* TypeTraits.cpp in Sources */,
+				04A637F0217F92E600436B0F /* impossible.ypp in Sources */,
+				04A637EE217F92E600436B0F /* impossible.l in Sources */,
 				04F6E08E217BE93D0037C307 /* Value.cpp in Sources */,
 				04F6E08F217BE93D0037C307 /* Values.cpp in Sources */,
 			);

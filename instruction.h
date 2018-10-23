@@ -14,8 +14,6 @@
 
 #include <string>
 
-using namespace std;
-
 class VM;
 class Code;
 
@@ -28,7 +26,7 @@ class Instruction
     virtual void execute(VM *vm) const = 0;
     virtual bool equals(Instruction *) const { return false; } 
   
-    virtual string svalue() const = 0;
+    virtual std::string svalue() const = 0;
   
     const bool verbose;
 };
@@ -43,7 +41,7 @@ class PushInstruction : public Instruction
   public:
     PushInstruction(Value *value) : Instruction(false), value(value) { }
     virtual void execute(VM *vm) const;
-    virtual string svalue() const;
+    virtual std::string svalue() const;
 };
 
 class OpcodeInstruction : public Instruction
@@ -54,7 +52,7 @@ public:
 public:
   OpcodeInstruction(Opcode opcode) : Instruction(true), opcode(opcode) {}
   virtual void execute(VM *vm) const;
-  virtual string svalue() const;
+  virtual std::string svalue() const;
 };
 
 struct InstructionTree

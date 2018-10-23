@@ -35,7 +35,7 @@ struct CollectionPrinter
   
   std::string svalue(const TCollection* collection) const
   {
-    stringstream ss(stringstream::out);
+    std::stringstream ss(std::stringstream::out);
     bool first = true;
     collection->iterate();
     
@@ -57,11 +57,11 @@ struct CollectionPrinter
   }
 };
 
-string Range::svalue() const
+std::string Range::svalue() const
 {
-  vector<RangePair>::const_iterator it;
+  std::vector<RangePair>::const_iterator it;
   
-  stringstream ss(stringstream::out);
+  std::stringstream ss(std::stringstream::out);
   
   bool first = true;
   for (it = value.data->begin(); it != value.data->end(); ++it)
@@ -92,26 +92,26 @@ std::string Array::svalue() const { return ArrayPrinter.svalue(this); }
 std::string Set::svalue() const { return SetPrinter.svalue(this); }
 
 
-string LazyArray::svalue() const
+std::string LazyArray::svalue() const
 {
-  string s("(? ");
+  std::string s("(? ");
   s += value.code()->svalue();
   s += " )";
   return s;
 }
 
 
-string Map::svalue() const
+std::string Map::svalue() const
 {
   if (value->empty())
     return "{:}";
   
-  stringstream ss(stringstream::out);
+  std::stringstream ss(std::stringstream::out);
   
   bool first = true;
   
   ss << "{";
-  for (unordered_map<Value*, Value*>::const_iterator it = value->begin(); it != value->end(); ++it)
+  for (std::unordered_map<Value*, Value*>::const_iterator it = value->begin(); it != value->end(); ++it)
   {
     if (first)
       first = false;
@@ -126,9 +126,9 @@ string Map::svalue() const
   return ss.str();
 }
 
-string Lambda::svalue() const
+std::string Lambda::svalue() const
 {
-  stringstream ss(stringstream::out);
+  std::stringstream ss(std::stringstream::out);
   
   ss << "[";
   
@@ -148,9 +148,9 @@ bool List::equals(const Value *value) const
 {
   if (value->type == TYPE_LIST)
   {
-    list<Value*>* cvalue = ((List*)value)->value;
+    std::list<Value*>* cvalue = ((List*)value)->value;
     
-    list<Value*>::const_iterator it, it2;
+    std::list<Value*>::const_iterator it, it2;
     
     for (it = this->value->begin(), it2 = cvalue->begin(); it != this->value->end() && it2 != cvalue->end(); ++it, ++it2)
       if (!(*it)->equals((*it2)))
@@ -178,9 +178,9 @@ bool Stack::equals(const Value *value) const
 {
   if (value->type == TYPE_STACK)
   {
-    list<Value*>* cvalue = ((Stack*)value)->value;
+    std::list<Value*>* cvalue = ((Stack*)value)->value;
     
-    list<Value*>::const_iterator it, it2;
+    std::list<Value*>::const_iterator it, it2;
     
     for (it = this->value->begin(), it2 = cvalue->begin(); it != this->value->end() && it2 != cvalue->end(); ++it, ++it2)
       if (!(*it)->equals((*it2)))
@@ -201,9 +201,9 @@ bool Queue::equals(const Value *value) const
 {
   if (value->type == TYPE_QUEUE)
   {
-    list<Value*>* cvalue = ((Stack*)value)->get();
+    std::list<Value*>* cvalue = ((Stack*)value)->get();
     
-    list<Value*>::const_iterator it, it2;
+    std::list<Value*>::const_iterator it, it2;
     
     for (it = this->value->begin(), it2 = cvalue->begin(); it != this->value->end() && it2 != cvalue->end(); ++it, ++it2)
       if (!(*it)->equals((*it2)))
@@ -224,9 +224,9 @@ bool Array::equals(const Value *value) const
 {
   if (value->type == TYPE_ARRAY)
   {
-    vector<Value*>* cvalue = ((Array*)value)->value;
+    std::vector<Value*>* cvalue = ((Array*)value)->value;
     
-    vector<Value*>::const_iterator it, it2;
+    std::vector<Value*>::const_iterator it, it2;
     
     for (it = this->value->begin(), it2 = cvalue->begin(); it != this->value->end() && it2 != cvalue->end(); ++it, ++it2)
       if (!(*it)->equals((*it2)))
@@ -254,11 +254,11 @@ bool Set::equals(const Value *value) const
 {
   if (value->type == TYPE_SET)
   {
-    unordered_set<Value*>* cvalue = ((Set*)value)->value;
+    std::unordered_set<Value*>* cvalue = ((Set*)value)->value;
     
     if (cvalue->size()== this->value->size())
     {
-      unordered_set<Value*>::iterator it, it2;
+      std::unordered_set<Value*>::iterator it, it2;
       
       for (it = this->value->begin(); it != this->value->end(); ++it)
       {

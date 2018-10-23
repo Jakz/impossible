@@ -13,9 +13,9 @@
 #include <iomanip>
 #include <sstream>
 
-string CodeStandard::svalue(u32 pc)
+std::string CodeStandard::svalue(u32 pc)
 {
-  stringstream ss(stringstream::out);
+  std::stringstream ss(std::stringstream::out);
   u32 l = 0;
   
   for (int i = 0; i < len(); ++i)
@@ -26,8 +26,8 @@ string CodeStandard::svalue(u32 pc)
     
   }
   
-  ss << endl;
-  ss << string(l, ' ');
+  ss << std::endl;
+  ss << std::string(l, ' ');
   ss << '^';
   
   
@@ -38,7 +38,7 @@ string CodeStandard::svalue(u32 pc)
 CurriedCode::CurriedCode(Code *code, Value *value) : code(code), value(new PushInstruction(value)) { };
 CurriedCode::CurriedCode(Code *code, PushInstruction *value) : code(code), value(value) { };
 
-u32 CurriedCode::len() { return code->len() + 1; }
+size_t CurriedCode::len() { return code->len() + 1; }
 
 Instruction *CurriedCode::at(u32 i)
 {

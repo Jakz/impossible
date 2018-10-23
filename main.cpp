@@ -84,6 +84,8 @@ class Ternary<OP_RISE, Value, Value, Value> {
 #define VAR_DECL1(x, z) z* v1 = (z*)x
 #define VAR_DECL2(x, z) z* v2 = (z*)x
 
+using namespace std;
+
 int main (int argc, const char * argv[])
 {
   //Unary<OP_MINUS, Float> unary;

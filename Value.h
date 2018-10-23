@@ -23,14 +23,14 @@
 #include <unordered_map>
 #include <unordered_set>
 
-using namespace std;
-
 #define TYPES(x, y) (x << 4 | y)
 
-struct managed_value
+struct managed_object
 {
-  virtual ~managed_value() { }
+  virtual ~managed_object() { }
 };
+
+class String;
 
 union value_data
 {
@@ -38,14 +38,14 @@ union value_data
   real_t f;
   char c;
   bool b;
-  managed_value* ptr;
+  managed_object* ptr;
   
   value_data(integral_t i) : i(i) { }
   value_data(real_t f) : f(f) { }
   value_data(char c) : c(c) { }
   value_data(bool b) : b(b) { }
   
-  value_data(managed_value* ptr) : ptr(ptr) { }
+  value_data(managed_object* ptr) : ptr(ptr) { }
   
   bool operator==(const value_data& o) const { return i == o.i; }
 };
@@ -56,20 +56,23 @@ public:
   value_data data;
 
 public:
-  Value(Value& other) : type(other.type), data(other.data) { }
+  Value(const Value& other) : type(other.type), data(other.data) { }
   
   Value(Type type) : type(type), data(nullptr) { }
+  Value(Type type, managed_object* ptr) : type(type), data(ptr) { }
   
   Value(integral_t value) : type(TYPE_INT), data(value) { }
   Value(real_t value) : type(TYPE_FLOAT), data(value) { }
   Value(char value) : type(TYPE_CHAR), data(value) { }
   Value(bool value) : type(TYPE_BOOL), data(value) { }
   
-  virtual string svalue() const { return type.traits().to_string(*this); }
+  Value(String* string);
+  
+  virtual std::string svalue() const { return type.traits().to_string(*this); }
   std::string lvalue();
 
   virtual bool equals(const Value *value) const { return type.traits().equal_to(*this, *value); }
-  virtual Value* clone() const = 0;
+  virtual Value* clone() const { return new Value(*this); }
 
   const TypeInfo type;
 
@@ -82,9 +85,13 @@ public:
   real_t real() const { return data.f; }
   char character() const { return data.c; }
   bool boolean() const { return data.b; }
+  
+  template<typename T> T* object() const { return static_cast<T*>(data.ptr); }
+  
+  String* string() const;
 };
 
-class TCollection
+class TCollection : public managed_object
 {
   public:
     virtual void iterate() const = 0;
@@ -119,7 +126,7 @@ class TValue<void*> : public Value
     //TValue(const TValue &o) { }
     //TValue &operator= (const TValue &o) { }
   
-    virtual string svalue() const { return "nil"; }
+    virtual std::string svalue() const { return "nil"; }
     
     virtual bool equals(const Value *value) const { return value->type == TYPE_NIL; }
     virtual Value* clone() const { return (Value*)this; }
@@ -135,22 +142,22 @@ class Heap
 private:
   using refcount_t = u16;
   
-  struct heap_value
+  struct heap_object
   {
-    managed_value* value;
+    managed_object* value;
     mutable refcount_t refs;
     
-    heap_value(managed_value* value ) : value(value), refs(0) { }
+    heap_object(managed_object* value ) : value(value), refs(0) { }
     void retain() const { ++refs; }
     bool release() const { return --refs == 0; }
   };
 
 private:
-  std::vector<heap_value> heap;
+  std::vector<heap_object> heap;
   
 public:
   
-  void insert(managed_value* value)
+  void insert(managed_object* value)
   {
     heap.emplace_back(value);
   }

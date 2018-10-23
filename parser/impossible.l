@@ -160,7 +160,7 @@
 }
 "-"?[0-9]*\.[0-9]+"f"? { yylval.v = new Float(atof(yytext)); return FLOAT; }
 
-\"(\\.|[^\\"])*\" { yytext[strlen(yytext)-1] = '\0'; yylval.v = new String(&yytext[1]); return STRING_LITERAL; }
+\"(\\.|[^\\"])*\" { yytext[strlen(yytext)-1] = '\0'; yylval.v = new Value(TYPE_STRING, new String(&yytext[1])); return STRING_LITERAL; }
 
 [a-zA-Z][a-zA-Z0-9]* { /*yylval.str = strdup(yytext);*/ return STRING; }
 

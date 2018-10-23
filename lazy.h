@@ -16,34 +16,32 @@ class Value;
 class Lambda;
 class VM;
 
-using namespace std;
-
 class LazyArrayHolder
 {
-  private:
-    vector<Value*>* values;
-    Lambda *lambda;
+private:
+  std::vector<Value*>* values;
+  Lambda *lambda;
   
-    unordered_map<u32, Lambda*> indices;
-    const bool useIndices;
+  std::unordered_map<u32, Lambda*> indices;
+  const bool useIndices;
   
-  public:
-    LazyArrayHolder(Lambda *lambda, bool useIndices) : values(new std::vector<Value*>()), lambda(lambda), useIndices(useIndices) { }
-    //LazyArray(Lambda *lambda, u32 index) : values(new vector<Value*>()), lambda(lambda) { generateUpTo(index); }
+public:
+  LazyArrayHolder(Lambda *lambda, bool useIndices) : values(new std::vector<Value*>()), lambda(lambda), useIndices(useIndices) { }
+  //LazyArray(Lambda *lambda, u32 index) : values(new vector<Value*>()), lambda(lambda) { generateUpTo(index); }
   
-    void shrinkBy(u32 i) { values->resize(values->size()-1); }
+  void shrinkBy(u32 i) { values->resize(values->size()-1); }
   
   
-    void addMap(u32 i, Lambda* l) { indices[i] = l; }
+  void addMap(u32 i, Lambda* l) { indices[i] = l; }
   
-    void generateUpTo(VM* vm, u32 index);
-    void generateNth(VM* vm, u32 index);
-
-    Value *at(VM* vm, u32 index);
-    u32 index;
+  void generateUpTo(VM* vm, u32 index);
+  void generateNth(VM* vm, u32 index);
   
-    Lambda *code() const { return lambda; }
-    vector<Value*>* data() const { return values; }
+  Value *at(VM* vm, u32 index);
+  u32 index;
+  
+  Lambda *code() const { return lambda; }
+  std::vector<Value*>* data() const { return values; }
 };
 
 

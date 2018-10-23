@@ -16,8 +16,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 enum Topic
 {
   TOPIC_NUMERICS,
@@ -32,10 +30,10 @@ enum Topic
 
 struct TypeConstructor
 {
-  string code;
-  string desc;
+  std::string code;
+  std::string desc;
   
-  static TypeConstructor make(string code, string desc)
+  static TypeConstructor make(std::string code, std::string desc)
   {
     TypeConstructor c;
     c.code = code;
@@ -46,6 +44,8 @@ struct TypeConstructor
 
 struct OpHelpEntry
 {
+  using string = std::string;
+  
   u32 io, oo;
   Type i[3];
   Type o[3];
@@ -195,20 +195,20 @@ class equal_to<OpHelp>
 class Help
 {
   private:
-    static multimap<string, OpHelpEntry> operators;
-    static multimap<int, TypeConstructor> constructors;
+    static std::multimap<std::string, OpHelpEntry> operators;
+    static std::multimap<int, TypeConstructor> constructors;
   
     static void addConstructor(Type type, TypeConstructor constructor);
-    static void addOperator(string op, OpHelpEntry entry);
-    static void printOperator(string op, OpHelpEntry o);
+    static void addOperator(std::string op, OpHelpEntry entry);
+    static void printOperator(std::string op, OpHelpEntry o);
   
     static const char* topicString(Topic topic);
   
   public:
     static void init();
-    static bool printHelpForOperator(string op);
+    static bool printHelpForOperator(std::string op);
   static bool printHelpForType(const std::string& stype);
-    static bool printHelpForSearch(string search);
+    static bool printHelpForSearch(std::string search);
     static void printOperators();
     static void printTypes();
   

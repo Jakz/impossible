@@ -16,7 +16,7 @@
 
 const Value* TValue<void*>::NIL = new TValue<void*>(TYPE_NIL);
 
-string Value::lvalue()
+std::string Value::lvalue()
 {
   return svalue() + " : " + type.name();
 }

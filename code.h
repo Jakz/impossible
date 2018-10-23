@@ -20,7 +20,7 @@ class Value;
 class Code
 {
   public:
-    virtual u32 len() = 0;
+    virtual size_t len() = 0;
     virtual void set(u32 i, Instruction *it) = 0;
     virtual Instruction* at(u32 i) = 0;
     virtual Code *append(Instruction *ins) = 0;
@@ -55,7 +55,7 @@ class CodeStandard : public Code
     
     virtual void set(u32 i, Instruction *is) { code[i] = is; }
     virtual Instruction* at(u32 i) { return code[i]; }
-    virtual u32 len() { return length; }
+    virtual size_t len() { return length; }
   
   friend class CurriedCode;
 };
@@ -74,7 +74,7 @@ class CurriedCode : public Code
   
     virtual void set(u32 i, Instruction *is);
     virtual Instruction* at(u32 i);
-    virtual u32 len();
+    virtual size_t len();
   
     virtual std::string svalue(u32 pc) { return ""; }
     

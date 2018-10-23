@@ -11,8 +11,6 @@
 #include <list>
 #include <vector>
 
-using namespace std;
-
 struct RangePair
 {
   int a, b;
@@ -22,6 +20,8 @@ struct RangePair
 
 class RangeVector
 {
+  template<typename T> using vector = std::vector<T>;
+  
 public:
   vector<RangePair> *data;
   
@@ -32,9 +32,7 @@ public:
   RangeVector(int a, int b) : data(new vector<RangePair>())
   {
     if (b < a)
-    {
-      swap(a, b);
-    }
+      std::swap(a, b);
     
     data->push_back(RangePair(a,b));
   }
@@ -103,7 +101,7 @@ public:
     vector<RangePair>* v1 = data;
     vector<RangePair>* v2 = r2.data;
     
-    list<RangePair> s;
+    std::list<RangePair> s;
     
     vector<RangePair>::iterator it1, it2;
     

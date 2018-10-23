@@ -9,8 +9,10 @@
 
 #include <iostream>
 
-multimap<string, OpHelpEntry> Help::operators;
-multimap<int, TypeConstructor> Help::constructors;
+using namespace std;
+
+std::multimap<string, OpHelpEntry> Help::operators;
+std::multimap<int, TypeConstructor> Help::constructors;
 
 
 const char *Help::topicString(Topic topic)

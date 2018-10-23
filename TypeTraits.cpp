@@ -1,6 +1,7 @@
 #include "TypeTraits.h"
 
 #include "Value.h"
+#include "CompositeValue.h"
 
 #include <sstream>
 #include <iomanip>
@@ -16,8 +17,8 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   { TYPE_FLOAT,
     { TYPE_FLOAT, true, false, "float",
       [] (const Value& v) {
-        stringstream ss(stringstream::out);
-        ss << setiosflags(ios::fixed) << setprecision(4) << v.data.f;
+        std::stringstream ss(std::stringstream::out);
+        ss << std::setiosflags(std::ios::fixed) << std::setprecision(4) << v.data.f;
         return ss.str();
       },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_FLOAT && v2.data.f == v1.data.f; }
@@ -39,7 +40,12 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     }
   },
   
-  { TYPE_STRING, { TYPE_STRING, false, true, "string" } },
+  { TYPE_STRING,
+    { TYPE_STRING, false, true, "string",
+      [] (const Value& v) { return v.string()->data(); },
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STRING && v2.string()->data() == v1.string()->data(); }
+    }
+  },
 
   { TYPE_RANGE, { TYPE_RANGE, false, true, "range" } },
   { TYPE_LIST, { TYPE_LIST, false, true, "list" } },

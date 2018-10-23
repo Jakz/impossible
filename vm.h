@@ -15,8 +15,6 @@
 #include "Values.h"
 #include "instruction.h"
 
-using namespace std;
-
 class Instruction;
 
 struct ExecEnv
@@ -32,19 +30,19 @@ struct ExecEnv
 class VM
 {
   private:
-    list<Value*>* valueStack;
-    list<list<Value*>*> highStacks;
-    list<list<Value*>*> lowStacks;
+    std::list<Value*>* valueStack;
+    std::list<std::list<Value*>*> highStacks;
+    std::list<std::list<Value*>*> lowStacks;
     Value *memory[26];
   
-    stack<ExecEnv> callStack;
+    std::stack<ExecEnv> callStack;
     ExecEnv exec;
   
     bool running;
     bool stackPreserve;
     
   public:
-  VM() : valueStack(new list<Value*>()), exec(ExecEnv(NULL)), running(false), stackPreserve(false), lazy(NULL)
+  VM() : valueStack(new std::list<Value*>()), exec(ExecEnv(NULL)), running(false), stackPreserve(false), lazy(NULL)
     { 
       for (int i = 0; i < 26; ++i)
         memory[i] = new TValue<void*>(TYPE_NIL);
@@ -62,7 +60,7 @@ class VM
   
     void raiseStack()
     {
-      list<Value*>* next = nullptr;
+      std::list<Value*>* next = nullptr;
       
       if (!highStacks.empty())
       {
@@ -70,7 +68,7 @@ class VM
         highStacks.pop_front();
       }
       else
-        next = new list<Value*>();
+        next = new std::list<Value*>();
       
       lowStacks.push_front(valueStack);
       valueStack = next;
@@ -78,7 +76,7 @@ class VM
   
     void lowerStack()
     {
-      list<Value*>* next = nullptr;
+      std::list<Value*>* next = nullptr;
       
       if (!lowStacks.empty())
       {
@@ -86,7 +84,7 @@ class VM
         lowStacks.pop_front();
       }
       else
-        next = new list<Value*>();
+        next = new std::list<Value*>();
       
       highStacks.push_front(valueStack);
       valueStack = next;
@@ -114,7 +112,7 @@ class VM
       
       nth = nth >= valueStack->size() ? (int)valueStack->size() - 1 : nth;
       
-      list<Value*>::iterator it = valueStack->begin();
+      std::list<Value*>::iterator it = valueStack->begin();
       advance(it, nth);
       
       return (*it)->clone();
@@ -146,7 +144,7 @@ class VM
         *v1 = pop();
       
       if (!running)
-        std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc-1)->svalue() << "\' required two values." << endl;
+        std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc-1)->svalue() << "\' required two values." << std::endl;
 
       return running;
     }  
@@ -159,7 +157,7 @@ class VM
         *v1 = pop();
       
       if (!running)
-        std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc-1)->svalue() << "\' required two values." << endl;
+        std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc-1)->svalue() << "\' required two values." << std::endl;
 
       return running;
     }
@@ -169,14 +167,14 @@ class VM
       *v1 = pop();
       
       if (!running)
-        std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc-1)->svalue() << "\' required a value." << endl;
+        std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc-1)->svalue() << "\' required a value." << std::endl;
 
       return running;
     }
   
     void wipe()
     {
-      list<Value*>::iterator it;
+      std::list<Value*>::iterator it;
       
       //for (it = valueStack.begin(); it != valueStack.end(); ++it)
       //  delete *it;
@@ -195,24 +193,24 @@ class VM
 
     void printStack() const
     {
-      list<Value*>::const_iterator it;
+      std::list<Value*>::const_iterator it;
       
       for (it = valueStack->begin(); it != valueStack->end(); ++it)
       {
-        cout << (*it)->svalue();
+        std::cout << (*it)->svalue();
         
         if (*it != valueStack->back())
-          cout << " ";
+          std::cout << " ";
       }
       
-      cout << endl;
+      std::cout << std::endl;
     }
   
     void printTopStack() const
     {
       if (!valueStack->empty())
       {
-        cout << "  " << valueStack->front()->lvalue() << endl;
+        std::cout << "  " << valueStack->front()->lvalue() << std::endl;
       }
     }
   

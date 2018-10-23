@@ -235,8 +235,8 @@ value:
   | T_LBRACE T_LESSER T_RBRACE { $$ = new Queue(); }
   
   | T_LBRACE T_PERIOD values T_RBRACE {
-        list<Value*>* vs = $3->assemble();
-        $$ = new Set(new unordered_set<Value*>(vs->begin(),vs->end()));
+        std::list<Value*>* vs = $3->assemble();
+        $$ = new Set(new std::unordered_set<Value*>(vs->begin(),vs->end()));
     }
   | T_LBRACE T_PERIOD T_RBRACE { $$ = new Set(); }
       
@@ -244,7 +244,7 @@ value:
   | T_LBRACE T_COLON T_RBRACE { $$ = new Map(); }
 
 
-  | T_LPAREN values T_RPAREN { list<Value*>* vs = $2->assemble(); $$ = new Array(new vector<Value*>(vs->begin(),vs->end())); }
+  | T_LPAREN values T_RPAREN { std::list<Value*>* vs = $2->assemble(); $$ = new Array(new std::vector<Value*>(vs->begin(),vs->end())); }
   | T_LPAREN T_COLON INTEGER opt_value T_RPAREN { $$ = new Array($3->integral(), $4); }
   | T_LPAREN T_RPAREN { $$ = new Array(); }
   
@@ -275,5 +275,5 @@ Code* assemble(const char *string)
 void yyerror(const char *s)
 {
 	//failed = true;
-	cout << "[ASSEMBLER] Parse error: " << s << endl;
+	std::cout << "[ASSEMBLER] Parse error: " << s << std::endl;
 }

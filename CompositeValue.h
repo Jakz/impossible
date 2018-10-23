@@ -6,25 +6,22 @@
 //
 //
 
-#ifndef _COMPOSITE_TYPES_H_
-#define _COMPOSITE_TYPES_H_
+#pragma once
 
 #include "Value.h"
 #include "SimpleValue.h"
 
-class String : public TValue<string>, public TCollection
+class String : public TCollection
 {
 private:
-  mutable string::const_iterator it;
+  std::string value;
+  mutable std::string::const_iterator it;
   
 public:
-  String(string value) : TValue<string>(TYPE_STRING, value) { }
-  String() : TValue<string>(TYPE_STRING, string()) { }
+  String() { }
+  String(std::string value) : value(value) { }
   
-  virtual string svalue() const { return value; }
-  
-  virtual bool equals(const Value *value) const { return this->value.compare(((TValue<string>*)value)->get()) == 0; }
-  virtual Value *clone() const { return new String(value); }
+  const std::string& data() const { return value; }
   
   virtual void iterate() const { it = value.begin(); }
   virtual bool hasNext() const { return it != value.end(); }
@@ -41,6 +38,9 @@ public:
   virtual bool empty() const { return this->value.empty(); }
 };
 
+inline Value::Value(String* string) : type(TYPE_STRING), data(string) { }
+inline String* Value::string() const { return object<String>(); }
+
 
 
 class Range : public TValue<RangeVector>, public TCollection
@@ -52,7 +52,7 @@ private:
 public:
   Range(RangeVector value) : TValue<RangeVector>(TYPE_RANGE, value) { }
   
-  virtual string svalue() const override;
+  virtual std::string svalue() const override;
   
   // TODO
   virtual bool equals(const Value *value) const override { return false; }
@@ -103,7 +103,7 @@ public:
 
 
 template<>
-struct hash<Value*>
+struct std::hash<Value*>
 {
   size_t operator() (const Value* v) const {
     switch (v->type)
@@ -122,7 +122,7 @@ struct hash<Value*>
       }
       case TYPE_STRING: {
         hash<string> i;
-        return i(((String*)v)->get());
+        return i(v->string()->data());
       }
       case TYPE_BOOL: {
         hash<bool> i;
@@ -140,7 +140,7 @@ struct hash<Value*>
 };
 
 template<>
-struct equal_to<Value*>
+struct std::equal_to<Value*>
 {
   bool operator() (const Value *v1, const Value *v2) const
   {
@@ -149,7 +149,7 @@ struct equal_to<Value*>
 };
 
 template<>
-struct less<Value*>
+struct std::less<Value*>
 {
   bool operator() (const Value* x, const Value* y)
   {
@@ -182,7 +182,7 @@ struct less<Value*>
           case TYPE_STRING:
           {
             less<string> i;
-            const string v1 = ((String*)x)->get(), v2 = ((String*)y)->get();
+            const string& v1 = x->string()->data(), &v2 = y->string()->data();
             return i(v1, v2);
           }
           case TYPE_BOOL:
@@ -208,20 +208,20 @@ public:
 };
 
 
-class List : public CollectionBase<list<Value*>*>
+class List : public CollectionBase<std::list<Value*>*>
 {
 private:
-  mutable list<Value*>::const_iterator it;
+  mutable std::list<Value*>::const_iterator it;
   
 public:
-  List(list<Value*>* value) : CollectionBase(TYPE_LIST, value) { }
-  List() : CollectionBase(TYPE_LIST, new list<Value*>()) { }
-  List(Type type, list<Value*>* value) : CollectionBase(type, value) { }
+  List(std::list<Value*>* value) : CollectionBase(TYPE_LIST, value) { }
+  List() : CollectionBase(TYPE_LIST, new std::list<Value*>()) { }
+  List(Type type, std::list<Value*>* value) : CollectionBase(type, value) { }
   
-  List(Type type) : CollectionBase(type, new list<Value*>()) { }
+  List(Type type) : CollectionBase(type, new std::list<Value*>()) { }
 
   
-  virtual string svalue() const override;
+  virtual std::string svalue() const override;
   
   virtual bool equals(const Value *value) const override;
   virtual Value *clone() const override;
@@ -251,10 +251,10 @@ public:
 class Stack : public List
 {
 public:
-  Stack(list<Value*>*value) : List(TYPE_STACK, value) { }
+  Stack(std::list<Value*>*value) : List(TYPE_STACK, value) { }
   Stack() : List(TYPE_STACK) { }
   
-  virtual string svalue() const;
+  virtual std::string svalue() const;
   
   virtual bool equals(const Value *value) const;
   virtual Value *clone() const;
@@ -263,27 +263,27 @@ public:
 class Queue : public List
 {
 public:
-  Queue(list<Value*>*value) : List(TYPE_QUEUE, value) { }
+  Queue(std::list<Value*>*value) : List(TYPE_QUEUE, value) { }
   Queue() : List(TYPE_QUEUE) { }
   
-  virtual string svalue() const;
+  virtual std::string svalue() const;
   
   virtual bool equals(const Value *value) const;
   virtual Value *clone() const;
 };
 
 
-class Array : public TValue<vector<Value*>* >, public TCollection
+class Array : public TValue<std::vector<Value*>* >, public TCollection
 {
 private:
-  mutable vector<Value*>::iterator it;
+  mutable std::vector<Value*>::iterator it;
   
 public:
-  Array(vector<Value*>* value) : TValue<vector<Value*>* >(TYPE_ARRAY, value) { }
-  Array() : TValue<vector<Value*>* >(TYPE_ARRAY, new vector<Value*>()) { }
-  Array(int size, Value *value) : TValue<vector<Value *>* >(TYPE_ARRAY, new vector<Value*>(size, !value ? new TValue<void*>(TYPE_NIL) : value)) { }
+  Array(std::vector<Value*>* value) : TValue<std::vector<Value*>* >(TYPE_ARRAY, value) { }
+  Array() : TValue<std::vector<Value*>* >(TYPE_ARRAY, new std::vector<Value*>()) { }
+  Array(int size, Value *value) : TValue<std::vector<Value *>* >(TYPE_ARRAY, new std::vector<Value*>(size, !value ? new TValue<void*>(TYPE_NIL) : value)) { }
   
-  virtual string svalue() const override;
+  virtual std::string svalue() const override;
   
   virtual bool equals(const Value *value) const override;
   virtual Value *clone() const override;
@@ -315,13 +315,13 @@ public:
 class LazyArray : public TValue<LazyArrayHolder>, public TCollection
 {
 private:
-  mutable vector<Value*>::iterator it;
+  mutable std::vector<Value*>::iterator it;
   
 public:
   LazyArray(LazyArrayHolder holder) : TValue<LazyArrayHolder>(TYPE_LAZY_ARRAY, holder) { }
   LazyArray(Lambda *lambda, bool useIndices) : TValue<LazyArrayHolder>(TYPE_LAZY_ARRAY, LazyArrayHolder(lambda, useIndices)) { }
   
-  virtual string svalue() const;
+  virtual std::string svalue() const;
   //TODO: finire
   virtual bool equals(const Value *value) const { return false; }
   virtual Value* clone() const { return new LazyArray(value); }
@@ -362,16 +362,16 @@ public:
 
 
 
-class Set : public TValue<unordered_set<Value*>* >, public TCollection
+class Set : public TValue<std::unordered_set<Value*>* >, public TCollection
 {
 private:
-  mutable unordered_set<Value*>::iterator it;
+  mutable std::unordered_set<Value*>::iterator it;
   
 public:
-  Set(unordered_set<Value*>* value) : TValue<unordered_set<Value*>* >(TYPE_SET, value) { }
-  Set() : TValue<unordered_set<Value*>* >(TYPE_SET, new unordered_set<Value*>()) { }
+  Set(std::unordered_set<Value*>* value) : TValue<std::unordered_set<Value*>* >(TYPE_SET, value) { }
+  Set() : TValue<std::unordered_set<Value*>* >(TYPE_SET, new std::unordered_set<Value*>()) { }
   
-  virtual string svalue() const override;
+  virtual std::string svalue() const override;
   
   virtual bool equals(const Value *value) const override;
   virtual Value *clone() const override;
@@ -399,16 +399,16 @@ public:
   
 };
 
-class Map : public TValue<unordered_map<Value*, Value*>* >, public TCollection
+class Map : public TValue<std::unordered_map<Value*, Value*>* >, public TCollection
 {
 private:
-  mutable unordered_map<Value*,Value*>::iterator it;
+  mutable std::unordered_map<Value*,Value*>::iterator it;
   
 public:
-  Map(unordered_map<Value*, Value*>* value) : TValue<unordered_map<Value*, Value*>* >(TYPE_MAP, value) { };
-  Map() : TValue<unordered_map<Value *, Value *>* >(TYPE_MAP, new unordered_map<Value*, Value*>()) { };
+  Map(std::unordered_map<Value*, Value*>* value) : TValue<std::unordered_map<Value*, Value*>* >(TYPE_MAP, value) { };
+  Map() : TValue<std::unordered_map<Value *, Value *>* >(TYPE_MAP, new std::unordered_map<Value*, Value*>()) { };
   
-  virtual string svalue() const override;
+  virtual std::string svalue() const override;
   
   // TODO
   virtual bool equals(const Value *value) const override { return false; }
@@ -444,7 +444,7 @@ private:
 public:
   Lambda(Code* value) : TValue<Code*>(TYPE_LAMBDA, value) { };
   
-  virtual string svalue() const;
+  virtual std::string svalue() const;
   
   // TODO
   virtual bool equals(const Value *value) const { return false; }
@@ -474,9 +474,9 @@ struct ValueTree
     this->depth = il ? il->depth + 1 : 1;
   }
   
-  list<Value*>* assemble()
+  std::list<Value*>* assemble()
   {
-    list<Value*>* values = new list<Value*>();
+    std::list<Value*>* values = new std::list<Value*>();
     
     ValueTree *tree = this;
     for (size_t i = 0; i < depth; ++i, tree = tree->n)
@@ -502,9 +502,9 @@ struct ValuePairTree
     this->depth = il ? il->depth + 1 : 1;
   }
   
-  unordered_map<Value*, Value*>* assemble()
+  std::unordered_map<Value*, Value*>* assemble()
   {
-    unordered_map<Value*, Value*>* values = new unordered_map<Value*, Value*>;
+    std::unordered_map<Value*, Value*>* values = new std::unordered_map<Value*, Value*>;
     
     ValuePairTree *tree = this;
     for (size_t i = 0; i < depth; ++i, tree = tree->n)
@@ -522,6 +522,3 @@ struct LambdaIntPair
   
   LambdaIntPair(u32 i, Lambda *code, LambdaIntPair *next) : i(i), code(code), n(next) { }
 };
-
-
-#endif /* defined(__Impossible__CompositeTypes__) */

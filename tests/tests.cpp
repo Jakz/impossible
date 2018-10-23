@@ -7,9 +7,14 @@
 //
 
 #define CATCH_CONFIG_MAIN
+
+#include "compiler.h"
+
 #include "catch.h"
 
 #include "vm.h"
+
+using namespace compiler;
 
 template<typename... Args> void verifyStack(VM& vm)
 {
@@ -26,7 +31,7 @@ template<typename... Args> void verifyStack(VM& vm, integral_t i, Args... args)
 
 template<typename... Args> void executeAndVerifyStack(std::string code, Args... args)
 {
-  Code* program = assemble(code.c_str());
+  Code* program = Compiler().compile(code.c_str());
   REQUIRE(program != nullptr);
   
   VM vm;

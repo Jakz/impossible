@@ -7,7 +7,7 @@
   #include "lexer.h"
   #include "compiler.h"
   
-  #define yyterminate() script::Parser::make_END(loc);
+  #define yyterminate() compiler::Parser::make_END(loc);
 
   using token = compiler::Parser::token;
 
@@ -108,7 +108,7 @@
 ";" { return Parser::make_OPCODE(OP_DROP, loc); }
 "," { return Parser::make_OPCODE(OP_PICK, loc); }
 
-"." { return Parser::make_OPCODE(OP_PERIOD, loc); }
+"." { return Parser::make_PERIOD(loc); }
 
 "t" { return Parser::make_BOOLEAN(true, loc); }
 "f" { return Parser::make_BOOLEAN(false, loc); }
@@ -128,20 +128,20 @@
   while (yytext[i] != '.') ++i;
   yytext[i] = '\0';
   
-  integral_t s = atoi(yytext), e = &yytext[i+2];
+  integral_t s = atoi(yytext), e = atoi(&yytext[i+2]);
   return Parser::make_RANGE(new Range(RangeVector(s, e)), loc);
 }
 
-"x"[0-9a-fA-F]+ { return Parser::make_INTEGER(strtoul(&yytext[1], NULL, 16), loc); }
-"b"[0-1]+ { return Parser::make_INTEGER(strtoul(&yytext[1], NULL, 2), loc); }
-"-"?[0-9]+ { return Parser::make_INTEGER(atoi(yytext), loc);}
+"x"[0-9a-fA-F]+ { return Parser::make_INTEGER((integral_t)strtoul(&yytext[1], NULL, 16), loc); }
+"b"[0-1]+ { return Parser::make_INTEGER((integral_t)strtoul(&yytext[1], NULL, 2), loc); }
+"-"?[0-9]+ { return Parser::make_INTEGER((integral_t)atoi(yytext), loc);}
 "-"?[0-9]+"k" {
   char *tmp = strdup(yytext);
   char *index = strchr(tmp, 'k') - 1;
   *index = NULL;
 
   free(tmp);
-  return Parser::make_INTEGER(atoi(yytext)*1000, loc);
+  return Parser::make_INTEGER((integral_t)atoi(yytext)*1000, loc);
 }
 
 "-"?[0-9]+"kk" {
@@ -150,7 +150,7 @@
   *index = '\0';
   
   free(tmp);
-  return Parser::make_INTEGER(atoi(yytext)*1000000, loc);
+  return Parser::make_INTEGER((integral_t)atoi(yytext)*1000000, loc);
 }
 
 
@@ -160,8 +160,8 @@
   char *i1 = strtok(tmp,"e");
   char *i2 = strtok(NULL,"e");
 
-  int exp = atoi(i2);
-  int r = 1;
+  integral_t exp = atoi(i2);
+  integral_t r = 1;
   
   for (int i = 0; i < exp; ++i)
     r *= 10;
@@ -171,7 +171,7 @@
   free(tmp);
   return Parser::make_INTEGER(r, loc);
 }
-"-"?[0-9]*\.[0-9]+"f"? { return Parser::make_FLOAT(atof(yytext)); }
+"-"?[0-9]*\.[0-9]+"f"? { return Parser::make_FLOAT(atof(yytext), loc); }
 
 \"(\\.|[^\\"])*\" { yytext[strlen(yytext)-1] = '\0'; return Parser::make_STRING(yytext, loc); }
 
@@ -180,6 +180,8 @@
 [ \t] { /* ignore whitespace */ }
 
 . { printf("Mystery character %c\n", *yytext); fflush(stdout); }
+
+<<EOF>> { return yyterminate(); }
 
 %%
 

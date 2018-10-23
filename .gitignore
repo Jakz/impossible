@@ -11,14 +11,21 @@
 *.lai
 *.la
 *.a
-lex.yy.*
-impossible.tab.*
 examples.txt
 .svn
-bison.h
+
 Impossible.1
 impossible.output
 impossible
+
+stack.hh
+position.hh
+location.hh
+parser.output
+parser.hpp
+parser.cpp
+lexer.cpp
+
 
 .DS_Store
 *.xcworkspacedata

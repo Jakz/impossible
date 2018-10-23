@@ -1,5 +1,3 @@
-.PHONY: all clean opt 
-  
 TARGET = impossible
 
 CC  := clang
@@ -15,16 +13,26 @@ CXXFLAGS = $(CFLAGS)
 LDFLAGS = 
 
 # Find all source files
-BUILD_DIR = ./objects
+BUILD_DIR = objects
 
 SOURCE = .
-SRC_CPP = $(foreach dir, $(SOURCE), $(wildcard $(dir)/*.cpp)) parser/parser.cpp parser/lexer.cpp
-SRC_C   = $(foreach dir, $(SOURCE), $(wildcard $(dir)/*.c)) 
+SRC_CPP = $(foreach dir, $(SOURCE), $(wildcard $(dir)/*.cpp)) ./parser/parser.cpp ./parser/lexer.cpp ./parser/compiler.cpp
 OBJ_CPP = $(patsubst %.cpp, %.o, $(SRC_CPP))
-OBJ_C   = $(patsubst %.c, %.o, $(SRC_C))
-OBJS    = $(BUILD_DIR)/$(OBJ_CPP) $(BUILD_DIR)/$(OBJ_C)
+OBJS    = $(addprefix $(BUILD_DIR)/, $(subst /,-,$(subst ./,,$(OBJ_CPP))))
+
+
+$(info $$var is [$(subst /,_, parser/parser.cpp)])
+
+$(info obj_cpp is [${OBJ_CPP}])
+$(info objs is [${OBJS}])
+
+
+.PHONY: all clean opt $(BUILD_DIR)
 
 all opt: $(TARGET)
+
+$(BUILD_DIR) :
+	mkdir -p $@
 
 parser/lexer.cpp: parser/impossible.l
 	/usr/local/opt/flex/bin/flex -c++ --outfile=parser/lexer.cpp $<
@@ -35,11 +43,14 @@ parser/parser.cpp: parser/impossible.ypp parser/lexer.cpp
 $(TARGET) : $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
-$(BUILD_DIR)/%.o: %.c
-	$(CC) -x c++ $(CFLAGS) -c $< -o $@
-
-$(BUILD_DIR)/%.o: %.cpp
+$(BUILD_DIR)/parser-compiler.o: parser/compiler.cpp parser/parser.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+	
+$(BUILD_DIR)/parser-%.o: parser/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+	
+$(BUILD_DIR)/%.o: $(subst -,/,%.cpp) $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS) $(TARGET) parser/parser.cpp parser/parser.h parser/lexer.cpp
+	rm -f $(BUILD_DIR)/*.o $(TARGET) parser/location.hh parser/stack.hh parser/position.hh parser/parser.output parser/lexer.cpp parser/parser.cpp parser/parser.hpp

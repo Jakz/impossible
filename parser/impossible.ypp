@@ -14,6 +14,11 @@
     class Compiler;
     class Lexer;
   }
+  
+  class Code;
+  class Instruction;
+  
+  #include "Value.h"
 }
 
 %lex-param { compiler::Lexer &lexer }
@@ -29,32 +34,10 @@
 {
   #define YYDEBUG 1
   
-  #include <iostream>
-
-  #include "Values.h"
-  #include "TypeTraits.h"
-  #include "instruction.h"
-  #include "defines.h"
-  
-  #include "CompositeValue.h" //TODO: for value_hash
-  
   #include "lexer.h"
   #include "compiler.h"
-
-	//extern "C"
-	//{
-    int yyparse(void);
-    extern int yylex(void);  
-    //int cyywrap();
-    /*{
-     return 1;
-     }*/
-    void yyerror(const char *s);
-
-    Code *assemble(const char *string);
-    Code *code;
-	//}
   
+  #include "instruction.h"
   
   static compiler::Parser::symbol_type yylex(compiler::Lexer& scanner, compiler::Compiler& compiler)
   {
@@ -76,6 +59,7 @@
   RBRACK "]"
 
   COLON ":"
+  PERIOD "."
 ;
 
 %define api.token.prefix {T_}
@@ -136,8 +120,6 @@
   LESSER "<"
   GREATER ">"
 
-  PERIOD "."
-
   BANG "!"
   DBANG "!!"
 
@@ -187,7 +169,7 @@
 %%
 
 start:
-  instructions { $$ = new CodeStandard($1); }
+  instructions { compiler.setCode($1); }
 ;
 
 instructions:

@@ -2076,17 +2076,3 @@ void OpcodeInstruction::execute(VM *vm) const
 
   }
 }
-
-
-
-
-Code* InstructionTree::assemble()
-{
-  Code *code = new CodeStandard(depth);
-  
-  InstructionTree *tree = this;
-  for (int i = 0; i < depth; ++i, tree = tree->n)
-    code->set(depth-i-1, tree->i);
-  
-  return code;
-}

@@ -6,6 +6,8 @@
  */
 
 
+#include "parser/compiler.h"
+
 #include "vm.h"
 #include "instruction.h"
 
@@ -153,7 +155,10 @@ int main (int argc, const char * argv[])
     }
     else
     {
-      Code *code = assemble(input.c_str());
+      compiler::Compiler compiler;
+
+      
+      Code *code = compiler.compile(input);
       
       
       

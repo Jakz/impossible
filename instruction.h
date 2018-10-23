@@ -17,8 +17,6 @@
 class VM;
 class Code;
 
-Code *assemble(const char *string);
-
 class Instruction
 {
   public:
@@ -54,23 +52,6 @@ public:
   OpcodeInstruction(Opcode opcode) : Instruction(true), opcode(opcode) {}
   virtual void execute(VM *vm) const;
   virtual std::string svalue() const;
-};
-
-struct InstructionTree
-{
-  Instruction *i;
-  InstructionTree *n;
-  u32 depth;
-  
-  InstructionTree(Instruction *i, InstructionTree *il)
-  {
-    this->i = i;
-    this->n = il;
-    
-    this->depth = il ? il->depth + 1 : 1;
-  }
-  
-  Code* assemble();
 };
 
 #endif

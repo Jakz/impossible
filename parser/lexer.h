@@ -4,7 +4,7 @@
 #if ! defined(yyFlexLexerOnce)
 #undef yyFlexLexer
 #define yyFlexLexer BaseFlexLexer
-#include "FlexLexer.h"
+#include <FlexLexer.h>
 #endif
 
 #undef YY_DECL

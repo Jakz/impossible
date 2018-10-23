@@ -14,28 +14,22 @@
 		046E4F1C217EA22300DB959C /* SimpleValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E077217BE93D0037C307 /* SimpleValue.cpp */; };
 		046E4F1D217EA22300DB959C /* VTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E082217BE93D0037C307 /* VTable.cpp */; };
 		046E4F1E217EA22300DB959C /* instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06F217BE93D0037C307 /* instruction.cpp */; };
-		046E4F1F217EA22300DB959C /* impossible.tab.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06D217BE93D0037C307 /* impossible.tab.cpp */; };
 		046E4F20217EA22300DB959C /* lazy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E071217BE93D0037C307 /* lazy.cpp */; };
-		046E4F22217EA22300DB959C /* lex.yy.c in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E073217BE93D0037C307 /* lex.yy.c */; };
 		046E4F23217EA22300DB959C /* TypeTraits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E092217CCB9C0037C307 /* TypeTraits.cpp */; };
 		046E4F24217EA22300DB959C /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E07C217BE93D0037C307 /* Value.cpp */; };
 		046E4F26217EA22300DB959C /* Values.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E07E217BE93D0037C307 /* Values.cpp */; };
 		046E4F2D217EA22D00DB959C /* tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04806510217EA1880063ACD5 /* tests.cpp */; };
-		04A637EE217F92E600436B0F /* impossible.l in Sources */ = {isa = PBXBuildFile; fileRef = 04A637EB217F92E600436B0F /* impossible.l */; };
-		04A637EF217F92E600436B0F /* impossible.l in Sources */ = {isa = PBXBuildFile; fileRef = 04A637EB217F92E600436B0F /* impossible.l */; };
-		04A637F0217F92E600436B0F /* impossible.ypp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637EC217F92E600436B0F /* impossible.ypp */; };
-		04A637F1217F92E600436B0F /* impossible.ypp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637EC217F92E600436B0F /* impossible.ypp */; };
 		04A637F6217F977700436B0F /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637F4217F977700436B0F /* parser.cpp */; };
 		04A637F7217F977700436B0F /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637F4217F977700436B0F /* parser.cpp */; };
-		04A637FA217F992200436B0F /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637F9217F992200436B0F /* lexer.cpp */; };
-		04A637FB217F992200436B0F /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637F9217F992200436B0F /* lexer.cpp */; };
+		04A637FA217F992200436B0F /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637F9217F992200436B0F /* lexer.cpp */; settings = {COMPILER_FLAGS = "-Wno-old-style-cast"; }; };
+		04A637FB217F992200436B0F /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637F9217F992200436B0F /* lexer.cpp */; settings = {COMPILER_FLAGS = "-Wno-old-style-cast"; }; };
+		04F19E09217FBCB7003AAAE2 /* compiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F19E08217FBCB7003AAAE2 /* compiler.cpp */; };
+		04F19E0A217FBCB7003AAAE2 /* compiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F19E08217FBCB7003AAAE2 /* compiler.cpp */; };
 		04F6E084217BE93D0037C307 /* code.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E066217BE93D0037C307 /* code.cpp */; };
 		04F6E085217BE93D0037C307 /* CompositeValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E068217BE93D0037C307 /* CompositeValue.cpp */; };
 		04F6E086217BE93D0037C307 /* help.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06B217BE93D0037C307 /* help.cpp */; };
-		04F6E087217BE93D0037C307 /* impossible.tab.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06D217BE93D0037C307 /* impossible.tab.cpp */; };
 		04F6E088217BE93D0037C307 /* instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06F217BE93D0037C307 /* instruction.cpp */; };
 		04F6E089217BE93D0037C307 /* lazy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E071217BE93D0037C307 /* lazy.cpp */; };
-		04F6E08A217BE93D0037C307 /* lex.yy.c in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E073217BE93D0037C307 /* lex.yy.c */; };
 		04F6E08B217BE93D0037C307 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E075217BE93D0037C307 /* main.cpp */; };
 		04F6E08C217BE93D0037C307 /* SimpleValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E077217BE93D0037C307 /* SimpleValue.cpp */; };
 		04F6E08E217BE93D0037C307 /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E07C217BE93D0037C307 /* Value.cpp */; };
@@ -76,8 +70,8 @@
 		04A637F3217F977700436B0F /* lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexer.h; sourceTree = "<group>"; };
 		04A637F4217F977700436B0F /* parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parser.cpp; sourceTree = "<group>"; };
 		04A637F5217F977700436B0F /* parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = parser.hpp; sourceTree = "<group>"; };
-		04A637F8217F986B00436B0F /* FlexLexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlexLexer.h; sourceTree = "<group>"; };
 		04A637F9217F992200436B0F /* lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lexer.cpp; sourceTree = "<group>"; };
+		04F19E08217FBCB7003AAAE2 /* compiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = compiler.cpp; sourceTree = "<group>"; };
 		04F6E05B217BE8FB0037C307 /* Impossible */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Impossible; sourceTree = BUILT_PRODUCTS_DIR; };
 		04F6E066217BE93D0037C307 /* code.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = code.cpp; path = ../../code.cpp; sourceTree = "<group>"; };
 		04F6E067217BE93D0037C307 /* code.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = code.h; path = ../../code.h; sourceTree = "<group>"; };
@@ -86,14 +80,10 @@
 		04F6E06A217BE93D0037C307 /* defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = defines.h; path = ../../defines.h; sourceTree = "<group>"; };
 		04F6E06B217BE93D0037C307 /* help.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = help.cpp; path = ../../help.cpp; sourceTree = "<group>"; };
 		04F6E06C217BE93D0037C307 /* help.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = help.h; path = ../../help.h; sourceTree = "<group>"; };
-		04F6E06D217BE93D0037C307 /* impossible.tab.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = impossible.tab.cpp; path = ../../impossible.tab.cpp; sourceTree = "<group>"; };
-		04F6E06E217BE93D0037C307 /* impossible.tab.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = impossible.tab.hpp; path = ../../impossible.tab.hpp; sourceTree = "<group>"; };
 		04F6E06F217BE93D0037C307 /* instruction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = instruction.cpp; path = ../../instruction.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		04F6E070217BE93D0037C307 /* instruction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = instruction.h; path = ../../instruction.h; sourceTree = "<group>"; };
 		04F6E071217BE93D0037C307 /* lazy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lazy.cpp; path = ../../lazy.cpp; sourceTree = "<group>"; };
 		04F6E072217BE93D0037C307 /* lazy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lazy.h; path = ../../lazy.h; sourceTree = "<group>"; };
-		04F6E073217BE93D0037C307 /* lex.yy.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = lex.yy.c; path = ../../lex.yy.c; sourceTree = "<group>"; };
-		04F6E074217BE93D0037C307 /* lex.yy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lex.yy.h; path = ../../lex.yy.h; sourceTree = "<group>"; };
 		04F6E075217BE93D0037C307 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../main.cpp; sourceTree = "<group>"; };
 		04F6E076217BE93D0037C307 /* range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = range.h; path = ../../range.h; sourceTree = "<group>"; };
 		04F6E077217BE93D0037C307 /* SimpleValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SimpleValue.cpp; path = ../../SimpleValue.cpp; sourceTree = "<group>"; };
@@ -141,11 +131,11 @@
 		04A637E9217F92E600436B0F /* parser */ = {
 			isa = PBXGroup;
 			children = (
-				04A637F8217F986B00436B0F /* FlexLexer.h */,
 				04A637F9217F992200436B0F /* lexer.cpp */,
 				04A637F3217F977700436B0F /* lexer.h */,
 				04A637F4217F977700436B0F /* parser.cpp */,
 				04A637F5217F977700436B0F /* parser.hpp */,
+				04F19E08217FBCB7003AAAE2 /* compiler.cpp */,
 				04A637EA217F92E600436B0F /* compiler.h */,
 				04A637EB217F92E600436B0F /* impossible.l */,
 				04A637EC217F92E600436B0F /* impossible.ypp */,
@@ -183,14 +173,10 @@
 				04F6E06A217BE93D0037C307 /* defines.h */,
 				04F6E06B217BE93D0037C307 /* help.cpp */,
 				04F6E06C217BE93D0037C307 /* help.h */,
-				04F6E06D217BE93D0037C307 /* impossible.tab.cpp */,
-				04F6E06E217BE93D0037C307 /* impossible.tab.hpp */,
 				04F6E06F217BE93D0037C307 /* instruction.cpp */,
 				04F6E070217BE93D0037C307 /* instruction.h */,
 				04F6E071217BE93D0037C307 /* lazy.cpp */,
 				04F6E072217BE93D0037C307 /* lazy.h */,
-				04F6E073217BE93D0037C307 /* lex.yy.c */,
-				04F6E074217BE93D0037C307 /* lex.yy.h */,
 				04F6E075217BE93D0037C307 /* main.cpp */,
 				04F6E076217BE93D0037C307 /* range.h */,
 				04F6E077217BE93D0037C307 /* SimpleValue.cpp */,
@@ -294,12 +280,9 @@
 				046E4F1C217EA22300DB959C /* SimpleValue.cpp in Sources */,
 				046E4F1D217EA22300DB959C /* VTable.cpp in Sources */,
 				046E4F1E217EA22300DB959C /* instruction.cpp in Sources */,
-				046E4F1F217EA22300DB959C /* impossible.tab.cpp in Sources */,
 				046E4F20217EA22300DB959C /* lazy.cpp in Sources */,
-				046E4F22217EA22300DB959C /* lex.yy.c in Sources */,
 				046E4F23217EA22300DB959C /* TypeTraits.cpp in Sources */,
-				04A637F1217F92E600436B0F /* impossible.ypp in Sources */,
-				04A637EF217F92E600436B0F /* impossible.l in Sources */,
+				04F19E0A217FBCB7003AAAE2 /* compiler.cpp in Sources */,
 				046E4F24217EA22300DB959C /* Value.cpp in Sources */,
 				046E4F26217EA22300DB959C /* Values.cpp in Sources */,
 			);
@@ -318,15 +301,12 @@
 				04F6E08C217BE93D0037C307 /* SimpleValue.cpp in Sources */,
 				04F6E091217BE93D0037C307 /* VTable.cpp in Sources */,
 				04F6E088217BE93D0037C307 /* instruction.cpp in Sources */,
-				04F6E087217BE93D0037C307 /* impossible.tab.cpp in Sources */,
 				04F6E089217BE93D0037C307 /* lazy.cpp in Sources */,
 				04F6E08B217BE93D0037C307 /* main.cpp in Sources */,
-				04F6E08A217BE93D0037C307 /* lex.yy.c in Sources */,
 				04F6E094217CCB9C0037C307 /* TypeTraits.cpp in Sources */,
-				04A637F0217F92E600436B0F /* impossible.ypp in Sources */,
-				04A637EE217F92E600436B0F /* impossible.l in Sources */,
 				04F6E08E217BE93D0037C307 /* Value.cpp in Sources */,
 				04F6E08F217BE93D0037C307 /* Values.cpp in Sources */,
+				04F19E09217FBCB7003AAAE2 /* compiler.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -386,6 +366,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/opt/flex/include/;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -430,6 +411,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/opt/flex/include/;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;

@@ -168,7 +168,8 @@
 
 \n|"\r\n" { return T_EOL; }
 [ \t] { /* ignore whitespace */ }
-. { printf("Mystery character %c\n", *yytext); }
+
+. { printf("Mystery character %c\n", *yytext); fflush(stdout); }
 
 %%
 

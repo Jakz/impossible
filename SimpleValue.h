@@ -47,5 +47,12 @@ public:
   virtual Value *clone() const { return new Bool(data.b); }
 };
 
+class Nil : public Value
+{
+public:
+  Nil() : Value(TYPE_NIL, nullptr) { }
+  virtual Value* clone() const { return new Nil(); }
+};
+
 
 #endif

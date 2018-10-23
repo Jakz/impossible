@@ -36,7 +36,7 @@ public:
   
   void generateUpTo(VM* vm, u32 index);
   void generateNth(VM* vm, u32 index);
-  
+  //TODO: must become reference
   Value *at(VM* vm, u32 index);
   u32 index;
   

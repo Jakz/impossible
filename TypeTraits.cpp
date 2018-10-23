@@ -6,6 +6,61 @@
 #include <sstream>
 #include <iomanip>
 
+template<typename T>
+struct CollectionPrinter
+{
+  std::string prefix;
+  std::string suffix;
+  std::string separator;
+  std::function<std::string(const T&)> valuePrinter;
+  
+  std::string svalue(const TCollection* collection) const
+  {
+    std::stringstream ss(std::stringstream::out);
+    bool first = true;
+    collection->iterate();
+    
+    ss << prefix;
+    
+    while (collection->hasNext())
+    {
+      auto it = collection->next();
+      
+      if (first) first = false;
+      else ss << separator;
+      
+      ss << valuePrinter(it);
+    }
+    
+    ss << suffix;
+    
+    return ss.str();
+  }
+};
+
+bool collectionEquals(const Value& v1, const Value& v2)
+{
+  auto c1 = v1.collection(), c2 = v2.collection();
+  
+  c1->iterate();
+  c2->iterate();
+  
+  while (c1->hasNext())
+  {
+    if (!c2->hasNext())
+      return false;
+  
+    if (!c1->next()->equals(c2->next()))
+      return false;
+  }
+  
+  return !c2->hasNext();
+}
+
+static const CollectionPrinter<Value*> ListPrinter = { "{", "}", " ", [] (const Value* v) { return v->svalue(); } };
+static const CollectionPrinter<Value*> StackPrinter = { "{>", "}", " ", [] (const Value* v) { return v->svalue(); } };
+static const CollectionPrinter<Value*> QueuePrinter = { "{<", "}", " ", [] (const Value* v) { return v->svalue(); } };
+
 const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::specs =
 {
   { TYPE_INT,
@@ -28,7 +83,8 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     {
       TYPE_BOOL, true, false, "bool",
       [] (const Value& v) { return v.data.b ? "true" : "false"; },
-      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_BOOL && v2.data.b == v1.data.b; }
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_BOOL && v2.data.b == v1.data.b; },
+      [] (const Value& v) { return v == TYPE_BOOL && v.data.b; }
     }
   
   },
@@ -48,12 +104,27 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
 
   { TYPE_RANGE, { TYPE_RANGE, false, true, "range" } },
-  { TYPE_LIST, { TYPE_LIST, false, true, "list" } },
+  
+  { TYPE_LIST,
+    { TYPE_LIST, false, true, "list",
+      [] (const Value& v) { return ListPrinter.svalue(v.list()); },
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_LIST && v2.list()->raw() == v1.list()->raw(); }
+    }
+  },
+  
   { TYPE_ARRAY, { TYPE_ARRAY, false, true, "array" } },
 
   { TYPE_SET, { TYPE_SET, false, true, "set" } },
-  { TYPE_STACK, { TYPE_STACK, false, true, "stack" } },
-  { TYPE_QUEUE, { TYPE_QUEUE, false, true, "queue" } },
+  { TYPE_STACK,
+    { TYPE_STACK, false, true, "stack",
+      [] (const Value& v) { return QueuePrinter.svalue(v.queue()); },
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STACK && v2.list()->raw() == v1.list()->raw(); }
+    }  },
+  { TYPE_QUEUE,
+    { TYPE_QUEUE, false, true, "queue",
+      [] (const Value& v) { return StackPrinter.svalue(v.stack()); },
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_QUEUE && v2.list()->raw() == v1.list()->raw(); }
+    }  },
 
   { TYPE_LAZY_ARRAY, { TYPE_LAZY_ARRAY, false, true, "larray" } },
   

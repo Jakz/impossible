@@ -1,3 +1,9 @@
+%skeleton "lalr1.cc"
+%require "3.0.2"
+
+%define api.token.constructor
+%define api.value.type variant
+
 %{
   #define YYDEBUG 1
   
@@ -30,12 +36,16 @@
 	Value *v;
   Instruction *i;
   struct InstructionTree *il;
+
   struct ValueTree *vl;
   struct ValuePairTree *vpl;
   struct LambdaIntPair *lip;
   struct Code *code;
   Opcode op;
+  
+  std::list<Value> values;
 }
+
 
 %token T_EOL
 
@@ -72,7 +82,7 @@
 
 %type<il> instructions;
 %type<i> instruction;
-%type<vl> values;
+%type<values> values;
 %type<v> value;
 %type<lip> lazy_pairs;
 %type<vpl> value_pairs;
@@ -81,6 +91,9 @@
 
 %type<op> sinstruction T_OPCODE
 
+%type<Instruction*> instruction
+%type<std::list<Instructon*> instructions
+
 %%
 
 start:
@@ -88,8 +101,8 @@ start:
 ;
 
 instructions:
-  { $$ = NULL; }
-  | instructions instruction { $$ = new InstructionTree($2, $1); }
+  { $$ = std::list<Instruction*>(); }
+  | instructions instruction { $1.push_back($2); $$ = $1; }
 ;
 
 instruction:
@@ -174,9 +187,9 @@ sinstruction:
 
 
 values:
-  value { $$ = new ValueTree($1,NULL); }
-  | values value { $$ = new ValueTree($2, $1); }
-; 
+  value { $$ = std::list<Value>(); $$.push_front($1); }
+  | values value { $1.push_back($2); $$ = $1; }
+;
 
 value_pairs:
   value T_COLON value { $$ = new ValuePairTree($1, $3, NULL); }
@@ -225,18 +238,17 @@ value:
   | STRING_LITERAL { $$ = $1; }
   | RANGE { $$ = $1; }
   
-  | T_LBRACE values T_RBRACE { $$ = new List($2->assemble()); }
+  | T_LBRACE values T_RBRACE { $$ = new List($2); }
   | T_LBRACE T_RBRACE { $$ = new List(); }
   
-  | T_LBRACE T_GREATER values T_RBRACE { $$ = new Stack($3->assemble()); }
+  | T_LBRACE T_GREATER values T_RBRACE { $$ = new Stack($3); }
   | T_LBRACE T_GREATER T_RBRACE { $$ = new Stack(); }
   
-  | T_LBRACE T_LESSER values T_RBRACE { $$ = new Queue($3->assemble()); }
+  | T_LBRACE T_LESSER values T_RBRACE { $$ = new Queue($3); }
   | T_LBRACE T_LESSER T_RBRACE { $$ = new Queue(); }
   
   | T_LBRACE T_PERIOD values T_RBRACE {
-        std::list<Value*>* vs = $3->assemble();
-        $$ = new Set(new std::unordered_set<Value*>(vs->begin(),vs->end()));
+        $$ = new Set(std::unordered_set<Value>($3.begin(), $3.end()));
     }
   | T_LBRACE T_PERIOD T_RBRACE { $$ = new Set(); }
       
@@ -244,7 +256,7 @@ value:
   | T_LBRACE T_COLON T_RBRACE { $$ = new Map(); }
 
 
-  | T_LPAREN values T_RPAREN { std::list<Value*>* vs = $2->assemble(); $$ = new Array(new std::vector<Value*>(vs->begin(),vs->end())); }
+  | T_LPAREN values T_RPAREN { $$ = new Array(std::vector<Value>($2.begin(), $2.end())); }
   | T_LPAREN T_COLON INTEGER opt_value T_RPAREN { $$ = new Array($3->integral(), $4); }
   | T_LPAREN T_RPAREN { $$ = new Array(); }
   

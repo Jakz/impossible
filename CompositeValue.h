@@ -27,7 +27,6 @@ public:
   virtual bool hasNext() const { return it != value.end(); }
   
   virtual Value* next() const;
-
   
   virtual void put(Value *value)
   {
@@ -37,11 +36,6 @@ public:
   virtual u32 size() const { return (u32)value.length(); }
   virtual bool empty() const { return this->value.empty(); }
 };
-
-inline Value::Value(String* string) : type(TYPE_STRING), data(string) { }
-inline String* Value::string() const { return object<String>(); }
-
-
 
 class Range : public TValue<RangeVector>, public TCollection
 {
@@ -102,31 +96,30 @@ public:
 };
 
 
-template<>
-struct std::hash<Value*>
+struct value_hash
 {
-  size_t operator() (const Value* v) const {
-    switch (v->type)
+  size_t operator() (const Value& v) const {
+    switch (v.type)
     {
       case TYPE_INT:  {
-        hash<integral_t> i;
-        return i(v->integral());
+        std::hash<integral_t> i;
+        return i(v.integral());
       }
       case TYPE_FLOAT: {
-        hash<real_t> i;
-        return i(v->real());
+        std::hash<real_t> i;
+        return i(v.real());
       }
       case TYPE_CHAR: {
-        hash<char> i;
-        return i(v->character());
+        std::hash<char> i;
+        return i(v.character());
       }
       case TYPE_STRING: {
-        hash<string> i;
-        return i(v->string()->data());
+        std::hash<std::string> i;
+        return i(v.string()->data());
       }
       case TYPE_BOOL: {
-        hash<bool> i;
-        return i(v->boolean());
+        std::hash<bool> i;
+        return i(v.boolean());
       }
       case TYPE_RANGE: {
         // TODO
@@ -208,95 +201,89 @@ public:
 };
 
 
-class List : public CollectionBase<std::list<Value*>*>
+class List : public TCollection
 {
+public:
+  using list_t = std::list<Value>;
+  using utype_t = list_t;
 private:
-  mutable std::list<Value*>::const_iterator it;
+  list_t data;
+  
+  mutable list_t::const_iterator it;
   
 public:
-  List(std::list<Value*>* value) : CollectionBase(TYPE_LIST, value) { }
-  List() : CollectionBase(TYPE_LIST, new std::list<Value*>()) { }
-  List(Type type, std::list<Value*>* value) : CollectionBase(type, value) { }
+  List() { }
+  List(const list_t& data) : data(data) { }
   
-  List(Type type) : CollectionBase(type, new std::list<Value*>()) { }
-
-  
-  virtual std::string svalue() const override;
-  
-  virtual bool equals(const Value *value) const override;
-  virtual Value *clone() const override;
-  
-  virtual void iterate() const override { it = value->begin(); }
-  virtual bool hasNext() const override { return it != value->end(); }
+  virtual void iterate() const override { it = data.begin(); }
+  virtual bool hasNext() const override { return it !=  data.end(); }
   virtual Value *next() const override
   {
-    if (it == value->end())
-      return NULL;
+    if (it == data.end())
+      return nullptr;
     else
     {
-      Value *v = *it++;
+      Value *v = new Value(*it++);
       return v;
     }
   }
   
   virtual void put(Value *value) override
   {
-    this->value->push_back(value);
+    data.push_back(value);
   }
   
-  virtual u32 size() const override { return (u32)value->size(); }
-  virtual bool empty() const override { return this->value->empty(); }
+  virtual u32 size() const override { return (u32)data.size(); }
+  virtual bool empty() const override { return data.empty(); }
+  
+  const list_t& raw() const { return data; }
+  list_t& raw() { return data; }
+  
+  list_t::iterator begin() { return data.begin(); }
+  list_t::iterator end() { return data.end(); }
 };
 
 class Stack : public List
 {
 public:
-  Stack(std::list<Value*>*value) : List(TYPE_STACK, value) { }
-  Stack() : List(TYPE_STACK) { }
-  
-  virtual std::string svalue() const;
-  
-  virtual bool equals(const Value *value) const;
-  virtual Value *clone() const;
+  Stack() : List() { }
+  Stack(const std::list<Value>& data) : List(data) { }
+
 };
 
 class Queue : public List
 {
 public:
-  Queue(std::list<Value*>*value) : List(TYPE_QUEUE, value) { }
-  Queue() : List(TYPE_QUEUE) { }
-  
-  virtual std::string svalue() const;
-  
-  virtual bool equals(const Value *value) const;
-  virtual Value *clone() const;
+  Queue() : List() { }
+  Queue(const std::list<Value>& data) : List(data) { }
 };
 
 
-class Array : public TValue<std::vector<Value*>* >, public TCollection
+class Array : public TCollection
 {
+public:
+  using array_t = std::vector<Value>;
+  using utype_t = array_t;
+  
 private:
-  mutable std::vector<Value*>::iterator it;
+  array_t data;
+  mutable array_t::const_iterator it;
   
 public:
-  Array(std::vector<Value*>* value) : TValue<std::vector<Value*>* >(TYPE_ARRAY, value) { }
-  Array() : TValue<std::vector<Value*>* >(TYPE_ARRAY, new std::vector<Value*>()) { }
-  Array(int size, Value *value) : TValue<std::vector<Value *>* >(TYPE_ARRAY, new std::vector<Value*>(size, !value ? new TValue<void*>(TYPE_NIL) : value)) { }
+  Array(array_t& data) : data(data) { }
+  Array(array_t&& data) : data(data) { }
+  Array() { }
+  Array(int size, const Value& value) : data(size, value) { }
   
-  virtual std::string svalue() const override;
-  
-  virtual bool equals(const Value *value) const override;
-  virtual Value *clone() const override;
-  
-  virtual void iterate() const override { it = value->begin(); }
-  virtual bool hasNext() const override { return it != value->end(); }
+  virtual void iterate() const override { it = data.begin(); }
+  virtual bool hasNext() const override { return it != data.end(); }
   virtual Value *next() const override
   {
-    if (it == value->end())
+    if (it == data.end())
       return NULL;
     else
     {
-      Value *v = *it++;
+      Value *v = new Value(*it++);
       return v;
     }
   }
@@ -304,12 +291,16 @@ public:
   
   virtual void put(Value *value) override
   {
-    this->value->push_back(value);
+    this->data.push_back(*value);
   }
   
-  virtual u32 size() const override { return (u32)value->size(); }
-  virtual bool empty() const override { return this->value->empty(); }
+  virtual u32 size() const override { return (u32)data.size(); }
+  virtual bool empty() const override { return this->data.empty(); }
+
+  const array_t& raw() { return data; }
   
+  array_t::iterator begin() { return data.begin(); }
+  array_t::iterator end() { return data.end(); }
 };
 
 class LazyArray : public TValue<LazyArrayHolder>, public TCollection
@@ -362,67 +353,65 @@ public:
 
 
 
-class Set : public TValue<std::unordered_set<Value*>* >, public TCollection
+class Set : public TCollection
 {
+public:
+  using set_t = std::unordered_set<Value, value_hash>;
+
 private:
-  mutable std::unordered_set<Value*>::iterator it;
+  set_t data;
+  mutable set_t::const_iterator it;
   
 public:
-  Set(std::unordered_set<Value*>* value) : TValue<std::unordered_set<Value*>* >(TYPE_SET, value) { }
-  Set() : TValue<std::unordered_set<Value*>* >(TYPE_SET, new std::unordered_set<Value*>()) { }
+  Set(const set_t& data) : data(data) { }
+  Set(set_t&& data) : data(data) { }
+  Set() { }
   
-  virtual std::string svalue() const override;
-  
-  virtual bool equals(const Value *value) const override;
-  virtual Value *clone() const override;
-  
-  virtual void iterate() const override { it = value->begin(); }
-  virtual bool hasNext() const override { return it != value->end(); }
+  virtual void iterate() const override { it = data.begin(); }
+  virtual bool hasNext() const override { return it != data.end(); }
   virtual Value* next() const override
   {
-    if (it == value->end())
+    if (it == data.end())
       return NULL;
     else
     {
-      Value *v = *it++;
+      Value *v = new Value(*it++); // TODO: broken
       return v;
     }
   }
   
   virtual void put(Value *value) override
   {
-    this->value->insert(value);
+    this->data.insert(value);
   }
   
-  virtual u32 size() const override { return (u32)value->size(); }
-  virtual bool empty() const override { return this->value->empty(); }
+  virtual u32 size() const override { return (u32)data.size(); }
+  virtual bool empty() const override { return this->data.empty(); }
+  
+  const set_t& raw() const { return data; } //TODO: rotto
   
 };
 
-class Map : public TValue<std::unordered_map<Value*, Value*>* >, public TCollection
+class Map : public TCollection
 {
 private:
-  mutable std::unordered_map<Value*,Value*>::iterator it;
+  using map_t = std::unordered_map<Value, Value, value_hash>;
+  map_t data;
+  mutable map_t::const_iterator it;
   
 public:
-  Map(std::unordered_map<Value*, Value*>* value) : TValue<std::unordered_map<Value*, Value*>* >(TYPE_MAP, value) { };
-  Map() : TValue<std::unordered_map<Value *, Value *>* >(TYPE_MAP, new std::unordered_map<Value*, Value*>()) { };
+  Map(map_t&& data) : data(data) { };
+  Map() { };
   
-  virtual std::string svalue() const override;
-  
-  // TODO
-  virtual bool equals(const Value *value) const override { return false; }
-  virtual Value *clone() const override { return new Map(value); }
-  
-  virtual void iterate() const override { it = value->begin(); }
-  virtual bool hasNext() const override { return it != value->end(); }
+  virtual void iterate() const override { it = data.begin(); }
+  virtual bool hasNext() const override { return it != data.end(); }
   virtual Value *next() const override
   {
-    if (it == value->end())
+    if (it == data.end())
       return NULL;
     else
     {
-      Value *v = it->second;
+      Value *v = new Value(it->second); //TODO: broken
       ++it;
       return v;
     }
@@ -433,8 +422,8 @@ public:
     //this->value->push_back(value);
   }
   
-  virtual u32 size() const override { return (u32)value->size(); }
-  virtual bool empty() const override { return this->value->empty(); }
+  virtual u32 size() const override { return (u32)data.size(); }
+  virtual bool empty() const override { return this->data.empty(); }
 };
 
 class Lambda : public TValue<Code*>

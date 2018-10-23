@@ -79,15 +79,9 @@ std::string Range::svalue() const
   return ss.str();
 }
 
-static const CollectionPrinter<Value*> ListPrinter = { "{", "}", " ", [] (const Value* v) { return v->svalue(); } };
-static const CollectionPrinter<Value*> StackPrinter = { "{>", "}", " ", [] (const Value* v) { return v->svalue(); } };
-static const CollectionPrinter<Value*> QueuePrinter = { "{<", "}", " ", [] (const Value* v) { return v->svalue(); } };
 static const CollectionPrinter<Value*> ArrayPrinter = { "(", ")", " ", [] (const Value* v) { return v->svalue(); } };
 static const CollectionPrinter<Value*> SetPrinter = { "{.", "}", " ", [] (const Value* v) { return v->svalue(); } };
 
-std::string List::svalue() const { return ListPrinter.svalue(this); }
-std::string Stack::svalue() const { return StackPrinter.svalue(this); }
-std::string Queue::svalue() const { return QueuePrinter.svalue(this); }
 std::string Array::svalue() const { return ArrayPrinter.svalue(this); }
 std::string Set::svalue() const { return SetPrinter.svalue(this); }
 
@@ -143,83 +137,6 @@ std::string Lambda::svalue() const
   
   return ss.str();
 }
-
-bool List::equals(const Value *value) const
-{
-  if (value->type == TYPE_LIST)
-  {
-    std::list<Value*>* cvalue = ((List*)value)->value;
-    
-    std::list<Value*>::const_iterator it, it2;
-    
-    for (it = this->value->begin(), it2 = cvalue->begin(); it != this->value->end() && it2 != cvalue->end(); ++it, ++it2)
-      if (!(*it)->equals((*it2)))
-        return false;
-    
-    return it == this->value->end() && it2 == cvalue->end();
-  }
-  
-  return false;
-}
-
-Value* List::clone() const
-{
-  /*list<Value*>::const_iterator it;
-   list<Value*> nvalues;
-   
-   for (it = value.begin(); it != value.end(); ++it)
-   nvalues.push_back((*it)->clone());
-   
-   return new List(nvalues);*/
-  return new List(value);
-}
-
-bool Stack::equals(const Value *value) const
-{
-  if (value->type == TYPE_STACK)
-  {
-    std::list<Value*>* cvalue = ((Stack*)value)->value;
-    
-    std::list<Value*>::const_iterator it, it2;
-    
-    for (it = this->value->begin(), it2 = cvalue->begin(); it != this->value->end() && it2 != cvalue->end(); ++it, ++it2)
-      if (!(*it)->equals((*it2)))
-        return false;
-    
-    return it == this->value->end() && it2 == cvalue->end();
-  }
-  
-  return false;
-}
-
-Value *Stack::clone() const
-{
-  return new Stack(value);
-}
-
-bool Queue::equals(const Value *value) const
-{
-  if (value->type == TYPE_QUEUE)
-  {
-    std::list<Value*>* cvalue = ((Stack*)value)->get();
-    
-    std::list<Value*>::const_iterator it, it2;
-    
-    for (it = this->value->begin(), it2 = cvalue->begin(); it != this->value->end() && it2 != cvalue->end(); ++it, ++it2)
-      if (!(*it)->equals((*it2)))
-        return false;
-    
-    return it == this->value->end() && it2 == cvalue->end();
-  }
-  
-  return false;
-}
-
-Value *Queue::clone() const
-{
-  return new Queue(value);
-}
-
 bool Array::equals(const Value *value) const
 {
   if (value->type == TYPE_ARRAY)

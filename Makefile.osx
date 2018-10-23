@@ -28,7 +28,7 @@ lex.yy.c: parser/impossible.l
 	flex --header-file=lex.yy.h $<
 
 impossible.tab.cpp: parser/impossible.ypp lex.yy.c
-	bison -d -v $<
+	/usr/local/Cellar/bison/3.0.4/bin/bison -d -v $<
 
 $(TARGET) : $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)

@@ -53,6 +53,16 @@ class VM
       return exec.code;
     }
   
+    template<typename T> void push(T* object)
+    {
+      push(new Value(object));
+    }
+  
+    void push(const Value& value)
+    {
+      valueStack->push_front((Value*)&value);
+    }
+  
     void push(Value *value)
     {
       valueStack->push_front(value);

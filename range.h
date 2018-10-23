@@ -37,6 +37,7 @@ public:
     data->push_back(RangePair(a,b));
   }
   
+  //TODO: data type int?
   vector<int> concretize()
   {
     vector<int> v;

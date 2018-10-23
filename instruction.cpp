@@ -133,6 +133,31 @@ static void cartesian(TCollection *values1, TCollection* values2, TCollection* n
   }
 }
 
+template<typename T>
+void filter(VM* vm, const T& collection, Code* predicate)
+{
+  Value* v3;
+  const typename T::utype_t& v = collection->raw();
+  
+  typename T::utype_t::const_iterator it;
+  
+  typename T::utype_t ot;
+  
+  for (const auto& value : v)
+  {
+    vm->push(value);
+    vm->execute(predicate->get());
+    
+    if (vm->popOne(&v3))
+    {
+      if (v3->type.traits().to_bool(v3))
+        ot.push_back(value);
+    }
+  }
+  
+  vm->push(new T(ot));
+}
+
 struct Arguments
 {
   TypeInfo t1, t2, t3;
@@ -617,19 +642,17 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(v1->real() / v2->real())); break;            
           case TYPES(TYPE_SET, TYPE_SET):
           {
-            std::unordered_set<Value*>* s1 = ((Set*)v1)->get();
-            std::unordered_set<Value*>* s2 = ((Set*)v2)->get();
-            std::unordered_set<Value*>* sr = new std::unordered_set<Value*>();
+            Set *s1 = v1->set(), *s2 = v2->set();
+            const auto& d1 = s1->raw();
+            const auto& d2 = s2->raw();
+            Set::set_t result;
             
-            std::unordered_set<Value*>::iterator it;
+            for (const auto& it : d1)
+              if (d2.find(it) == d2.end())
+                result.insert(it);
             
-            for (it = s1->begin(); it != s1->end(); ++it)
-            {
-              if (s2->find(*it) == s2->end())
-                sr->insert(*it);
-            }
+            vm->push(new Value(new Set(result)));
             
-            vm->push(new Set(sr));
             break;
           }           
         }
@@ -697,19 +720,17 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1->integral() & v2->integral())); break;
           case TYPES(TYPE_SET, TYPE_SET):
           {
-            std::unordered_set<Value*>* s1 = ((Set*)v1)->get();
-            std::unordered_set<Value*>* s2 = ((Set*)v2)->get();
-            std::unordered_set<Value*>* sr = new std::unordered_set<Value*>();
+            Set *s1 = v1->set(), *s2 = v2->set();
+            const auto& d1 = s1->raw();
+            const auto& d2 = s2->raw();
+            Set::set_t result;
             
-            std::unordered_set<Value*>::iterator it;
+            for (const auto& it : d1)
+              if (d2.find(it) != d2.end())
+                result.insert(it);
             
-            for (it = s1->begin(); it != s1->end(); ++it)
-            {
-              if (s2->find(*it) != s2->end())
-                sr->insert(*it);
-            }
-            
-            vm->push(new Set(sr));
+            vm->push(new Value(new Set(result)));
+
             break;
           }
         }
@@ -739,19 +760,19 @@ void OpcodeInstruction::execute(VM *vm) const
             
           case TYPES(TYPE_SET, TYPE_SET):
           {
-            std::unordered_set<Value*>* s1 = ((Set*)v1)->get();
-            std::unordered_set<Value*>* s2 = ((Set*)v2)->get();
-            std::unordered_set<Value*>* sr = new std::unordered_set<Value*>();
+            Set *s1 = v1->set(), *s2 = v2->set();
+            const auto& d1 = s1->raw();
+            const auto& d2 = s2->raw();
+            Set::set_t result;
             
-            std::unordered_set<Value*>::iterator it;
+            for (const auto& it : d1)
+                result.insert(it);
             
-            for (it = s1->begin(); it != s1->end(); ++it)
-              sr->insert(*it);
+            for (const auto& it : d2)
+              result.insert(it);
             
-            for (it = s2->begin(); it != s2->end(); ++it)
-              sr->insert(*it);
+            vm->push(new Value(new Set(result)));
             
-            vm->push(new Set(sr));
             break;
           }
         }
@@ -770,15 +791,15 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPE_FLOAT: vm->push(new Float(1.0 / v1->real())); break;
           case TYPE_LIST:
           {
-            std::list<Value*>* ov = ((List*)v1)->get();
-            std::list<Value*>* nv = new std::list<Value*>(ov->rbegin(),ov->rend());
+            const List::list_t& data = v1->list()->raw();
+            List::list_t nv = List::list_t(data.rbegin(), data.rend());
             vm->push(new List(nv));
             break;
           }
           case TYPE_ARRAY:
           {
-            std::vector<Value*>* ov = ((Array*)v1)->get();
-            std::vector<Value*>* nv = new std::vector<Value*>(ov->rbegin(),ov->rend());
+            const Array::array_t& ov = v1->array()->raw();
+            Array::array_t nv = Array::array_t(ov.rbegin(), ov.rend());
             vm->push(new Array(nv));
             break;
           }
@@ -792,24 +813,23 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPE_RANGE:
           {
             Range *r = (Range*)v1;       
-            std::vector<Value*>* nv = new std::vector<Value*>();
-            std::vector<int> iv = r->get().concretize();
-            nv->reserve(iv.size());
+            Array::array_t nv;
+            auto iv = r->get().concretize();
             
-            for (int i = 0; i < iv.size(); ++i)
-              nv->push_back(new Int(iv.at(i)));
-            
+            nv.reserve(iv.size());
+            std::transform(iv.begin(), iv.end(), nv.end(), [] (int v) { return Int(v); });
+
             vm->push(new Array(nv));
             break;
           }
           case TYPE_LAZY_ARRAY:
           {
             LazyArray *array = (LazyArray*)v1;
-            std::vector<Value*>* nv = new std::vector<Value*>();
-            nv->reserve(array->size());
+            Array::array_t nv;
+            nv.reserve(array->size());
             
             for (int i = 0; i < array->size(); ++i)
-              nv->push_back(array->get().at(vm, i));
+              nv.push_back(*array->get().at(vm, i));
             
             vm->push(v1);
             vm->push(new Array(nv));
@@ -830,45 +850,12 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1->integral() >> v2->integral())); break;
           case TYPES(TYPE_LIST, TYPE_LAMBDA):
           {
-            std::list<Value*>* v = ((List*)v1)->get();
-            Code *c = ((Lambda*)v2)->get();
-            std::list<Value*>::iterator it;
-            
-            std::list<Value*>* ot = new std::list<Value*>();
-            for (it = v->begin(); it != v->end(); ++it)
-            {
-              vm->push(*it);
-              vm->execute(c);
-              
-              if (vm->popOne(&v3))
-              {
-                if (v3->type == TYPE_BOOL && v3->boolean())
-                  ot->push_back(*it);
-              }
-            }
-            vm->push(new List(ot));
-            break;
+            filter(vm, v1->list(), ((Lambda*)v2)->get());
             break;
           }
           case TYPES(TYPE_ARRAY, TYPE_LAMBDA):
           {
-            std::vector<Value*>* v = ((Array*)v1)->get();
-            Code *c = ((Lambda*)v2)->get();
-            std::vector<Value*>::iterator it;
-            
-            std::vector<Value*>* ot = new std::vector<Value*>();
-            for (it = v->begin(); it != v->end(); ++it)
-            {
-              vm->push(*it);
-              vm->execute(c);
-              
-              if (vm->popOne(&v3))
-              {
-                if (v3->type == TYPE_BOOL && v3->boolean())
-                  ot->push_back(*it);
-              }
-            }
-            vm->push(new Array(ot));
+            filter(vm, v1->array(), ((Lambda*)v2)->get());
             break;
             break;
           }
@@ -882,10 +869,11 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         if (v1->type == TYPE_ARRAY)
         {
-          std::vector<Value*>* vs = ((Array*)v1)->get();
+          //TODO: undomented instruction?
+          /*std::vector<Value*>* vs = ((Array*)v1)->get();
           vs->assign(vs->size(), v2->clone());
           vm->push(v1);
-          
+          */
         }
         else
         {
@@ -913,23 +901,25 @@ void OpcodeInstruction::execute(VM *vm) const
       {
         if (v2->type == TYPE_LIST)
         {
-          std::list<Value*>* v = ((List*)v2)->get();
+          const List::list_t& v = v2->list()->raw();
+          
           vm->push(v2);
           
-          if (!v->empty())
+          if (!v.empty())
           {
-            std::list<Value*>::iterator it = min_element(v->begin(), v->end(), std::less<Value*>());
+            List::list_t::const_iterator it = min_element(v.begin(), v.end(), std::less<Value>());
             vm->push(*it);
           }
         }
         else if (v2->type == TYPE_ARRAY)
         {
-          std::vector<Value*>* v = ((Array*)v2)->get();
+          const Array::array_t& v = v2->array()->raw();
+          
           vm->push(v2);
           
-          if (!v->empty())
+          if (!v.empty())
           {
-            std::vector<Value*>::iterator it = min_element(v->begin(), v->end(), std::less<Value*>());
+            Array::array_t::const_iterator it = min_element(v.begin(), v.end(), std::less<Value>());
             vm->push(*it);
           }
         }
@@ -949,29 +939,30 @@ void OpcodeInstruction::execute(VM *vm) const
       }
       break;
     }
+    //TODO min and max should push nil if list is empty?
     case OP_GREATER:
     {
       if (vm->popOne(&v2))
       {
         if (v2->type == TYPE_LIST)
         {
-          std::list<Value*>* v = ((List*)v2)->get();
+          const List::list_t& v = v2->list()->raw();
           vm->push(v2);
           
-          if (!v->empty())
+          if (!v.empty())
           {
-            std::list<Value*>::iterator it = max_element(v->begin(), v->end(), std::less<Value*>());
+            auto it = max_element(v.begin(), v.end(), std::less<Value>());
             vm->push(*it);
           }
         }
         else if (v2->type == TYPE_ARRAY)
         {
-          std::vector<Value*>* v = ((Array*)v2)->get();
+          const Array::array_t& v = v2->array()->raw();
           vm->push(v2);
           
-          if (!v->empty())
+          if (!v.empty())
           {
-            std::vector<Value*>::iterator it = max_element(v->begin(), v->end(), std::less<Value*>());
+            auto it = max_element(v.begin(), v.end(), std::less<Value>());
             vm->push(*it);
           }
         }
@@ -1017,82 +1008,24 @@ void OpcodeInstruction::execute(VM *vm) const
     {
       if (vm->popTwo(&v1, &v2))
       {
-        switch (v1->type)
+        if (v1->type.isCollection())
         {
-          case TYPE_LIST:
+          TCollection* collection = v1->collection();
+          vm->push(v1);
+          vm->push(collection->contains(*v2));
+        }
+        else
+        {
+          switch (TYPES(v1->type, v2->type))
           {
-            std::list<Value*>* vv = ((List*)v1)->get();
-            vm->push(v1);
-            if (find(vv->begin(), vv->end(), v2) != vv->end())
-              vm->push(new Bool(true));
-            else
-              vm->push(new Bool(false));
-            break;
-          }
-          case TYPE_ARRAY:
-          {
-            std::vector<Value*>* vv = ((Array*)v1)->get();
-            vm->push(v1);
-            if (find(vv->begin(), vv->end(), v2) != vv->end())
-              vm->push(new Bool(true));
-            else
-              vm->push(new Bool(false));
-            break;
-          }
-          case TYPE_STACK:
-          {
-            std::list<Value*>* vv = ((Stack*)v1)->get();
-            vm->push(v1);
-            if (find(vv->begin(), vv->end(), v2) != vv->end())
-              vm->push(new Bool(true));
-            else
-              vm->push(new Bool(false));
-            break;
-          }
-          case TYPE_QUEUE:
-          {
-            std::list<Value*>* vv = ((Queue*)v1)->get();
-            vm->push(v1);
-            if (std::find(vv->begin(), vv->end(), v2) != vv->end())
-              vm->push(new Bool(true));
-            else
-              vm->push(new Bool(false));
-            break;
-          }
-          case TYPE_SET:
-          {
-            std::unordered_set<Value*>* vv = ((Set*)v1)->get();
-            vm->push(v1);
-            if (vv->find(v2) != vv->end())
-              vm->push(new Bool(true));
-            else
-              vm->push(new Bool(false));
-            break;
-          }
-          case TYPE_MAP:
-          {
-            std::unordered_map<Value*,Value*>* vv = ((Map*)v1)->get();
-            vm->push(v1);
-            if (vv->find(v2) != vv->end())
-              vm->push(new Bool(true));
-            else
-              vm->push(new Bool(false));
-            break;
-          }
-            
-          default:
-          {
-            switch (TYPES(v1->type, v2->type))
+            case TYPES(TYPE_BOOL,TYPE_LAMBDA):
             {
-              case TYPES(TYPE_BOOL,TYPE_LAMBDA):
-              {
-                if (v1->boolean())
-                  vm->execute(((Lambda*)v2)->get());
-                break;
-              }
+              if (v1->boolean())
+                vm->execute(((Lambda*)v2)->get());
+              break;
             }
-            break;
           }
+
         }
       }
       break;
@@ -1142,30 +1075,11 @@ void OpcodeInstruction::execute(VM *vm) const
             break;
           }
           case TYPE_ARRAY:
-          {
-            Array *vv = (Array*)v1;
-            int size = vv->size();
-            std::vector<Value*>::iterator it = vv->get()->begin();
-            std::advance(it, Util::randi(0, size));
-            vm->push(*it);
-            break;
-          }
           case TYPE_LIST:
-          {
-            List *vv = (List*)v1;
-            int size = vv->size();
-            std::list<Value*>::iterator it = vv->get()->begin();
-            std::advance(it, Util::randi(0, size));
-            vm->push(*it);
-            break;
-          }
           case TYPE_SET:
           {
-            Set *vv = (Set*)v1;
-            int size = vv->size();
-            std::unordered_set<Value*>::iterator it = vv->get()->begin();
-            std::advance(it, Util::randi(0, size));
-            vm->push(*it);
+            //TODO: random element
+
             break;
           }
           default:
@@ -1195,6 +1109,7 @@ void OpcodeInstruction::execute(VM *vm) const
       break;
     }
       
+      //TODO: add support for lambda based
     case OP_SORT:
     {
       if (vm->popOne(&v1))
@@ -1203,15 +1118,13 @@ void OpcodeInstruction::execute(VM *vm) const
         {
           case TYPE_LIST:
           {
-            List *v = (List*)v1;
-            v->get()->sort(std::less<Value*>());
+            std::sort(v1->list()->begin(), v1->list()->end());
             vm->push(v1);
             break;
           }
           case TYPE_ARRAY:
           {
-            Array *v = (Array*)v1;
-            std::sort(v->get()->begin(), v->get()->end(), std::less<Value*>());
+            std::sort(v1->array()->begin(), v1->array()->end());
             vm->push(v1);
             break;
           }
@@ -1230,18 +1143,15 @@ void OpcodeInstruction::execute(VM *vm) const
         {
           case TYPE_ARRAY:
           {
-            Array *v = (Array*)v1;
-            random_shuffle(v->get()->begin(), v->get()->end());
+            std::random_shuffle(v1->array()->begin(), v1->array()->end());
             vm->push(v1);
             break;
           }
           case TYPE_LIST:
           {
-            List *v = (List*)v1;
-            std::vector<Value*> data(v->get()->begin(), v->get()->end());
-            random_shuffle(data.begin(), data.end());
-            List *nv = new List(new std::list<Value*>(data.begin(), data.end()));
-            vm->push(nv);
+            std::vector<Value> data(v1->list()->begin(), v1->list()->end());
+            std::random_shuffle(data.begin(), data.end());
+            vm->push(new List(List::list_t(data.begin(), data.end())));
             break;
           }
             
@@ -1257,13 +1167,13 @@ void OpcodeInstruction::execute(VM *vm) const
       {
         if (v2->type == TYPE_STACK)
         {
-          Stack *stack = (Stack*)v2;
-          vm->push(stack);
+          List::list_t& stack = v2->stack()->raw();
+          vm->push(v2);
           
-          if (!stack->empty())
+          if (!stack.empty())
           {
-            vm->push(stack->get()->front());
-            stack->get()->pop_front();
+            vm->push(stack.front());
+            stack.pop_front();
           }
         }
         else if (v2->type == TYPE_QUEUE)
@@ -1291,7 +1201,7 @@ void OpcodeInstruction::execute(VM *vm) const
               if (it != map->get()->end())
                 vm->push(it->second);
               else
-                vm->push(TValue<void*>::NIL->clone());
+                vm->push(Nil());
             }
             else
             {            
@@ -1307,7 +1217,7 @@ void OpcodeInstruction::execute(VM *vm) const
                   if (i < values->size())
                     vm->push(values->get()->at(i));
                   else
-                    vm->push(TValue<void*>::NIL->clone());
+                    vm->push(Nil());
                   
                   
                   break;
@@ -1644,7 +1554,7 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPES(TYPE_STRING, TYPE_LAMBDA):
           {
             Lambda *lambda = (Lambda*)v2;
-            String* values = (String*)v1;
+            String* values = v1->string();
             String* nvalues = new String();
             
             map(values,nvalues,lambda->get(),vm);

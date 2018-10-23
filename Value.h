@@ -30,7 +30,14 @@ struct managed_object
   virtual ~managed_object() { }
 };
 
+class TCollection;
 class String;
+class Array;
+class List;
+class Stack;
+class Queue;
+class Set;
+class Map;
 
 union value_data
 {
@@ -67,11 +74,19 @@ public:
   Value(bool value) : type(TYPE_BOOL), data(value) { }
   
   Value(String* string);
+  Value(List* list);
+  Value(Stack* list);
+  Value(Queue* list);
+  Value(Array* array);
+  Value(Map* map);
+  Value(Set* set);
+  
+  bool operator==(const Value& value) const { return type.traits().equal_to(*this, value); }
   
   virtual std::string svalue() const { return type.traits().to_string(*this); }
   std::string lvalue();
 
-  virtual bool equals(const Value *value) const { return type.traits().equal_to(*this, *value); }
+  virtual bool equals(const Value *value) const { return this->operator==(*value); }
   virtual Value* clone() const { return new Value(*this); }
 
   const TypeInfo type;
@@ -88,20 +103,42 @@ public:
   
   template<typename T> T* object() const { return static_cast<T*>(data.ptr); }
   
+  virtual TCollection* collection() const; //TODO: temporarily virtual to override in collections
+  
   String* string() const;
+  List* list() const;
+  Stack* stack() const;
+  Queue* queue() const;
+  Set* set() const;
+  Map* map() const;
+  Array* array() const;
 };
 
 class TCollection : public managed_object
 {
-  public:
-    virtual void iterate() const = 0;
-    virtual bool hasNext() const = 0;
-  
-    virtual Value *next() const = 0;
+public:
+  virtual void iterate() const = 0;
+  virtual bool hasNext() const = 0;
 
-    virtual void put(Value *value) = 0;
-    virtual u32 size() const = 0;
-    virtual bool empty() const = 0;
+  virtual Value *next() const = 0;
+
+  virtual void put(Value *value) = 0;
+  virtual u32 size() const = 0;
+  virtual bool empty() const = 0;
+  
+  //TODO: must override for map
+  virtual bool contains(const Value& value)
+  {
+    iterate();
+    
+    while (hasNext())
+    {
+      if (*next() == value)
+        return true;
+    }
+    
+    return false;
+  }
 };
 
 
@@ -116,25 +153,6 @@ class TValue : public Value
     
     void set(T value) { this->value = value; }
     T get() const { return this->value; }
-};
-
-template <>
-class TValue<void*> : public Value
-{
-  public:
-    TValue(Type type) : Value(TYPE_NIL) {}
-    //TValue(const TValue &o) { }
-    //TValue &operator= (const TValue &o) { }
-  
-    virtual std::string svalue() const { return "nil"; }
-    
-    virtual bool equals(const Value *value) const { return value->type == TYPE_NIL; }
-    virtual Value* clone() const { return (Value*)this; }
-    
-    void set(void* value) { }
-    void* get() const { return NULL; }
-  
-    static const Value *NIL;
 };
 
 class Heap

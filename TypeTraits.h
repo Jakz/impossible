@@ -30,6 +30,8 @@ public:
     
     std::function<std::string(const Value& v)> to_string;
     std::function<bool(const Value& v1, const Value& v2)> equal_to;
+    
+    std::function<bool(const Value&)> to_bool = [] (const Value& ) { return false; };
   };
   
 private:

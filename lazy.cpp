@@ -62,7 +62,7 @@ void LazyArrayHolder::generateNth(VM* vm, u32 index)
   vm->lazy = NULL;
 }
 
-Value *LazyArrayHolder::at(VM* vm, u32 index)
+Value* LazyArrayHolder::at(VM* vm, u32 index)
 {
   //std::cout << "request for lazy at " << index << endl;
   

@@ -7,8 +7,8 @@
 
 #include "lazy.h"
 
-#include "Value.h"
-#include "CompositeValue.h"
+#include "value.h"
+#include "collection.h"
 
 #include "vm.h"
 

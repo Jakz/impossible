@@ -18,7 +18,7 @@
   class Code;
   class Instruction;
   
-  #include "Value.h"
+  #include "value.h"
 }
 
 %lex-param { compiler::Lexer &lexer }

@@ -13,8 +13,8 @@
 #include <stack>
 #include <array>
 
-#include "Value.h"
-#include "CompositeValue.h"
+#include "value.h"
+#include "collection.h"
 
 #include "instruction.h"
 

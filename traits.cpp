@@ -1,7 +1,6 @@
-#include "TypeTraits.h"
-
-#include "Value.h"
-#include "CompositeValue.h"
+#include "traits.h"
+#include "value.h"
+#include "collection.h"
 #include "instruction.h"
 
 #include <sstream>

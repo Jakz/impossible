@@ -7,8 +7,8 @@
 
 #include "code.h"
 #include "instruction.h"
-#include "Value.h"
-#include "CompositeValue.h"
+#include "value.h"
+#include "collection.h"
 
 #include <iostream>
 #include <iomanip>

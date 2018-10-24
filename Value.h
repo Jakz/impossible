@@ -13,7 +13,7 @@
 #include "code.h"
 #include "lazy.h"
 
-#include "TypeTraits.h"
+#include "traits.h"
 
 #include <cmath>
 

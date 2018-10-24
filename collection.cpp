@@ -6,8 +6,8 @@
 //
 //
 
-#include "CompositeValue.h"
-#include "TypeTraits.h"
+#include "collection.h"
+#include "traits.h"
 #include "instruction.h"
 
 #include <iostream>

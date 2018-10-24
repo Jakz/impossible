@@ -9,8 +9,8 @@
 #define _INSTRUCTION_H_
 
 #include "defines.h"
-#include "Value.h"
-#include "CompositeValue.h"
+#include "value.h"
+#include "collection.h"
 #include "code.h"
 
 #include <string>

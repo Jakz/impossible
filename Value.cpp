@@ -5,7 +5,7 @@
  * Created on 12/21/12
  */
 
-#include "Value.h"
+#include "value.h"
 #include "instruction.h"
 
 #include <iostream>

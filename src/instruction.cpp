@@ -322,6 +322,7 @@ public:
     
   }
   
+  const decltype(microCode)& data() { return microCode; }
   size_t size() { return microCode.size(); }
   
   void registerUnary(Signature signature, const decltype(VariantFunction::unary)&& function)
@@ -471,6 +472,8 @@ void registerFunctions()
   mc.registerUnary({ OP_DUPE, TYPE_GENERIC }, [] (VM* vm, const Value& v1) { vm->push(v1); vm->push(v1); });
   
   mc.registerUnary({ OP_NEG, TYPE_COLLECTION }, [] (VM* vm, const Value& v1) { vm->push(v1.collection()->size()); });
+  
+  std::cout << "Registered " << mc.data().size() << " operations." << std::endl;
 }
 
 
@@ -620,7 +623,7 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         if (v1.type == TYPE_STRING)
         {
-          vm->push(new Value(new String(v1.string()->data() + v2.svalue())));
+          vm->push(new Value(new String(v1.string()->raw() + v2.svalue())));
         }
         else
         {        
@@ -819,7 +822,7 @@ void OpcodeInstruction::execute(VM *vm) const
           }
           case TYPE_STRING:
           {
-            const std::string& ov = v1.string()->data();
+            const std::string& ov = v1.string()->raw();
             std::string nv = std::string(ov.rbegin(), ov.rend());
             vm->push(new Value(TYPE_STRING, new String(nv)));
             break;

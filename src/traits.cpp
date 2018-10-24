@@ -100,8 +100,8 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   
   { TYPE_STRING,
     { TYPE_STRING, false, true, "string",
-      [] (const Value& v) { return v.string()->data(); },
-      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STRING && v2.string()->data() == v1.string()->data(); }
+      [] (const Value& v) { return v.string()->raw(); },
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STRING && v2.string()->raw() == v1.string()->raw(); }
     }
   },
 

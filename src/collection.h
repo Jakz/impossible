@@ -12,8 +12,11 @@
 
 class String : public TCollection
 {
+public:
+  using data_t = std::string;
+  
 private:
-  std::string value;
+  data_t value;
   
   struct iterator
   {
@@ -26,9 +29,7 @@ private:
 public:
   String() { }
   String(std::string value) : value(value) { }
-  
-  const std::string& data() const { return value; }
-  
+
   virtual void iterate() const override { it.it = value.begin(); }
   virtual bool hasNext() const override { return it.it != value.end(); }
   
@@ -41,6 +42,8 @@ public:
   
   virtual integral_t size() const override { return value.length(); }
   virtual bool empty() const override { return this->value.empty(); }
+  
+  const std::string& raw() const { return value; }
 };
 
 class Range : public TCollection
@@ -137,7 +140,7 @@ struct value_hash
       }
       case TYPE_STRING: {
         std::hash<std::string> i;
-        return i(v.string()->data());
+        return i(v.string()->raw());
       }
       case TYPE_BOOL: {
         std::hash<bool> i;
@@ -186,7 +189,7 @@ struct std::less<Value>
         case TYPE_STRING:
         {
           less<string> i;
-          const string& v1 = x.string()->data(), &v2 = y.string()->data();
+          const string& v1 = x.string()->raw(), &v2 = y.string()->raw();
           return i(v1, v2);
         }
         case TYPE_BOOL:

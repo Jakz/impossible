@@ -28,7 +28,7 @@ public:
   
   RangeVector(const data_t& data) : data(data) { }
   RangeVector() { }
-  RangeVector(int a, int b)
+  RangeVector(integral_t a, integral_t b)
   {
     if (b < a)
       std::swap(a, b);

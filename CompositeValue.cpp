@@ -65,32 +65,6 @@ std::string LazyArray::svalue() const
   return s;
 }
 
-/*
-std::string Map::svalue() const
-{
-  if (value->empty())
-    return "{:}";
-  
-  std::stringstream ss(std::stringstream::out);
-  
-  bool first = true;
-  
-  ss << "{";
-  for (std::unordered_map<Value*, Value*>::const_iterator it = value->begin(); it != value->end(); ++it)
-  {
-    if (first)
-      first = false;
-    else
-      ss << " ";
-    
-    ss << it->first->svalue() << ":" << it->second->svalue();
-  }
-  
-  ss << "}";
-  
-  return ss.str();
-}*/
-
 std::string Lambda::svalue() const
 {
   std::stringstream ss(std::stringstream::out);

@@ -37,9 +37,9 @@ public:
   }
   
   data_t::iterator begin() { return data.begin(); }
-  data_t::iterator end() { return data.begin(); }
+  data_t::iterator end() { return data.end(); }
   data_t::const_iterator begin() const { return data.begin(); }
-  data_t::const_iterator end() const { return data.begin(); }
+  data_t::const_iterator end() const { return data.end(); }
   
   const RangePair& operator[](const size_t index) const { return data[index]; }
   

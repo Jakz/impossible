@@ -109,8 +109,6 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   { TYPE_RANGE,
     { TYPE_RANGE, false, true, "range",
       [] (const Value& v) {
-        std::vector<RangePair>::const_iterator it;
-        
         std::stringstream ss(std::stringstream::out);
         
         bool first = true;

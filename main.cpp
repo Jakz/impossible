@@ -13,8 +13,6 @@
 
 #include "help.h"
 
-#include "VTable.h"
-
 #include <string>
 #include <iostream>
 

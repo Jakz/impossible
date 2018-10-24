@@ -1957,7 +1957,7 @@ void OpcodeInstruction::execute(VM *vm) const
       {
         integral_t t = v1.integral();
         
-        if (vm->stackHasValues(t))
+        if (vm->stackSize() >= t)
         {
           std::list<Value> tmpStack;
           
@@ -1982,7 +1982,7 @@ void OpcodeInstruction::execute(VM *vm) const
       {
         integral_t t = v1.integral();
         
-        if (vm->stackHasValues(t))
+        if (vm->stackSize() >= t)
         {
           std::list<Value> tmpStack;
           

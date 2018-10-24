@@ -135,9 +135,7 @@ public:
   }
   
   size_t stackSize() const { return valueStack->size(); }
-  
-  bool stackHasValues(int count) const{ return valueStack->size() >= count; }
-  
+    
   bool popThree(Value& v1, Value& v2, Value& v3)
   {
     v3 = pop();

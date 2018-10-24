@@ -15,7 +15,7 @@
   static compiler::location loc;
 %}
 
-%option nodefault
+%option nodefaulht
 %option noyywrap
 %option c++
 %option yyclass="Lexer"

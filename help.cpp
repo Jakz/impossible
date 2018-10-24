@@ -15,7 +15,7 @@ std::multimap<string, OpHelpEntry> Help::operators;
 std::multimap<int, TypeConstructor> Help::constructors;
 
 
-const char *Help::topicString(Topic topic)
+const char* Help::topicString(Topic topic)
 {
   switch (topic)
   {
@@ -59,8 +59,8 @@ void Help::init()
   addOperator("/:", OpHelpEntry::binary(TYPE_LIST, TYPE_LIST, TYPE_LIST, "diadic div", TOPIC_COLLECTIONS, "applies / operation between each pair of elements in lists", "", ""));
   addOperator("/:", OpHelpEntry::binary(TYPE_ARRAY, TYPE_ARRAY, TYPE_ARRAY, "diadic div", TOPIC_COLLECTIONS, "applies / operation between each pair of elements in arrays", "", ""));
   
-  addOperator("/.", OpHelpEntry::unary(TYPE_LIST, TYPE_GENERIC, "monadic div", TOPIC_COLLECTIONS, "applies + operation between each pair of elements in the list", "", ""));
-  addOperator("/.", OpHelpEntry::unary(TYPE_ARRAY, TYPE_GENERIC, "monadic div", TOPIC_COLLECTIONS, "applies + operation between each pair of elements in the array", "", ""));
+  addOperator("/.", OpHelpEntry::unary(TYPE_LIST, TYPE_GENERIC, "monadic div", TOPIC_COLLECTIONS, "applies / operation between each pair of elements in the list", "", ""));
+  addOperator("/.", OpHelpEntry::unary(TYPE_ARRAY, TYPE_GENERIC, "monadic div", TOPIC_COLLECTIONS, "applies / operation between each pair of elements in the array", "", ""));
   
   addOperator("-", OpHelpEntry::binary(TYPE_INT, TYPE_INT, TYPE_INT, "sub", TOPIC_NUMERICS, "subtraction between integers", "", ""));
   addOperator("-", OpHelpEntry::binary(TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, "sub", TOPIC_NUMERICS, "subtraction between floats", "", ""));

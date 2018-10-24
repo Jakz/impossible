@@ -60,6 +60,10 @@
 
   COLON ":"
   PERIOD "."
+
+  I "i"
+
+  LARRAY_OPEN "(?"
 ;
 
 %define api.token.prefix {T_}
@@ -132,7 +136,6 @@
   RECURV "{#}"
   WHILE "<>"
 
-  I "i"
   S "s"
 ;
 
@@ -198,19 +201,19 @@ lazy_pairs:
 ;
 
 lazy_array:
-  LPAREN QUESTION lazy_pairs lambda RPAREN {
-    LazyArrayHolder holder($4.lambda(), false);
+  LARRAY_OPEN lazy_pairs lambda RPAREN {
+    LazyArrayHolder holder($3.lambda(), false);
     
-    for (const auto& pair : $3)
+    for (const auto& pair : $2)
       holder.addMap(pair.first, pair.second);
 
     $$ = new LazyArray(holder);
   }
 
-  | LPAREN QUESTION I lazy_pairs lambda RPAREN {
-    LazyArrayHolder holder($5.lambda(), true);
+  | LARRAY_OPEN I lazy_pairs lambda RPAREN {
+    LazyArrayHolder holder($4.lambda(), true);
   
-    for (const auto& pair : $4)
+    for (const auto& pair : $3)
       holder.addMap(pair.first, pair.second);
   
     $$ = new LazyArray(holder);

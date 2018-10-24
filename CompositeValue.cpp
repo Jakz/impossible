@@ -25,38 +25,6 @@ const Value& String::next() const
   }
 }
 
-template<typename T>
-struct CollectionPrinter
-{
-  std::string prefix;
-  std::string suffix;
-  std::string separator;
-  std::function<std::string(const T&)> valuePrinter;
-  
-  std::string svalue(const TCollection* collection) const
-  {
-    std::stringstream ss(std::stringstream::out);
-    bool first = true;
-    collection->iterate();
-    
-    ss << prefix;
-    
-    while (collection->hasNext())
-    {
-      auto it = collection->next();
-      
-      if (first) first = false;
-      else ss << separator;
-      
-      ss << valuePrinter(it);
-    }
-    
-    ss << suffix;
-    
-    return ss.str();
-  }
-};
-
 std::string LazyArray::svalue() const
 {
   std::string s("(? ");

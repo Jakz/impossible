@@ -157,7 +157,16 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     }
   },
 
-  { TYPE_LAZY_ARRAY, { TYPE_LAZY_ARRAY, false, true, "larray" } },
+  { TYPE_LAZY_ARRAY,
+    { TYPE_LAZY_ARRAY, false, true, "larray",
+      [] (const Value& v) {
+        std::string s("(? ");
+        s += v.lazyArray()->raw().code()->svalue();
+        s += " )";
+        return s;
+      },
+    }
+  },
   
   { TYPE_MAP, { TYPE_MAP, false, true, "map" } },
   { TYPE_LAMBDA,

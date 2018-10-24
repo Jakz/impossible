@@ -15,7 +15,7 @@
   static compiler::location loc;
 %}
 
-%option nodefaulht
+%option nodefault
 %option noyywrap
 %option c++
 %option yyclass="Lexer"
@@ -30,6 +30,8 @@
 %{
   loc.step();
 %}
+
+"(?" { return Parser::make_LARRAY_OPEN(loc); }
 
 "{#}" { return Parser::make_OPCODE(OP_RECURV, loc); }
 
@@ -121,6 +123,7 @@
 "l" { return Parser::make_OPCODE(OP_LOWER_STACKV, loc); }
 
 "s" { return Parser::make_OPCODE(OP_STRING_CAST, loc); }
+"i" { return Parser::make_I(loc); }
 
 "'"[0-9a-zA-Z] { return Parser::make_CHARACTER(yytext[1], loc); }
 

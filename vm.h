@@ -47,7 +47,7 @@ private:
   bool stackPreserve;
   
 public:
-  VM() : valueStack(new stack_t()), exec(ExecEnv(NULL)), running(false), stackPreserve(false), lazy(NULL), memory()
+  VM() : valueStack(new stack_t()), exec(ExecEnv(nullptr)), running(false), stackPreserve(false), lazy(NULL), memory()
   {
   }
   

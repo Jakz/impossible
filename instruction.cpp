@@ -254,6 +254,12 @@ struct VariantFunction
   }
 };
 
+template<typename T> struct type_of { };
+template<> struct type_of<integral_t> { static constexpr Type value = TYPE_INT; };
+template<> struct type_of<real_t> { static constexpr Type value = TYPE_FLOAT; };
+
+
+void registerFunctions();
 class MicroCode
 {
 private:
@@ -312,8 +318,11 @@ public:
   MicroCode()
   {
     static_assert(sizeof(Signature) == sizeof(u64), "");
-    init();
+    registerFunctions();
+    
   }
+  
+  size_t size() { return microCode.size(); }
   
   void registerUnary(Signature signature, const decltype(VariantFunction::unary)&& function)
   {
@@ -332,26 +341,20 @@ public:
     emplace(signature, VariantFunction(function));
     opcodeData[signature.opcode].hasNullary = true;
   }
-  
-  template<typename T, typename U> void registerNumeric(Opcode opcode, std::function<Value(Value, Value)>& lambda)
+
+  template<typename T, typename U, typename R, template<typename TT, typename UU, typename RR> class F> void registerNumericTemplate(Opcode opcode)
   {
-    constexpr Type t1 = conditional_value<std::is_same<T, integral_t>::value, Type, TYPE_INT, TYPE_FLOAT>::value;
-    constexpr Type t2 = conditional_value<std::is_same<U, integral_t>::value, Type, TYPE_INT, TYPE_FLOAT>::value;
-    constexpr Type t3 = conditional_value<std::is_same<T, real_t>::value || std::is_same<U, real_t>::value, Type, TYPE_FLOAT, TYPE_INT>::value;
+    registerBinary({ opcode, type_of<T>::value, type_of<U>::value }, [] (VM* vm, const Value& v1, const Value& v2) { vm->push(F<T, U, R>()(v1.number<T>(), v2.number<U>())); });
   }
   
-  void init()
-  {
-    registerUnary({ OP_DUPE, TYPE_GENERIC }, [] (VM* vm, const Value& v1) { vm->push(v1); vm->push(v1); });
-    
-    registerBinary({ OP_PLUS, TYPE_INT, TYPE_INT }, [] (VM* vm, const Value& v1, const Value& v2) {
-      vm->push(v1.integral() + v2.integral());
-    });
+  template<typename T1, bool IS_COMPARISON> using return_type = typename std::conditional<IS_COMPARISON, bool, T1>::type;
   
-    registerBinary({ OP_MINUS, TYPE_INT, TYPE_INT }, [] (VM* vm, const Value& v1, const Value& v2) { vm->push(v1.integral() - v2.integral()); });
-    
-    registerUnary({ OP_NEG, TYPE_COLLECTION }, [] (VM* vm, const Value& v1) { vm->push(v1.collection()->size()); });
-
+  template<bool IS_COMPARISON, template<typename TT, typename UU, typename RR> class OP> void registerNumeric(Opcode opcode)
+  {
+    registerNumericTemplate<real_t, real_t, return_type<real_t, IS_COMPARISON>, OP>(opcode);
+    registerNumericTemplate<integral_t, real_t, return_type<real_t, IS_COMPARISON>, OP>(opcode);
+    registerNumericTemplate<real_t, integral_t, return_type<real_t, IS_COMPARISON>, OP>(opcode);
+    registerNumericTemplate<integral_t, integral_t, return_type<integral_t, IS_COMPARISON>, OP>(opcode);
   }
   
   bool execute(VM* vm, const OpcodeInstruction& instruction)
@@ -437,6 +440,38 @@ public:
 
 
 MicroCode microCode;
+
+
+namespace math
+{
+  template<typename T, typename U, typename R> struct plus { public: R operator()(T t, U u) { return t + u;} };
+  template<typename T, typename U, typename R> struct minus { public: R operator()(T t, U u) { return t - u;} };
+  template<typename T, typename U, typename R> struct times { public: R operator()(T t, U u) { return t * u;} };
+  template<typename T, typename U, typename R> struct divide { public: R operator()(T t, U u) { return t / u;} };
+
+  template<typename T, typename U, typename R> struct lesser { public: R operator()(T t, U u) { return t < u;} };
+  template<typename T, typename U, typename R> struct greater { public: R operator()(T t, U u) { return t > u;} };
+
+}
+
+
+void registerFunctions()
+{
+  auto& mc = microCode;
+  
+  mc.registerNumeric<false, math::plus>(OP_PLUS);
+  mc.registerNumeric<false, math::minus>(OP_MINUS);
+  mc.registerNumeric<false, math::times>(OP_TIMES);
+  mc.registerNumeric<false, math::divide>(OP_DIVIDE);
+  
+  mc.registerNumeric<true, math::lesser>(OP_LESSER);
+  mc.registerNumeric<true, math::greater>(OP_GREATER);
+
+  
+  mc.registerUnary({ OP_DUPE, TYPE_GENERIC }, [] (VM* vm, const Value& v1) { vm->push(v1); vm->push(v1); });
+  
+  mc.registerUnary({ OP_NEG, TYPE_COLLECTION }, [] (VM* vm, const Value& v1) { vm->push(v1.collection()->size()); });
+}
 
 
 void PushInstruction::execute(VM *vm) const
@@ -591,9 +626,6 @@ void OpcodeInstruction::execute(VM *vm) const
         {        
           switch (TYPES(v1.type, v2.type))
           {
-            case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(v1.real() + v2.integral()); break;
-            case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(v1.integral() + v2.real()); break;
-            case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(v1.real() + v2.real()); break;
             case TYPES(TYPE_CHAR, TYPE_INT): vm->push((char)(v1.character() + v2.integral())); break;
             case TYPES(TYPE_CHAR, TYPE_CHAR): vm->push(new Value(new String(std::string(1,v1.character()) + v2.character()))); break;
           }
@@ -607,9 +639,6 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(v1.real() - v2.integral()); break;
-          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(v1.integral() - v2.real()); break;
-          case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(v1.real() - v2.real()); break;
           case TYPES(TYPE_CHAR, TYPE_INT): vm->push((char)(v1.character() - v2.integral())); break;
         }
       }
@@ -617,16 +646,6 @@ void OpcodeInstruction::execute(VM *vm) const
     }
     case OP_TIMES:
     {
-      if (vm->popTwo(v1, v2))
-      {  
-        switch (TYPES(v1.type, v2.type))
-        {
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() * v2.integral()); break;
-          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(v1.real() * v2.integral()); break;
-          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(v1.integral() * v2.real()); break;
-          case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(v1.real() * v2.real()); break;
-        }
-      }
       break;
     }
     case OP_DIVIDE:
@@ -635,10 +654,6 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() / v2.integral()); break;
-          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(v1.real() / v2.integral()); break;
-          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(v1.integral() / v2.real()); break;
-          case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(v1.real() / v2.real()); break;
           case TYPES(TYPE_SET, TYPE_SET):
           {
             Set *s1 = v1.set(), *s2 = v2.set();
@@ -921,19 +936,6 @@ void OpcodeInstruction::execute(VM *vm) const
             vm->push(*it);
           }
         }
-        else
-        {
-          if (vm->popOne(v1))
-          {  
-            switch (TYPES(v1.type, v2.type))
-            {
-              case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() < v2.integral()); break;
-              case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(v1.real() < v2.integral()); break;
-              case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(v1.integral() < v2.real()); break;
-              case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(v1.real() < v2.real()); break;
-            }
-          }
-        }
       }
       break;
     }
@@ -962,19 +964,6 @@ void OpcodeInstruction::execute(VM *vm) const
           {
             auto it = max_element(v.begin(), v.end(), std::less<Value>());
             vm->push(*it);
-          }
-        }
-        else
-        {
-          if (vm->popOne(v1))
-          {   
-            switch (TYPES(v1.type, v2.type))
-            {
-              case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() > v2.integral()); break;
-              case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(v1.real() > v2.integral()); break;
-              case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(v1.integral() > v2.real()); break;
-              case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(v1.real() > v2.real()); break;
-            }
           }
         }
       }

@@ -104,6 +104,10 @@ public:
   char character() const { return data.c; }
   bool boolean() const { return data.b; }
   
+  template<typename T> auto number() const -> typename std::enable_if<std::is_same<T, integral_t>::value, T>::type { return data.i; }
+  template<typename T> auto number() const -> typename std::enable_if<std::is_same<T, real_t>::value, T>::type { return data.f; }
+
+  
   template<typename T> T* object() const { return static_cast<T*>(data.ptr); }
   
   virtual TCollection* collection() const; //TODO: temporarily virtual to override in collections

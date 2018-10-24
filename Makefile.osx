@@ -5,8 +5,8 @@ CXX := clang++
 
 INCLUDE = 
 
-all: CFLAGS = $(INCLUDE) -std=c++14 -stdlib=libc++ -Wno-deprecated-register -Iparser -I.
-opt: CFLAGS = $(INCLUDE) -O3 -ffast-math -pipe -std=c++14 -stdlib=libc++ -Wno-deprecated-register -Iparser -I. -I/usr/local/opt/flex/include/
+all: CFLAGS = $(INCLUDE) -std=c++14 -stdlib=libc++ -Wno-deprecated-register -Iparser -I. -I/usr/local/opt/flex/include
+opt: CFLAGS = $(INCLUDE) -O3 -ffast-math -pipe -std=c++14 -stdlib=libc++ -Wno-deprecated-register -Iparser -I. -I/usr/local/opt/flex/include
 
 CXXFLAGS = $(CFLAGS)
 

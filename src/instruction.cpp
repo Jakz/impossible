@@ -186,7 +186,7 @@ struct Signature
     u64 data;
   };
   
-  Signature(Opcode opcode, Type r, Type t1 = TYPE_NONE, Type t2 = TYPE_NONE, Type t3 = TYPE_NONE) : opcode(opcode), args(t1, t2, t3) { }
+  Signature(Opcode opcode, Type t1 = TYPE_NONE, Type t2 = TYPE_NONE, Type t3 = TYPE_NONE) : opcode(opcode), args(t1, t2, t3) { }
   bool operator==(const Signature& o) const { return opcode == o.opcode && args.matches(o.args); }
 
   struct hash

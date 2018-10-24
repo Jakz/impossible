@@ -20,14 +20,14 @@
 
 class Instruction;
 
-struct ExecEnv
+struct ActivationRecord
 {
   Code *code;
   size_t pc;
   
-  ExecEnv(Code *code) : code(code), pc(0) { }
+  ActivationRecord(Code *code) : code(code), pc(0) { }
   
-  void set(Code *code) { this->code = code; pc = 0; }
+  //void set(Code *code) { this->code = code; pc = 0; }
 };
 
 class VM
@@ -40,25 +40,20 @@ private:
   std::list<stack_t*> lowStacks;
   std::array<Value, 26> memory;
   
-  std::stack<ExecEnv> callStack;
-  ExecEnv exec;
+  std::stack<ActivationRecord> callStack;
+  ActivationRecord exec;
   
   bool running;
   bool stackPreserve;
   
 public:
-  VM() : valueStack(new stack_t()), exec(ExecEnv(nullptr)), running(false), stackPreserve(false), lazy(NULL), memory()
+  VM() : valueStack(new stack_t()), exec(ActivationRecord(nullptr)), running(false), stackPreserve(false), lazy(NULL), memory()
   {
   }
   
   Code *code()
   {
     return exec.code;
-  }
-  
-  template<typename T> void push(T* object)
-  {
-    push(Value(object));
   }
   
   void push(const Value& value)

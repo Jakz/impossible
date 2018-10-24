@@ -16,7 +16,7 @@ void VM::execute(Code *code)
   if (exec.code)
     callStack.push(exec);
   
-  exec.set(code);
+  exec = ActivationRecord(code);
   
   run();
   
@@ -29,12 +29,10 @@ void VM::execute(Code *code)
 
 void VM::run()
 {
-  while (exec.pc < exec.code->len() && running)
+  while (exec.pc < exec.code->size() && running)
   {
     Instruction *i = exec.code->at(exec.pc);
     
-    //cout << exec.code->svalue(exec.pc) << endl;
-
     i->execute(this);
     
     exec.pc++;

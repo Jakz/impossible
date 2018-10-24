@@ -3,10 +3,10 @@ TARGET = impossible
 CC  := clang
 CXX := clang++
 
-INCLUDE = 
+INCLUDE = -Iparser -I. -I/usr/local/opt/flex/include
 
-all: CFLAGS = $(INCLUDE) -std=c++14 -stdlib=libc++ -Wno-deprecated-register -Iparser -I. -I/usr/local/opt/flex/include
-opt: CFLAGS = $(INCLUDE) -O3 -ffast-math -pipe -std=c++14 -stdlib=libc++ -Wno-deprecated-register -Iparser -I. -I/usr/local/opt/flex/include
+all: CFLAGS = $(INCLUDE) -std=c++14 -stdlib=libc++ -Wno-deprecated-register 
+opt: CFLAGS = $(INCLUDE) -O3 -ffast-math -pipe -std=c++14 -stdlib=libc++ -Wno-deprecated-register
 
 CXXFLAGS = $(CFLAGS)
 
@@ -14,11 +14,11 @@ LDFLAGS =
 
 # Find all source files
 BUILD_DIR = objects
+SRC_DIR = src
 
-SOURCE = .
-SRC_CPP = $(foreach dir, $(SOURCE), $(wildcard $(dir)/*.cpp)) ./parser/parser.cpp ./parser/lexer.cpp ./parser/compiler.cpp
+SRC_CPP = $(foreach dir, $(SRC_DIR), $(wildcard $(dir)/*.cpp)) $(SRC_DIR)/parser/parser.cpp $(SRC_DIR)/parser/lexer.cpp $(SRC_DIR)/parser/compiler.cpp
 OBJ_CPP = $(patsubst %.cpp, %.o, $(SRC_CPP))
-OBJS    = $(addprefix $(BUILD_DIR)/, $(subst /,-,$(subst ./,,$(OBJ_CPP))))
+OBJS    = $(addprefix $(BUILD_DIR)/, $(subst /,-,$(subst src/,,$(OBJ_CPP))))
 
 
 $(info $$var is [$(subst /,_, parser/parser.cpp)])
@@ -35,10 +35,10 @@ $(BUILD_DIR) :
 	mkdir -p $@
 
 parser/lexer.cpp: parser/impossible.l parser/parser.cpp
-	/usr/local/opt/flex/bin/flex -c++ --outfile=parser/lexer.cpp $<
+	/usr/local/opt/flex/bin/flex -c++ --outfile=src/parser/lexer.cpp $<
 
 parser/parser.cpp: parser/impossible.ypp parser/parser.cpp
-	/usr/local/opt/bison/bin/bison -d -v --output-file=parser/parser.cpp $<
+	/usr/local/opt/bison/bin/bison -d -v --output-file=src/parser/parser.cpp $<
 
 $(TARGET) : $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
@@ -49,8 +49,10 @@ $(BUILD_DIR)/parser-compiler.o: parser/compiler.cpp parser/parser.cpp
 $(BUILD_DIR)/parser-%.o: parser/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 	
-$(BUILD_DIR)/%.o: $(subst -,/,%.cpp) $(BUILD_DIR) parser/parser.cpp
+$(BUILD_DIR)/%.o: $(subst -,/,%.cpp) $(dir $@) parser/parser.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(BUILD_DIR)/*.o $(TARGET) parser/location.hh parser/stack.hh parser/position.hh parser/parser.output parser/lexer.cpp parser/parser.cpp parser/parser.hpp
+	rm -f $(BUILD_DIR)/*.o $(TARGET) 
+	rm -f $(SRC_DIR)/parser/location.hh $(SRC_DIR)/parser/stack.hh $(SRC_DIR)/parser/position.hh 
+	rm -f $(SRC_DIR)/parser/parser.output $(SRC_DIR)/parser/lexer.cpp $(SRC_DIR)/parser/parser.cpp parser/parser.hpp

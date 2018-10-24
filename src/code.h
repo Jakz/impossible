@@ -20,11 +20,12 @@ class Value;
 class Code
 {
 public:
-  virtual size_t len() = 0;
+  virtual size_t size() const = 0;
   virtual void set(size_t i, Instruction *it) = 0;
-  virtual Instruction* at(size_t i) = 0;
+  virtual Instruction* at(size_t i) const = 0;
   virtual Code *append(Instruction *ins) = 0;
   
+  std::string svalue() const;
   virtual std::string svalue(size_t pc) = 0;
 };
 
@@ -35,10 +36,6 @@ private:
   
 public:
   CodeStandard(const std::vector<Instruction*>& code) : code(code) { }
-  
-  CodeStandard(Instruction **code, size_t length) {
-    std::copy(code, code + length, std::back_inserter(this->code));
-  }
   
   CodeStandard(size_t length) { code.resize(length); }
   CodeStandard(Instruction* i) { code.push_back(i); }
@@ -53,8 +50,8 @@ public:
   virtual std::string svalue(size_t pc);
   
   virtual void set(size_t i, Instruction *is) { code[i] = is; }
-  virtual Instruction* at(size_t i) { return code[i]; }
-  virtual size_t len() { return code.size(); }
+  virtual Instruction* at(size_t i) const { return code[i]; }
+  virtual size_t size() const { return code.size(); }
   
   friend class CurriedCode;
 };
@@ -72,8 +69,8 @@ public:
   virtual Code *append(Instruction *ins);
   
   virtual void set(size_t i, Instruction *is);
-  virtual Instruction* at(size_t i);
-  virtual size_t len();
+  virtual Instruction* at(size_t i) const;
+  virtual size_t size() const;
   
   virtual std::string svalue(size_t pc) { return ""; }
   

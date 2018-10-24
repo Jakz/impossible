@@ -71,7 +71,7 @@ public:
     );
   }
   
-  RangeVector merge(int v) const
+  RangeVector merge(integral_t v) const
   {
     const data_t& d = data;
     RangeVector res;

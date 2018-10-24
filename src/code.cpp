@@ -14,12 +14,30 @@
 #include <iomanip>
 #include <sstream>
 
+std::string Code::svalue() const
+{
+  std::stringstream ss(std::stringstream::out);
+  size_t size = this->size();
+  
+  ss << "[";
+  
+  for (size_t i = 0; i < size; ++i)
+  {
+    const Instruction* in = at(i);
+    ss << in->svalue();
+  }
+  
+  ss << "]";
+  
+  return ss.str();
+}
+
 std::string CodeStandard::svalue(size_t pc)
 {
   std::stringstream ss(std::stringstream::out);
   size_t l = 0;
   
-  for (int i = 0; i < len(); ++i)
+  for (int i = 0; i < size(); ++i)
   {
     ss << code[i]->svalue() << " ";
     if (i+1 == pc)
@@ -39,9 +57,9 @@ std::string CodeStandard::svalue(size_t pc)
 CurriedCode::CurriedCode(Code *code, Value value) : code(code), value(new PushInstruction(value)) { };
 CurriedCode::CurriedCode(Code *code, PushInstruction *value) : code(code), value(value) { };
 
-size_t CurriedCode::len() { return code->len() + 1; }
+size_t CurriedCode::size() const { return code->size() + 1; }
 
-Instruction *CurriedCode::at(size_t i)
+Instruction *CurriedCode::at(size_t i) const
 {
   if (i == 0)
     return value;

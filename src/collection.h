@@ -29,8 +29,8 @@ public:
   
   const std::string& data() const { return value; }
   
-  virtual void iterate() const { it.it = value.begin(); }
-  virtual bool hasNext() const { return it.it != value.end(); }
+  virtual void iterate() const override { it.it = value.begin(); }
+  virtual bool hasNext() const override { return it.it != value.end(); }
   
   virtual const Value& next() const override;
   
@@ -39,8 +39,8 @@ public:
     this->value.append(value.svalue());
   }
   
-  virtual integral_t size() const { return value.length(); }
-  virtual bool empty() const { return this->value.empty(); }
+  virtual integral_t size() const override { return value.length(); }
+  virtual bool empty() const override { return this->value.empty(); }
 };
 
 class Range : public TCollection
@@ -328,8 +328,6 @@ public:
   LazyArray(const LazyArrayHolder& data) : data(data) { }
   LazyArray(Lambda *lambda, bool useIndices) : data(lambda, useIndices) { }
   
-  virtual std::string svalue() const;
-
   virtual void iterate() const override { it = data.data().begin(); }
   virtual bool hasNext() const override { return it != data.data().end(); }
   virtual const Value& next() const override
@@ -441,6 +439,4 @@ public:
   operator Code*() { return _code; }
   
   Code* code() { return _code; }
-  
-  std::string svalue() const;
 };

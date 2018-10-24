@@ -11,7 +11,6 @@
 		046E4F19217EA22300DB959C /* code.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E066217BE93D0037C307 /* code.cpp */; };
 		046E4F1B217EA22300DB959C /* help.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06B217BE93D0037C307 /* help.cpp */; };
 		046E4F1E217EA22300DB959C /* instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06F217BE93D0037C307 /* instruction.cpp */; };
-		046E4F20217EA22300DB959C /* lazy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E071217BE93D0037C307 /* lazy.cpp */; };
 		046E4F2D217EA22D00DB959C /* tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04806510217EA1880063ACD5 /* tests.cpp */; };
 		04A637F6217F977700436B0F /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637F4217F977700436B0F /* parser.cpp */; };
 		04A637F7217F977700436B0F /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637F4217F977700436B0F /* parser.cpp */; };
@@ -28,9 +27,10 @@
 		04F6E084217BE93D0037C307 /* code.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E066217BE93D0037C307 /* code.cpp */; };
 		04F6E086217BE93D0037C307 /* help.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06B217BE93D0037C307 /* help.cpp */; };
 		04F6E088217BE93D0037C307 /* instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06F217BE93D0037C307 /* instruction.cpp */; };
-		04F6E089217BE93D0037C307 /* lazy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E071217BE93D0037C307 /* lazy.cpp */; };
 		04F6E08B217BE93D0037C307 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E075217BE93D0037C307 /* main.cpp */; };
 		04F6E090217BE93D0037C307 /* vm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E080217BE93D0037C307 /* vm.cpp */; };
+		04FE2F372180C1EF00871297 /* lazy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04FE2F342180C1EF00871297 /* lazy.cpp */; };
+		04FE2F382180C1EF00871297 /* lazy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04FE2F342180C1EF00871297 /* lazy.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -80,12 +80,12 @@
 		04F6E06C217BE93D0037C307 /* help.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = help.h; sourceTree = "<group>"; };
 		04F6E06F217BE93D0037C307 /* instruction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = instruction.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		04F6E070217BE93D0037C307 /* instruction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = instruction.h; sourceTree = "<group>"; };
-		04F6E071217BE93D0037C307 /* lazy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = lazy.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		04F6E072217BE93D0037C307 /* lazy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lazy.h; sourceTree = "<group>"; };
 		04F6E075217BE93D0037C307 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		04F6E076217BE93D0037C307 /* range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = range.h; sourceTree = "<group>"; };
 		04F6E080217BE93D0037C307 /* vm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vm.cpp; sourceTree = "<group>"; };
 		04F6E081217BE93D0037C307 /* vm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vm.h; sourceTree = "<group>"; };
+		04FE2F342180C1EF00871297 /* lazy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lazy.cpp; sourceTree = "<group>"; };
+		04FE2F352180C1EF00871297 /* lazy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lazy.h; sourceTree = "<group>"; };
+		04FE2F362180C1EF00871297 /* range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = range.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +152,7 @@
 			children = (
 				0480650E217EA1880063ACD5 /* tests */,
 				04A637E9217F92E600436B0F /* parser */,
+				04FE2F332180C1EF00871297 /* types */,
 				04F6E066217BE93D0037C307 /* code.cpp */,
 				04F6E067217BE93D0037C307 /* code.h */,
 				04F6E06A217BE93D0037C307 /* defines.h */,
@@ -159,8 +160,6 @@
 				04F6E06C217BE93D0037C307 /* help.h */,
 				04F6E06F217BE93D0037C307 /* instruction.cpp */,
 				04F6E070217BE93D0037C307 /* instruction.h */,
-				04F6E071217BE93D0037C307 /* lazy.cpp */,
-				04F6E072217BE93D0037C307 /* lazy.h */,
 				04C080CD2180B4B80054BED3 /* collection.cpp */,
 				04C080CE2180B4B80054BED3 /* collection.h */,
 				04C080CF2180B4B80054BED3 /* traits.cpp */,
@@ -168,12 +167,21 @@
 				04C080D12180B4B80054BED3 /* value.cpp */,
 				04C080D22180B4B80054BED3 /* value.h */,
 				04F6E075217BE93D0037C307 /* main.cpp */,
-				04F6E076217BE93D0037C307 /* range.h */,
 				04F6E080217BE93D0037C307 /* vm.cpp */,
 				04F6E081217BE93D0037C307 /* vm.h */,
 			);
 			name = src;
 			path = ../../src;
+			sourceTree = "<group>";
+		};
+		04FE2F332180C1EF00871297 /* types */ = {
+			isa = PBXGroup;
+			children = (
+				04FE2F342180C1EF00871297 /* lazy.cpp */,
+				04FE2F352180C1EF00871297 /* lazy.h */,
+				04FE2F362180C1EF00871297 /* range.h */,
+			);
+			path = types;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -261,7 +269,7 @@
 				04C080D82180B4B80054BED3 /* value.cpp in Sources */,
 				046E4F1E217EA22300DB959C /* instruction.cpp in Sources */,
 				04C080D62180B4B80054BED3 /* traits.cpp in Sources */,
-				046E4F20217EA22300DB959C /* lazy.cpp in Sources */,
+				04FE2F382180C1EF00871297 /* lazy.cpp in Sources */,
 				04F19E0A217FBCB7003AAAE2 /* compiler.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -278,8 +286,8 @@
 				04C080D32180B4B80054BED3 /* collection.cpp in Sources */,
 				04F6E088217BE93D0037C307 /* instruction.cpp in Sources */,
 				04C080D72180B4B80054BED3 /* value.cpp in Sources */,
-				04F6E089217BE93D0037C307 /* lazy.cpp in Sources */,
 				04C080D52180B4B80054BED3 /* traits.cpp in Sources */,
+				04FE2F372180C1EF00871297 /* lazy.cpp in Sources */,
 				04F6E08B217BE93D0037C307 /* main.cpp in Sources */,
 				04F19E09217FBCB7003AAAE2 /* compiler.cpp in Sources */,
 			);

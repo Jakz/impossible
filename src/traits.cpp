@@ -160,7 +160,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     { TYPE_LAZY_ARRAY, false, true, "larray",
       [] (const Value& v) {
         std::string s("(? ");
-        s += v.lazyArray()->raw().code()->svalue();
+        s += v.lazyArray()->raw().code()->code()->svalue();
         s += " )";
         return s;
       },
@@ -172,7 +172,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     { TYPE_LAMBDA, false, true, "lambda",
       [] (const Value& v) {
         std::stringstream ss(std::stringstream::out);
-        size_t size = v.lambda()->code()->len();
+        size_t size = v.lambda()->code()->size();
         
         ss << "[";
         

@@ -254,22 +254,6 @@ struct VariantFunction
   }
 };
 
-struct OpcodePage
-{
-  std::array<VariantFunction*, Type::TYPES_COUNT> opcodes;
-  std::array<OpcodePage*, Type::TYPES_COUNT> children;
-  
-  bool anyChildren;
-  
-  OpcodePage() : anyChildren(false)
-  {
-    std::fill(opcodes.begin(), opcodes.end(), nullptr);
-    std::fill(children.begin(), children.end(), nullptr);
-  }
-};
-
-
-
 class MicroCode
 {
 private:
@@ -316,6 +300,14 @@ private:
     return nullptr;
   }
   
+  void emplace(const Signature& signature, VariantFunction&& function)
+  {
+    if (microCode.find(signature) != microCode.end())
+      assert(false);
+    
+    microCode.emplace(std::make_pair(signature, function));
+  }
+  
 public:
   MicroCode()
   {
@@ -325,19 +317,19 @@ public:
   
   void registerUnary(Signature signature, const decltype(VariantFunction::unary)&& function)
   {
-    microCode.emplace(std::make_pair(signature, VariantFunction(function)));
+    emplace(signature, VariantFunction(function));
     opcodeData[signature.opcode].hasUnary = true;
   }
   
   void registerBinary(Signature signature, const decltype(VariantFunction::binary)&& function)
   {
-    microCode.emplace(std::make_pair(signature, VariantFunction(function)));
+    emplace(signature, VariantFunction(function));
     opcodeData[signature.opcode].hasBinary = true;
   }
   
   void registerNullary(Signature signature, const decltype(VariantFunction::nullary)&& function)
   {
-    microCode.emplace(std::make_pair(signature, VariantFunction(function)));
+    emplace(signature, VariantFunction(function));
     opcodeData[signature.opcode].hasNullary = true;
   }
   
@@ -367,7 +359,7 @@ public:
     const Opcode opcode = instruction.opcode;
     const size_t stackSize = vm->stackSize();
     
-    Value v1, v2, v3;
+    Value v1 = Value::INVALID, v2 = Value::INVALID, v3 = Value::INVALID;
     
     if (opcodeData[opcode].hasTernary && stackSize >= 3)
     {

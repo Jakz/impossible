@@ -21,11 +21,11 @@ class Code
 {
 public:
   virtual size_t len() = 0;
-  virtual void set(u32 i, Instruction *it) = 0;
-  virtual Instruction* at(u32 i) = 0;
+  virtual void set(size_t i, Instruction *it) = 0;
+  virtual Instruction* at(size_t i) = 0;
   virtual Code *append(Instruction *ins) = 0;
   
-  virtual std::string svalue(u32 pc) = 0;
+  virtual std::string svalue(size_t pc) = 0;
 };
 
 class CodeStandard : public Code
@@ -50,10 +50,10 @@ public:
     return new CodeStandard(code);
   }
   
-  virtual std::string svalue(u32 pc);
+  virtual std::string svalue(size_t pc);
   
-  virtual void set(u32 i, Instruction *is) { code[i] = is; }
-  virtual Instruction* at(u32 i) { return code[i]; }
+  virtual void set(size_t i, Instruction *is) { code[i] = is; }
+  virtual Instruction* at(size_t i) { return code[i]; }
   virtual size_t len() { return code.size(); }
   
   friend class CurriedCode;
@@ -66,16 +66,16 @@ private:
   PushInstruction *value;
   
 public:
-  CurriedCode(Code *code, Value *value);
+  CurriedCode(Code *code, Value value);
   CurriedCode(Code *code, PushInstruction *value);
   
   virtual Code *append(Instruction *ins);
   
-  virtual void set(u32 i, Instruction *is);
-  virtual Instruction* at(u32 i);
+  virtual void set(size_t i, Instruction *is);
+  virtual Instruction* at(size_t i);
   virtual size_t len();
   
-  virtual std::string svalue(u32 pc) { return ""; }
+  virtual std::string svalue(size_t pc) { return ""; }
   
 };
 

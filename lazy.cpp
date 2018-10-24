@@ -7,7 +7,9 @@
 
 #include "lazy.h"
 
-#include "Values.h"
+#include "Value.h"
+#include "CompositeValue.h"
+
 #include "vm.h"
 
 void LazyArrayHolder::generateUpTo(VM* vm, integral_t index)

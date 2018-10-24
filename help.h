@@ -9,7 +9,8 @@
 #define _HELP_H_
 
 #include "defines.h"
-#include "Values.h"
+#include "Value.h"
+#include "CompositeValue.h"
 
 #include <map>
 #include <set>

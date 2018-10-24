@@ -1,5 +1,6 @@
 %{
-  #include "Values.h"
+  #include "Value.h"
+  #include "CompositeValue.h"
   #include "instruction.h"
   #include "defines.h"
   
@@ -173,13 +174,11 @@
 }
 "-"?[0-9]*\.[0-9]+"f"? { return Parser::make_FLOAT(atof(yytext), loc); }
 
-\"(\\.|[^\\"])*\" { yytext[strlen(yytext)-1] = '\0'; return Parser::make_STRING(yytext, loc); }
+\"(\\.|[^\\"])*\" { yytext[strlen(yytext)-1] = '\0'; return Parser::make_STRING(new String(yytext+1), loc); }
 
 \n|"\r\n" { Parser::make_EOL(loc); loc.lines((int)yyleng); }
 
 [ \t] { /* ignore whitespace */ }
-
-. { printf("Mystery character %c\n", *yytext); fflush(stdout); }
 
 <<EOF>> { return yyterminate(); }
 

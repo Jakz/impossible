@@ -67,6 +67,7 @@ public:
   Value(Type type) : type(type), data(nullptr) { }
   Value(Type type, managed_object* ptr) : type(type), data(ptr) { }
   
+  //Value(int value) : Value((integral_t)value) { }
   Value(integral_t value) : type(TYPE_INT), data(value) { }
   Value(real_t value) : type(TYPE_FLOAT), data(value) { }
   Value(char value) : type(TYPE_CHAR), data(value) { }
@@ -90,7 +91,6 @@ public:
   bool operator==(const Value& value) const { return type.traits().equal_to(*this, value); }
   
   virtual std::string svalue() const { return type.traits().to_string(*this); }
-  std::string lvalue();
 
   bool equals(const Value& value) const { return this->operator==(value); }
   virtual Value* clone() const { return new Value(*this); }
@@ -119,6 +119,9 @@ public:
   LazyArray* lazyArray() const;
   
   Lambda* lambda() const;
+  
+  
+  static Value INVALID;
 };
 
 class TCollection : public managed_object

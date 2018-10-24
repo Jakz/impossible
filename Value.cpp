@@ -13,12 +13,12 @@
 #include <sstream>
 
 Value::Value(String* string) : type(TYPE_STRING), data(string) { }
-Value::Value(List* list) : type(TYPE_STRING), data(list) { }
-Value::Value(Stack* stack) : type(TYPE_STRING), data(stack) { }
-Value::Value(Queue* queue) : type(TYPE_STRING), data(queue) { }
-Value::Value(Set* set) : type(TYPE_STRING), data(set) { }
-Value::Value(Array* array) : type(TYPE_STRING), data(array) { }
-Value::Value(Map* map) : type(TYPE_STRING), data(map) { }
+Value::Value(List* list) : type(TYPE_LIST), data(list) { }
+Value::Value(Stack* stack) : type(TYPE_STACK), data(stack) { }
+Value::Value(Queue* queue) : type(TYPE_QUEUE), data(queue) { }
+Value::Value(Set* set) : type(TYPE_SET), data(set) { }
+Value::Value(Array* array) : type(TYPE_ARRAY), data(array) { }
+Value::Value(Map* map) : type(TYPE_MAP), data(map) { }
 Value::Value(Range* range) : type(TYPE_RANGE), data(range) { }
 Value::Value(Lambda* map) : type(TYPE_LAMBDA), data(map) { }
 Value::Value(LazyArray* map) : type(TYPE_LAZY_ARRAY), data(map) { }
@@ -41,9 +41,4 @@ Range* Value::range() const { assert(type == TYPE_RANGE); return object<Range>()
 Lambda* Value::lambda() const { assert(type == TYPE_LAMBDA); return object<Lambda>(); }
 LazyArray* Value::lazyArray() const { assert(type == TYPE_LAZY_ARRAY); return object<LazyArray>(); }
 
-std::string Value::lvalue()
-{
-  return svalue() + " : " + type.name();
-}
-
-
+Value Value::INVALID = Value(TYPE_INVALID);

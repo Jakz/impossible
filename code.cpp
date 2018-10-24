@@ -7,22 +7,23 @@
 
 #include "code.h"
 #include "instruction.h"
-#include "Values.h"
+#include "Value.h"
+#include "CompositeValue.h"
 
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 
-std::string CodeStandard::svalue(u32 pc)
+std::string CodeStandard::svalue(size_t pc)
 {
   std::stringstream ss(std::stringstream::out);
-  u32 l = 0;
+  size_t l = 0;
   
   for (int i = 0; i < len(); ++i)
   {
     ss << code[i]->svalue() << " ";
     if (i+1 == pc)
-      l = (u32)ss.str().length();
+      l = ss.str().length();
     
   }
   
@@ -35,12 +36,12 @@ std::string CodeStandard::svalue(u32 pc)
 }
 
 
-CurriedCode::CurriedCode(Code *code, Value *value) : code(code), value(new PushInstruction(value)) { };
+CurriedCode::CurriedCode(Code *code, Value value) : code(code), value(new PushInstruction(value)) { };
 CurriedCode::CurriedCode(Code *code, PushInstruction *value) : code(code), value(value) { };
 
 size_t CurriedCode::len() { return code->len() + 1; }
 
-Instruction *CurriedCode::at(u32 i)
+Instruction *CurriedCode::at(size_t i)
 {
   if (i == 0)
     return value;
@@ -48,7 +49,7 @@ Instruction *CurriedCode::at(u32 i)
     return code->at(i-1);
 }
 
-void CurriedCode::set(u32 i, Instruction *is)
+void CurriedCode::set(size_t i, Instruction *is)
 {
   code->set(i-1, is);
 }

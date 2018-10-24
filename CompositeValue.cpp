@@ -17,7 +17,7 @@
 const Value& String::next() const
 {
   if (it.it == value.end())
-    return Value(TYPE_INVALID);
+    return Value::INVALID;
   else
   {
     it.value = *it.it++;

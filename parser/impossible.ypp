@@ -256,7 +256,7 @@ value:
 ;
     
 lambda:
-    LBRACK instructions RBRACK { $$ = new CodeStandard($2); }
+    LBRACK instructions RBRACK { $$ = new Lambda(new CodeStandard($2)); }
 ;
 
 %%

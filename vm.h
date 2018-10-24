@@ -13,7 +13,9 @@
 #include <stack>
 #include <array>
 
-#include "Values.h"
+#include "Value.h"
+#include "CompositeValue.h"
+
 #include "instruction.h"
 
 class Instruction;
@@ -21,7 +23,7 @@ class Instruction;
 struct ExecEnv
 {
   Code *code;
-  u32 pc;
+  size_t pc;
   
   ExecEnv(Code *code) : code(code), pc(0) { }
   
@@ -101,7 +103,7 @@ public:
     if (valueStack->empty())
     {
       stop();
-      return Value(TYPE_INVALID);
+      return Value::INVALID;
     }
     
     Value v = valueStack->back();
@@ -114,7 +116,7 @@ public:
     //TODO: rotto
     
     if (valueStack->size() == 0)
-      return Value(TYPE_INVALID);
+      return Value::INVALID;
     
     nth = nth >= valueStack->size() ? valueStack->size() - 1 : nth;
     
@@ -126,7 +128,7 @@ public:
     if (valueStack->empty())
     {
       stop();
-      return Value(TYPE_INVALID);
+      return Value::INVALID;
     }
     
     return valueStack->front();
@@ -147,7 +149,7 @@ public:
       v1 = pop();
     
     if (!running)
-      std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc-1)->svalue() << "\' required two values." << std::endl;
+      std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc)->svalue() << "\' required three values." << std::endl;
     
     return running;
   }
@@ -160,7 +162,7 @@ public:
       v1 = pop();
     
     if (!running)
-      std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc-1)->svalue() << "\' required two values." << std::endl;
+      std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc)->svalue() << "\' required two values." << std::endl;
     
     return running;
   }
@@ -170,7 +172,7 @@ public:
     v1 = pop();
     
     if (!running)
-      std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc-1)->svalue() << "\' required a value." << std::endl;
+      std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc)->svalue() << "\' required a value." << std::endl;
     
     return running;
   }
@@ -196,11 +198,11 @@ public:
   
   void printStack() const
   {
-    stack_t::const_iterator it;
-    
     bool first = true;
-    for (const auto& value : *valueStack)
+    for (auto it = valueStack->rbegin(); it != valueStack->rend(); ++it)
     {
+      const Value& value = *it;
+      
       if (first)
         first = false;
       else
@@ -217,7 +219,8 @@ public:
   {
     if (!valueStack->empty())
     {
-      std::cout << "  " << valueStack->front().lvalue() << std::endl;
+      const Value& value = valueStack->back();
+      std::cout << "  " << value.svalue() + " : " + value.type.name() << std::endl;
     }
   }
   

@@ -18,6 +18,26 @@
 enum Type : s16;
 class Value;
 
+class Traits
+{
+public:
+  static constexpr u64 INDEXABLE = 0x01;
+  
+public:
+  class Indexable
+  {
+    virtual const Value& at(integral_t index) = 0;
+  };
+};
+
+class VirtualTable
+{
+public:
+  virtual std::string to_string(const Value& value) { return ""; }
+  virtual bool to_bool(const Value&) { return false; }
+  virtual bool equal_to(const Value& self, const Value& other) { return false; }
+};
+
 class TypeTraits
 {
 public:

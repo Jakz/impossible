@@ -155,15 +155,6 @@ struct value_hash
 };
 
 template<>
-struct std::equal_to<Value*>
-{
-  bool operator() (const Value *v1, const Value *v2) const
-  {
-    return v1->equals(v2);
-  }
-};
-
-template<>
 struct std::less<Value>
 {
   bool operator() (const Value& x, const Value& y) const
@@ -240,7 +231,7 @@ public:
   virtual const Value& next() const override
   {
     if (it == data.end())
-      return Value(TYPE_INVALID);
+      return Value::INVALID;
     else
     {
       return *it++;
@@ -300,7 +291,7 @@ public:
   virtual const Value& next() const override
   {
     if (it == data.end())
-      return Value(TYPE_INVALID);
+      return Value::INVALID;
     else
     {
       return *it++;
@@ -344,7 +335,7 @@ public:
   virtual const Value& next() const override
   {
     if (it == data.data().end())
-      return Value(TYPE_INVALID);
+      return Value::INVALID;
     else
       return *it++;
   }
@@ -382,7 +373,7 @@ public:
   virtual const Value& next() const override
   {
     if (it == data.end())
-      return Value(TYPE_INVALID);
+      return Value::INVALID;
     else
     {
       return *it++;
@@ -419,7 +410,7 @@ public:
   virtual const Value& next() const override
   {
     if (it == data.end())
-      return Value(TYPE_INVALID);
+      return Value::INVALID;
     else
     {
       const Value& v = it->second; //TODO: broken

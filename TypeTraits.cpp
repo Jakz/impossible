@@ -2,6 +2,7 @@
 
 #include "Value.h"
 #include "CompositeValue.h"
+#include "instruction.h"
 
 #include <sstream>
 #include <iomanip>
@@ -137,18 +138,18 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   
   { TYPE_ARRAY,
     { TYPE_ARRAY, false, true, "array",
-      [] (const Value& v) { return ArrayPrinter.svalue(v.queue()); }
+      [] (const Value& v) { return ArrayPrinter.svalue(v.array()); }
     }
   },
 
   { TYPE_SET,
     { TYPE_SET, false, true, "set",
-      [] (const Value& v) { return SetPrinter.svalue(v.queue()); }
+      [] (const Value& v) { return SetPrinter.svalue(v.set()); }
     }
   },
   { TYPE_STACK,
     { TYPE_STACK, false, true, "stack",
-      [] (const Value& v) { return QueuePrinter.svalue(v.queue()); },
+      [] (const Value& v) { return QueuePrinter.svalue(v.stack()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STACK && v2.list()->raw() == v1.list()->raw(); }
     }  },
   { TYPE_QUEUE,
@@ -161,8 +162,33 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   { TYPE_LAZY_ARRAY, { TYPE_LAZY_ARRAY, false, true, "larray" } },
   
   { TYPE_MAP, { TYPE_MAP, false, true, "map" } },
-  { TYPE_LAMBDA, { TYPE_LAMBDA, false, true, "lambda" } },
-  { TYPE_NIL, { TYPE_NIL, true, false, "nil" } },
+  { TYPE_LAMBDA,
+    { TYPE_LAMBDA, false, true, "lambda",
+      [] (const Value& v) {
+        std::stringstream ss(std::stringstream::out);
+        size_t size = v.lambda()->code()->len();
+        
+        ss << "[";
+        
+        for (size_t i = 0; i < size; ++i)
+        {
+          const Instruction* in = v.lambda()->code()->at(i);
+          ss << in->svalue();
+        }
+        
+        ss << "]";
+        
+        return ss.str();
+      },
+
+    }
+  },
+  { TYPE_NIL,
+    { TYPE_NIL, true, false, "nil",
+      [] (const Value& v) { return "nil"; }
+    }
+  
+  },
 
   
   

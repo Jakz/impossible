@@ -14,9 +14,8 @@
 
 struct RangePair
 {
-  int a, b;
-  
-  RangePair(int a, int b) : a(a), b(b) { }
+  integral_t a, b;
+  RangePair(integral_t a, integral_t b) : a(a), b(b) { }
 };
 
 class RangeVector
@@ -53,7 +52,7 @@ public:
     for (size_t i = 0; i < data.size(); ++i)
     {
       RangePair rp = data.at(i);
-      for (int j = rp.a; j <= rp.b; ++j)
+      for (integral_t j = rp.a; j <= rp.b; ++j)
         v.push_back(j);
     }
     

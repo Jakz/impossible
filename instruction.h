@@ -9,7 +9,8 @@
 #define _INSTRUCTION_H_
 
 #include "defines.h"
-#include "Values.h"
+#include "Value.h"
+#include "CompositeValue.h"
 #include "code.h"
 
 #include <string>
@@ -20,13 +21,11 @@ class Code;
 class Instruction
 {
   public:
-    Instruction(bool verbose) : verbose(verbose) { }
+    Instruction() { }
     virtual void execute(VM *vm) const = 0;
     virtual bool equals(Instruction *) const { return false; } 
   
     virtual std::string svalue() const = 0;
-  
-    const bool verbose;
 };
 
 class Value;
@@ -37,8 +36,8 @@ class PushInstruction : public Instruction
     Value value;
 
   public:
-    PushInstruction(Value& value) : Instruction(false), value(value) { }
-    PushInstruction(Value&& value) : Instruction(false), value(value) { }
+    PushInstruction(Value& value) : Instruction(), value(value) { }
+    PushInstruction(Value&& value) : Instruction(), value(value) { }
     virtual void execute(VM *vm) const;
     virtual std::string svalue() const;
 };
@@ -49,7 +48,7 @@ public:
   const Opcode opcode;
 
 public:
-  OpcodeInstruction(Opcode opcode) : Instruction(true), opcode(opcode) {}
+  OpcodeInstruction(Opcode opcode) : Instruction(), opcode(opcode) {}
   virtual void execute(VM *vm) const;
   virtual std::string svalue() const;
 };

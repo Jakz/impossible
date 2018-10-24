@@ -599,10 +599,10 @@ void OpcodeInstruction::execute(VM *vm) const
         {        
           switch (TYPES(v1.type, v2.type))
           {
-            case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(v1.real() + v2.integral())); break;
-            case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1.integral() + v2.real())); break;
-            case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(v1.real() + v2.real())); break;
-            case TYPES(TYPE_CHAR, TYPE_INT): vm->push(new Char(v1.character() + v2.integral())); break;
+            case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(v1.real() + v2.integral()); break;
+            case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(v1.integral() + v2.real()); break;
+            case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(v1.real() + v2.real()); break;
+            case TYPES(TYPE_CHAR, TYPE_INT): vm->push((char)(v1.character() + v2.integral())); break;
             case TYPES(TYPE_CHAR, TYPE_CHAR): vm->push(new Value(new String(std::string(1,v1.character()) + v2.character()))); break;
           }
         }
@@ -615,10 +615,10 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(v1.real() - v2.integral())); break;
-          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1.integral() - v2.real())); break;
-          case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(v1.real() - v2.real())); break;
-          case TYPES(TYPE_CHAR, TYPE_INT): vm->push(new Char(v1.character() - v2.integral())); break;
+          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(v1.real() - v2.integral()); break;
+          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(v1.integral() - v2.real()); break;
+          case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(v1.real() - v2.real()); break;
+          case TYPES(TYPE_CHAR, TYPE_INT): vm->push((char)(v1.character() - v2.integral())); break;
         }
       }
       break;
@@ -629,10 +629,10 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1.integral() * v2.integral())); break;
-          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(v1.real() * v2.integral())); break;
-          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1.integral() * v2.real())); break;
-          case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(v1.real() * v2.real())); break;
+          case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() * v2.integral()); break;
+          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(v1.real() * v2.integral()); break;
+          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(v1.integral() * v2.real()); break;
+          case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(v1.real() * v2.real()); break;
         }
       }
       break;
@@ -643,10 +643,10 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1.integral() / v2.integral())); break;
-          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(v1.real() / v2.integral())); break;
-          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1.integral() / v2.real())); break;
-          case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(v1.real() / v2.real())); break;            
+          case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() / v2.integral()); break;
+          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(v1.real() / v2.integral()); break;
+          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(v1.integral() / v2.real()); break;
+          case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(v1.real() / v2.real()); break;
           case TYPES(TYPE_SET, TYPE_SET):
           {
             Set *s1 = v1.set(), *s2 = v2.set();
@@ -673,8 +673,8 @@ void OpcodeInstruction::execute(VM *vm) const
       {
         switch (v1.type)  
         {
-          case TYPE_INT: vm->push(new Int(-v1.integral())); break;
-          case TYPE_FLOAT: vm->push(new Float(-v1.real())); break;
+          case TYPE_INT: vm->push(-v1.integral()); break;
+          case TYPE_FLOAT: vm->push(-v1.real()); break;
           default: break;
         }
       }
@@ -692,8 +692,8 @@ void OpcodeInstruction::execute(VM *vm) const
           {
             double f, i;
             f = modf(v2.real(), &i);
-            vm->push(new Float(i));
-            vm->push(new Float(f));
+            vm->push(i);
+            vm->push(f);
             break;
           }
           default:
@@ -705,7 +705,7 @@ void OpcodeInstruction::execute(VM *vm) const
               {
                 case TYPES(TYPE_INT, TYPE_INT):
                 {
-                  vm->push(new Int(v1.integral() % v2.integral()));
+                  vm->push(v1.integral() % v2.integral());
                   break;
                 }
               }
@@ -723,8 +723,8 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_BOOL, TYPE_BOOL): vm->push(new Bool(v1.boolean() && v2.boolean())); break;
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1.integral() & v2.integral())); break;
+          case TYPES(TYPE_BOOL, TYPE_BOOL): vm->push(v1.boolean() && v2.boolean()); break;
+          case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() & v2.integral()); break;
           case TYPES(TYPE_SET, TYPE_SET):
           {
             Set *s1 = v1.set(), *s2 = v2.set();
@@ -751,8 +751,8 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_BOOL, TYPE_BOOL): vm->push(new Bool(v1.boolean() || v2.boolean())); break;
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1.integral() | v2.integral())); break;
+          case TYPES(TYPE_BOOL, TYPE_BOOL): vm->push(v1.boolean() || v2.boolean()); break;
+          case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() | v2.integral()); break;
           case TYPES(TYPE_RANGE, TYPE_RANGE):
           {
             vm->push(new Range(v1.range()->raw().rangeUnion(v2.range()->raw())));
@@ -793,9 +793,9 @@ void OpcodeInstruction::execute(VM *vm) const
       {
         switch (v1.type)
         {
-          case TYPE_BOOL: vm->push(new Bool(!v1.boolean())); break;
-          case TYPE_INT: vm->push(new Int(~v1.integral())); break;
-          case TYPE_FLOAT: vm->push(new Float(1.0 / v1.real())); break;
+          case TYPE_BOOL: vm->push(!v1.boolean()); break;
+          case TYPE_INT: vm->push(~v1.integral()); break;
+          case TYPE_FLOAT: vm->push(1.0 / v1.real()); break;
           case TYPE_LIST:
           {
             const List::list_t& data = v1.list()->raw();
@@ -853,7 +853,7 @@ void OpcodeInstruction::execute(VM *vm) const
       {  
         switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1.integral() >> v2.integral())); break;
+          case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() >> v2.integral()); break;
           case TYPES(TYPE_LIST, TYPE_LAMBDA):
           {
             filter(vm, v1.list(), v2.lambda()->code());
@@ -885,7 +885,7 @@ void OpcodeInstruction::execute(VM *vm) const
         {
           switch (TYPES(v1.type, v2.type))
           {
-            case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1.integral() << v2.integral())); break;
+            case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() << v2.integral()); break;
           }
         }
       }
@@ -935,10 +935,10 @@ void OpcodeInstruction::execute(VM *vm) const
           {  
             switch (TYPES(v1.type, v2.type))
             {
-              case TYPES(TYPE_INT, TYPE_INT): vm->push(new Bool(v1.integral() < v2.integral())); break;
-              case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Bool(v1.real() < v2.integral())); break;
-              case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Bool(v1.integral() < v2.real())); break;
-              case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Bool(v1.real() < v2.real())); break;
+              case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() < v2.integral()); break;
+              case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(v1.real() < v2.integral()); break;
+              case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(v1.integral() < v2.real()); break;
+              case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(v1.real() < v2.real()); break;
             }
           }
         }
@@ -978,10 +978,10 @@ void OpcodeInstruction::execute(VM *vm) const
           {   
             switch (TYPES(v1.type, v2.type))
             {
-              case TYPES(TYPE_INT, TYPE_INT): vm->push(new Bool(v1.integral() > v2.integral())); break;
-              case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Bool(v1.real() > v2.integral())); break;
-              case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Bool(v1.integral() > v2.real())); break;
-              case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Bool(v1.real() > v2.real())); break;
+              case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() > v2.integral()); break;
+              case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(v1.real() > v2.integral()); break;
+              case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(v1.integral() > v2.real()); break;
+              case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(v1.real() > v2.real()); break;
             }
           }
         }
@@ -1005,7 +1005,7 @@ void OpcodeInstruction::execute(VM *vm) const
           while (v > 1)
             res *= v--;
           
-          vm->push(new Float(res));
+          vm->push(res);
         }
       }
       break;
@@ -1070,7 +1070,7 @@ void OpcodeInstruction::execute(VM *vm) const
         {
           case TYPE_BOOL:
           {
-            vm->push(new Bool(rand()%2 == 0 ? true : false));
+            vm->push((rand()%2 == 0) ? true : false);
             break;
           }
           case TYPE_RANGE:
@@ -1102,7 +1102,7 @@ void OpcodeInstruction::execute(VM *vm) const
                   if (m > M)
                     std::swap(M, M);
 
-                  vm->push(new Int(Util::randi(m, M)));
+                  vm->push((integral_t)Util::randi(m, M));
                   break;
                 }
               }
@@ -1205,7 +1205,7 @@ void OpcodeInstruction::execute(VM *vm) const
               
               auto it = map.find(v2);
               
-              vm->push(it != map.end() ? it->second : Nil());
+              vm->push(it != map.end() ? it->second : Value());
             }
             else
             {            

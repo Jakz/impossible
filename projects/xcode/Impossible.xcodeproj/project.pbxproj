@@ -11,7 +11,6 @@
 		046E4F19217EA22300DB959C /* code.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E066217BE93D0037C307 /* code.cpp */; };
 		046E4F1A217EA22300DB959C /* CompositeValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E068217BE93D0037C307 /* CompositeValue.cpp */; };
 		046E4F1B217EA22300DB959C /* help.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06B217BE93D0037C307 /* help.cpp */; };
-		046E4F1C217EA22300DB959C /* SimpleValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E077217BE93D0037C307 /* SimpleValue.cpp */; };
 		046E4F1D217EA22300DB959C /* VTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E082217BE93D0037C307 /* VTable.cpp */; };
 		046E4F1E217EA22300DB959C /* instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06F217BE93D0037C307 /* instruction.cpp */; };
 		046E4F20217EA22300DB959C /* lazy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E071217BE93D0037C307 /* lazy.cpp */; };
@@ -31,7 +30,6 @@
 		04F6E088217BE93D0037C307 /* instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E06F217BE93D0037C307 /* instruction.cpp */; };
 		04F6E089217BE93D0037C307 /* lazy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E071217BE93D0037C307 /* lazy.cpp */; };
 		04F6E08B217BE93D0037C307 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E075217BE93D0037C307 /* main.cpp */; };
-		04F6E08C217BE93D0037C307 /* SimpleValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E077217BE93D0037C307 /* SimpleValue.cpp */; };
 		04F6E08E217BE93D0037C307 /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E07C217BE93D0037C307 /* Value.cpp */; };
 		04F6E08F217BE93D0037C307 /* Values.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E07E217BE93D0037C307 /* Values.cpp */; };
 		04F6E090217BE93D0037C307 /* vm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E080217BE93D0037C307 /* vm.cpp */; };
@@ -86,8 +84,6 @@
 		04F6E072217BE93D0037C307 /* lazy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lazy.h; path = ../../lazy.h; sourceTree = "<group>"; };
 		04F6E075217BE93D0037C307 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../main.cpp; sourceTree = "<group>"; };
 		04F6E076217BE93D0037C307 /* range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = range.h; path = ../../range.h; sourceTree = "<group>"; };
-		04F6E077217BE93D0037C307 /* SimpleValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SimpleValue.cpp; path = ../../SimpleValue.cpp; sourceTree = "<group>"; };
-		04F6E078217BE93D0037C307 /* SimpleValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SimpleValue.h; path = ../../SimpleValue.h; sourceTree = "<group>"; };
 		04F6E07C217BE93D0037C307 /* Value.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Value.cpp; path = ../../Value.cpp; sourceTree = "<group>"; };
 		04F6E07D217BE93D0037C307 /* Value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Value.h; path = ../../Value.h; sourceTree = "<group>"; };
 		04F6E07E217BE93D0037C307 /* Values.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Values.cpp; path = ../../Values.cpp; sourceTree = "<group>"; };
@@ -179,8 +175,6 @@
 				04F6E072217BE93D0037C307 /* lazy.h */,
 				04F6E075217BE93D0037C307 /* main.cpp */,
 				04F6E076217BE93D0037C307 /* range.h */,
-				04F6E077217BE93D0037C307 /* SimpleValue.cpp */,
-				04F6E078217BE93D0037C307 /* SimpleValue.h */,
 				04F6E092217CCB9C0037C307 /* TypeTraits.cpp */,
 				04F6E093217CCB9C0037C307 /* TypeTraits.h */,
 				04F6E07C217BE93D0037C307 /* Value.cpp */,
@@ -277,7 +271,6 @@
 				046E4F1A217EA22300DB959C /* CompositeValue.cpp in Sources */,
 				04A637F7217F977700436B0F /* parser.cpp in Sources */,
 				046E4F1B217EA22300DB959C /* help.cpp in Sources */,
-				046E4F1C217EA22300DB959C /* SimpleValue.cpp in Sources */,
 				046E4F1D217EA22300DB959C /* VTable.cpp in Sources */,
 				046E4F1E217EA22300DB959C /* instruction.cpp in Sources */,
 				046E4F20217EA22300DB959C /* lazy.cpp in Sources */,
@@ -298,7 +291,6 @@
 				04F6E085217BE93D0037C307 /* CompositeValue.cpp in Sources */,
 				04F6E086217BE93D0037C307 /* help.cpp in Sources */,
 				04A637F6217F977700436B0F /* parser.cpp in Sources */,
-				04F6E08C217BE93D0037C307 /* SimpleValue.cpp in Sources */,
 				04F6E091217BE93D0037C307 /* VTable.cpp in Sources */,
 				04F6E088217BE93D0037C307 /* instruction.cpp in Sources */,
 				04F6E089217BE93D0037C307 /* lazy.cpp in Sources */,

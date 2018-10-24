@@ -9,5 +9,4 @@
 #pragma once
 
 #include "Value.h"
-#include "SimpleValue.h"
 #include "CompositeValue.h"

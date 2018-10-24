@@ -9,7 +9,6 @@
 #pragma once
 
 #include "Value.h"
-#include "SimpleValue.h"
 
 class String : public TCollection
 {

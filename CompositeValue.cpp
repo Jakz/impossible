@@ -14,14 +14,14 @@
 #include <iomanip>
 #include <sstream>
 
-Value* String::next() const
+const Value& String::next() const
 {
-  if (it == value.end())
-    return NULL;
+  if (it.it == value.end())
+    return Value(TYPE_INVALID);
   else
   {
-    char v = *it++;
-    return new Char(v);
+    it.value = *it.it++;
+    return it.value;
   }
 }
 
@@ -57,32 +57,10 @@ struct CollectionPrinter
   }
 };
 
-std::string Range::svalue() const
-{
-  std::vector<RangePair>::const_iterator it;
-  
-  std::stringstream ss(std::stringstream::out);
-  
-  bool first = true;
-  for (it = value.data->begin(); it != value.data->end(); ++it)
-  {
-    const RangePair &r = *it;
-    
-    if (first)
-      first = false;
-    else
-      ss << " ";
-    
-    ss << r.a << ".." << r.b;
-  }
-  
-  return ss.str();
-}
-
 std::string LazyArray::svalue() const
 {
   std::string s("(? ");
-  s += value.code()->svalue();
+  s += data.code()->svalue();
   s += " )";
   return s;
 }

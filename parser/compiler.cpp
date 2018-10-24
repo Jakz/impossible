@@ -25,7 +25,7 @@ Code* Compiler::compile(const std::string &text)
   compiler::Parser parser(lexer, *this);
   parser.set_debug_level(shouldGenerateTrace);
   
-  return parser.parse() == 0 ? code.get() : nullptr;
+  return parser.parse() == 0 ? code.release() : nullptr;
 }
 
 void Compiler::setCode(const std::vector<Instruction*>& instructions)

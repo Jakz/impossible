@@ -10,19 +10,19 @@
 #include "Values.h"
 #include "vm.h"
 
-void LazyArrayHolder::generateUpTo(VM* vm, u32 index)
+void LazyArrayHolder::generateUpTo(VM* vm, integral_t index)
 {
   bool check = false;
   
-  if (values->size() <= index)
+  if (values.size() <= index)
   {
-    values->resize(index+1, NULL);
+    values.resize(index+1, TYPE_INVALID);
     check = true;
   }
   else
   {
-    for (int i = 0; i < index; ++i)
-      if (!values->at(i))
+    for (size_t i = 0; i < index; ++i)
+      if (!values[i].valid())
       {
         check = true;
         break;
@@ -31,22 +31,23 @@ void LazyArrayHolder::generateUpTo(VM* vm, u32 index)
   
   if (check)
   {
-    for (int i = 0; i < index; ++i)
-      if (!values->at(i))
+    for (size_t i = 0; i < index; ++i)
+      if (!values[i].valid())
         generateNth(vm, i);
   }
 }
 
-void LazyArrayHolder::generateNth(VM* vm, u32 index)
+void LazyArrayHolder::generateNth(VM* vm, integral_t index) const
 {
   //std::cout << "generating lazy at " << index << endl;
 
   if (useIndices)
-    vm->push(new Int((integral_t)index));
+    vm->push(index);
   
-  std::unordered_map<u32, Lambda*>::iterator it = indices.find(index);
+  auto it = indices.find(index);
   
-  vm->lazy = this;
+  //TODO: hack, make self-reentrant
+  vm->lazy = (LazyArrayHolder*)this;
   this->index = index;
   
   if (it != indices.end())
@@ -54,33 +55,20 @@ void LazyArrayHolder::generateNth(VM* vm, u32 index)
   else
     vm->execute(lambda->code());
   
-  Value *v;
-  vm->popOne(&v);
-  //std::cout << "lazy at " << index << " -> " << v->svalue() << endl;
-  (*values)[index] = v;
   
+  vm->popOne(values[index]);
   vm->lazy = NULL;
 }
 
-Value* LazyArrayHolder::at(VM* vm, u32 index)
+const Value& LazyArrayHolder::at(VM* vm, integral_t index) const
 {
   //std::cout << "request for lazy at " << index << endl;
   
-  Value *v = NULL;
-  
-  if (values->size() <= index)
+  if (values.size() <= index)
   {
-    values->resize(index+1, NULL);
-  }
-  else
-  {
-    v = values->at(index);
-  }
-
-  if (v) return v;
-  else
-  {
+    values.resize(index+1, TYPE_INVALID);
     generateNth(vm, index);
-    return values->at(index);
   }
+  
+  return values[index];
 }

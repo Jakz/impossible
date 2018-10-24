@@ -30,205 +30,203 @@ struct ExecEnv
 
 class VM
 {
-  private:
-    std::list<Value*>* valueStack;
-    std::list<std::list<Value*>*> highStacks;
-    std::list<std::list<Value*>*> lowStacks;
-    std::array<Value, 26> memory;
+private:
+  using stack_t = std::vector<Value>;
   
-    std::stack<ExecEnv> callStack;
-    ExecEnv exec;
+  stack_t* valueStack;
+  std::list<stack_t*> highStacks;
+  std::list<stack_t*> lowStacks;
+  std::array<Value, 26> memory;
   
-    bool running;
-    bool stackPreserve;
+  std::stack<ExecEnv> callStack;
+  ExecEnv exec;
+  
+  bool running;
+  bool stackPreserve;
+  
+public:
+  VM() : valueStack(new stack_t()), exec(ExecEnv(NULL)), running(false), stackPreserve(false), lazy(NULL), memory()
+  {
+  }
+  
+  Code *code()
+  {
+    return exec.code;
+  }
+  
+  template<typename T> void push(T* object)
+  {
+    push(Value(object));
+  }
+  
+  void push(const Value& value)
+  {
+    valueStack->push_back(value);
+  }
+
+  void raiseStack()
+  {
+    stack_t* next = nullptr;
     
-  public:
-    VM() : valueStack(new std::list<Value*>()), exec(ExecEnv(NULL)), running(false), stackPreserve(false), lazy(NULL), memory()
-    { 
-    }
-  
-    Code *code()
+    if (!highStacks.empty())
     {
-      return exec.code;
+      next = highStacks.front();
+      highStacks.pop_front();
     }
+    else
+      next = new stack_t();
+    
+    lowStacks.push_front(valueStack);
+    valueStack = next;
+  }
   
-    template<typename T> void push(T* object)
+  void lowerStack()
+  {
+    stack_t* next = nullptr;
+    
+    if (!lowStacks.empty())
     {
-      push(new Value(object));
+      next = lowStacks.front();
+      lowStacks.pop_front();
     }
+    else
+      next = new stack_t();
+    
+    highStacks.push_front(valueStack);
+    valueStack = next;
+  }
   
-    void push(const Value& value)
+  Value pop()
+  {
+    if (valueStack->empty())
     {
-      valueStack->push_front((Value*)&value);
-    }
-  
-    void push(Value *value)
-    {
-      valueStack->push_front(value);
-    }
-  
-    void raiseStack()
-    {
-      std::list<Value*>* next = nullptr;
-      
-      if (!highStacks.empty())
-      {
-        next = highStacks.front();
-        highStacks.pop_front();
-      }
-      else
-        next = new std::list<Value*>();
-      
-      lowStacks.push_front(valueStack);
-      valueStack = next;
-    }
-  
-    void lowerStack()
-    {
-      std::list<Value*>* next = nullptr;
-      
-      if (!lowStacks.empty())
-      {
-        next = lowStacks.front();
-        lowStacks.pop_front();
-      }
-      else
-        next = new std::list<Value*>();
-      
-      highStacks.push_front(valueStack);
-      valueStack = next;
+      stop();
+      return Value(TYPE_INVALID);
     }
     
-    Value* pop()
+    Value v = valueStack->back();
+    valueStack->pop_back();
+    return v;
+  }
+  
+  Value pick(integral_t nth)
+  {
+    //TODO: rotto
+    
+    if (valueStack->size() == 0)
+      return Value(TYPE_INVALID);
+    
+    nth = nth >= valueStack->size() ? valueStack->size() - 1 : nth;
+    
+    return valueStack->at(valueStack->size() - nth);
+  }
+  
+  Value peek()
+  {
+    if (valueStack->empty())
     {
-      if (valueStack->empty())
-      {
-        stop();
-        return nullptr;
-      }
-      
-      Value *v = valueStack->front();
-      valueStack->pop_front();
-      return v;
+      stop();
+      return Value(TYPE_INVALID);
     }
+    
+    return valueStack->front();
+  }
   
-    Value* pick(int nth)
+  size_t stackSize() const { return valueStack->size(); }
+  
+  bool stackHasValues(int count) const{ return valueStack->size() >= count; }
+  
+  bool popThree(Value& v1, Value& v2, Value& v3)
+  {
+    v3 = pop();
+    
+    if (running)
+      v2 = pop();
+    
+    if (running)
+      v1 = pop();
+    
+    if (!running)
+      std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc-1)->svalue() << "\' required two values." << std::endl;
+    
+    return running;
+  }
+  
+  bool popTwo(Value& v1, Value& v2)
+  {
+    v2 = pop();
+    
+    if (running)
+      v1 = pop();
+    
+    if (!running)
+      std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc-1)->svalue() << "\' required two values." << std::endl;
+    
+    return running;
+  }
+  
+  bool popOne(Value& v1)
+  {
+    v1 = pop();
+    
+    if (!running)
+      std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc-1)->svalue() << "\' required a value." << std::endl;
+    
+    return running;
+  }
+  
+  void wipe()
+  {
+    std::list<Value*>::iterator it;
+    
+    //for (it = valueStack.begin(); it != valueStack.end(); ++it)
+    //  delete *it;
+    
+    valueStack->clear();
+  }
+  
+  void execute(Code *code);
+  
+  void run();
+  
+  void stop()
+  {
+    running = false;
+  }
+  
+  void printStack() const
+  {
+    stack_t::const_iterator it;
+    
+    bool first = true;
+    for (const auto& value : *valueStack)
     {
-      //TODO: rotto
-      
-      if (valueStack->size() == 0)
-        return Value().clone();
-      
-      nth = nth >= valueStack->size() ? (int)valueStack->size() - 1 : nth;
-      
-      std::list<Value*>::iterator it = valueStack->begin();
-      advance(it, nth);
-      
-      return (*it)->clone();
-    }
-  
-    Value* peek()
-    {
-      if (valueStack->empty())
-      {
-        stop();
-        return NULL;
-      }
-      
-      return valueStack->front();
-    }
-  
-    size_t stackSize() const { return valueStack->size(); }
-  
-    bool stackHasValues(int count) const{ return valueStack->size() >= count; }
-  
-    bool popThree(Value ** v1, Value ** v2, Value ** v3)
-    {
-      *v3 = pop();
-      
-      if (running)
-        *v2 = pop();
-      
-      if (running)
-        *v1 = pop();
-      
-      if (!running)
-        std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc-1)->svalue() << "\' required two values." << std::endl;
-
-      return running;
-    }  
-  
-    bool popTwo(Value ** v1, Value ** v2)
-    {
-      *v2 = pop();
-      
-      if (running)
-        *v1 = pop();
-      
-      if (!running)
-        std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc-1)->svalue() << "\' required two values." << std::endl;
-
-      return running;
-    }
-  
-    bool popOne(Value **v1)
-    {
-      *v1 = pop();
-      
-      if (!running)
-        std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc-1)->svalue() << "\' required a value." << std::endl;
-
-      return running;
-    }
-  
-    void wipe()
-    {
-      std::list<Value*>::iterator it;
-      
-      //for (it = valueStack.begin(); it != valueStack.end(); ++it)
-      //  delete *it;
-      
-      valueStack->clear();
-    }
-  
-    void execute(Code *code);
-  
-    void run();
-  
-    void stop()
-    {
-      running = false;
-    }
-
-    void printStack() const
-    {
-      std::list<Value*>::const_iterator it;
-      
-      for (it = valueStack->begin(); it != valueStack->end(); ++it)
-      {
-        std::cout << (*it)->svalue();
+      if (first)
+        first = false;
+      else
+        std::cout << " ";
         
-        if (*it != valueStack->back())
-          std::cout << " ";
-      }
+      std::cout << value.svalue();
       
-      std::cout << std::endl;
     }
+    
+    std::cout << std::endl;
+  }
   
-    void printTopStack() const
+  void printTopStack() const
+  {
+    if (!valueStack->empty())
     {
-      if (!valueStack->empty())
-      {
-        std::cout << "  " << valueStack->front()->lvalue() << std::endl;
-      }
+      std::cout << "  " << valueStack->front().lvalue() << std::endl;
     }
+  }
   
-    void stackMode(bool preserve)
-    {
-      stackPreserve = preserve;
-    }
+  void stackMode(bool preserve)
+  {
+    stackPreserve = preserve;
+  }
   
-    LazyArrayHolder *lazy;
+  LazyArrayHolder *lazy;
 };
 
 #endif

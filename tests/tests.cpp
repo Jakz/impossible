@@ -48,7 +48,12 @@ TEST_CASE("primitive literals")
     executeAndVerifyStack("10k", 10000);
     executeAndVerifyStack("2kk", 2000000);
   }
-  
-  
-  
+}
+
+TEST_CASE("numeric operations")
+{
+  SECTION("sum")
+  {
+    executeAndVerifyStack("4 5 +", 9);
+  }
 }

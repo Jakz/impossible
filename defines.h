@@ -36,6 +36,9 @@ struct enum_hash
   }
 };
 
+template <bool B, typename T, T trueval, T falseval>
+struct conditional_value : std::conditional<B, std::integral_constant<T, trueval>, std::integral_constant<T, falseval>>::type { };
+
 class Util
 {
   public:

@@ -16,11 +16,11 @@ static void iter(TCollection *values, Code *code, VM *vm)
 {
   values->iterate();
   
-  Value *v;
+  Value v;
   
-  while ((v = values->next()))
+  while (values->hasNext())
   {
-    vm->push(v);
+    vm->push(values->next());
     vm->execute(code);
   }
 }
@@ -29,46 +29,44 @@ static void map(TCollection* values, TCollection* nvalues, Code *code, VM *vm)
 {
   values->iterate();
   
-  Value *v;
-  Value *o;
+  Value o;
   
-  while ((v = values->next()))
+  while (values->hasNext())
   {
-    vm->push(v);
+    vm->push(values->next());
     vm->execute(code);
     
-    if (vm->popOne(&o))
+    if (vm->popOne(o))
       nvalues->put(o);
   }
 }
 
-static void fold(TCollection* values, Value **o, Code *code, VM *vm)
+static void fold(TCollection* values, Value& o, Code *code, VM *vm)
 {
-  vm->push(*o);
+  vm->push(o);
   
-  Value *v;
   values->iterate();
-  while ((v = values->next()))
+  while (values->hasNext())
   {
-    vm->push(v);
+    vm->push(values->next());
     vm->execute(code);
   }
   
   vm->popOne(o);
 }
 
-static void sfold(TCollection* values, Value **o, Code *code, VM *vm)
+static void sfold(TCollection* values, Value& o, Code *code, VM *vm)
 {
   values->iterate();
   
-  Value *v = values->next();
-
-  if (v)
+  if (values->hasNext())
   {
+    Value v = values->next();
     vm->push(v);
-    while ((v = values->next()))
+
+    while (values->hasNext())
     {
-      vm->push(v);
+      vm->push(values->next());
       vm->execute(code);
     }
     
@@ -78,8 +76,8 @@ static void sfold(TCollection* values, Value **o, Code *code, VM *vm)
 
 static void doublemap(TCollection* values1, TCollection* values2, TCollection* nvalues, Code *code, VM *vm)
 {
-  Value *v1, *v2;
-  Value *o;
+  Value v1, v2;
+  Value o;
   
   values1->iterate();
   values2->iterate();
@@ -88,22 +86,20 @@ static void doublemap(TCollection* values1, TCollection* values2, TCollection* n
   
   while (running)
   {
-    v1 = values1->next();
-    v2 = values2->next();
-    
-    if (v1 && v2)
+    if (values1->hasNext() && values2->hasNext())
     {
-      vm->push(v1);
-      vm->push(v2);
+      vm->push(values1->next());
+      vm->push(values2->next());
+
       vm->execute(code);
       
-      if (vm->popOne(&o))
+      if (vm->popOne(o))
         nvalues->put(o);
     }
-    else if (v1)
-      nvalues->put(v1);
-    else
-      nvalues->put(v2);
+    else if (values1->hasNext())
+      nvalues->put(values1->next());
+    else if (values2->hasNext())
+      nvalues->put(values2->next());
     
     running = values1->hasNext() || values2->hasNext();
   }
@@ -111,21 +107,21 @@ static void doublemap(TCollection* values1, TCollection* values2, TCollection* n
 
 static void cartesian(TCollection *values1, TCollection* values2, TCollection* nvalues, Code *code, VM *vm)
 {
-  Value *v1, *v2;
-  Value *o;
+  Value v1, v2;
+  Value o;
   
   values1->iterate();
   values2->iterate();
 
-  while ((v1 = values1->next()))
+  while (values1->hasNext())
   {
-    while ((v2 = values2->next()))
+    while (values2->hasNext())
     {
       vm->push(v1);
       vm->push(v2);
       vm->execute(code);
       
-      if (vm->popOne(&o))
+      if (vm->popOne(o))
         nvalues->put(o);
     }
     
@@ -136,7 +132,7 @@ static void cartesian(TCollection *values1, TCollection* values2, TCollection* n
 template<typename T>
 void filter(VM* vm, const T* collection, Code* predicate)
 {
-  Value* v3;
+  Value v3;
   const typename T::utype_t& v = collection->raw();
   
   typename T::utype_t::const_iterator it;
@@ -148,9 +144,9 @@ void filter(VM* vm, const T* collection, Code* predicate)
     vm->push(value);
     vm->execute(predicate);
     
-    if (vm->popOne(&v3))
+    if (vm->popOne(v3))
     {
-      if (v3->type.traits().to_bool(v3))
+      if (v3.type.traits().to_bool(v3))
         ot.push_back(value);
     }
   }
@@ -202,13 +198,15 @@ struct Signature
 
 struct VariantFunction
 {
+  using value_ref = const Value&;
+  
   size_t args;
   union
   {
     std::function<void(VM*)> nullary;
-    std::function<void(VM*, Value*)> unary;
-    std::function<void(VM*, Value*, Value*)> binary;
-    std::function<void(VM*, Value*, Value*, Value*)> ternary;
+    std::function<void(VM*, value_ref)> unary;
+    std::function<void(VM*, value_ref, value_ref)> binary;
+    std::function<void(VM*, value_ref, value_ref, value_ref)> ternary;
   };
   
   VariantFunction(const decltype(nullary)& nullary) : args(0), nullary(nullary) { }
@@ -228,15 +226,15 @@ struct VariantFunction
         this->nullary.operator=(o.nullary);
         break;
       case 1:
-        new (&this->unary) std::function<void(VM*, Value*)>();
+        new (&this->unary) std::function<void(VM*, value_ref)>();
         this->unary.operator=(o.unary);
         break;
       case 2:
-        new (&this->binary) std::function<void(VM*, Value*, Value*)>();
+        new (&this->binary) std::function<void(VM*, value_ref, value_ref)>();
         this->binary = o.binary;
         break;
       case 3:
-        new (&this->ternary) std::function<void(VM*, Value*, Value*, Value*)>();
+        new (&this->ternary) std::function<void(VM*, value_ref, value_ref, value_ref)>();
         this->ternary.operator=(o.ternary); break;
       default:
         assert(false);
@@ -248,9 +246,9 @@ struct VariantFunction
     switch (args)
     {
       case 0: nullary.~function<void(VM*)>(); break;
-      case 1: unary.~function<void(VM*, Value*)>(); break;
-      case 2: binary.~function<void(VM*, Value*, Value*)>(); break;
-      case 3: ternary.~function<void(VM*, Value*, Value*, Value*)>(); break;
+      case 1: unary.~function<void(VM*, value_ref)>(); break;
+      case 2: binary.~function<void(VM*, value_ref, value_ref)>(); break;
+      case 3: ternary.~function<void(VM*, value_ref, value_ref, value_ref)>(); break;
       default: assert(false);
     }
   }
@@ -343,15 +341,24 @@ public:
     opcodeData[signature.opcode].hasNullary = true;
   }
   
+  template<typename T, typename U> void registerNumeric(Opcode opcode, std::function<Value(Value, Value)>& lambda)
+  {
+    constexpr Type t1 = conditional_value<std::is_same<T, integral_t>::value, Type, TYPE_INT, TYPE_FLOAT>::value;
+    constexpr Type t2 = conditional_value<std::is_same<U, integral_t>::value, Type, TYPE_INT, TYPE_FLOAT>::value;
+    constexpr Type t3 = conditional_value<std::is_same<T, real_t>::value || std::is_same<U, real_t>::value, Type, TYPE_FLOAT, TYPE_INT>::value;
+  }
+  
   void init()
   {
-    registerUnary({ OP_DUPE, TYPE_GENERIC }, [] (VM* vm, Value* v1) { vm->push(v1); vm->push(v1->clone()); });
+    registerUnary({ OP_DUPE, TYPE_GENERIC }, [] (VM* vm, const Value& v1) { vm->push(v1); vm->push(v1); });
     
-    registerBinary({ OP_PLUS, TYPE_INT, TYPE_INT }, [] (VM* vm, Value* v1, Value* v2) { vm->push(new Int(v1->integral() + v2->integral())); });
+    registerBinary({ OP_PLUS, TYPE_INT, TYPE_INT }, [] (VM* vm, const Value& v1, const Value& v2) {
+      vm->push(v1.integral() + v2.integral());
+    });
   
-    registerBinary({ OP_MINUS, TYPE_INT, TYPE_INT }, [] (VM* vm, Value* v1, Value* v2) { vm->push(new Int(v1->integral() - v2->integral())); });
+    registerBinary({ OP_MINUS, TYPE_INT, TYPE_INT }, [] (VM* vm, const Value& v1, const Value& v2) { vm->push(v1.integral() - v2.integral()); });
     
-    registerUnary({ OP_NEG, TYPE_COLLECTION }, [] (VM* vm, Value* v1) { vm->push(new Int((integral_t)v1->as<TValue<TCollection*>*>()->get()->size())); });
+    registerUnary({ OP_NEG, TYPE_COLLECTION }, [] (VM* vm, const Value& v1) { vm->push(v1.collection()->size()); });
 
   }
   
@@ -360,7 +367,7 @@ public:
     const Opcode opcode = instruction.opcode;
     const size_t stackSize = vm->stackSize();
     
-    Value *v1 = nullptr, *v2 = nullptr, *v3 = nullptr;
+    Value v1, v2, v3;
     
     if (opcodeData[opcode].hasTernary && stackSize >= 3)
     {
@@ -368,7 +375,7 @@ public:
       v2 = vm->pop();
       v1 = vm->pop();
       
-      auto function = findBestOverload({ opcode, v1->type, v2->type, v3->type });
+      auto function = findBestOverload({ opcode, v1.type, v2.type, v3.type });
       
       if (function)
       {
@@ -379,7 +386,7 @@ public:
     
     if (opcodeData[opcode].hasBinary && stackSize >= 2)
     {
-      if (v3)
+      if (v3.valid())
       {
         v2 = v3;
         v1 = v2;
@@ -390,7 +397,7 @@ public:
         v1 = vm->pop();
       }
       
-      auto function = findBestOverload({ opcode, v1->type, v2->type, TYPE_NONE });
+      auto function = findBestOverload({ opcode, v1.type, v2.type, TYPE_NONE });
       
       if (function)
       {
@@ -401,14 +408,14 @@ public:
     
     if (opcodeData[opcode].hasUnary && stackSize >= 1)
     {
-      if (v3)
+      if (v3.valid())
         v1 = v3;
-      else if (v2)
+      else if (v2.valid())
         v1 = v2;
       else
         v1 = vm->pop();
       
-      auto function = findBestOverload({ opcode, v1->type, TYPE_NONE, TYPE_NONE });
+      auto function = findBestOverload({ opcode, v1.type, TYPE_NONE, TYPE_NONE });
       
       if (function)
       {
@@ -427,9 +434,9 @@ public:
     
     
     /* push values back */
-    if (v1) vm->push(v1);
-    if (v2) vm->push(v2);
-    if (v3) vm->push(v3);
+    if (v1.valid()) vm->push(v1);
+    if (v2.valid()) vm->push(v2);
+    if (v3.valid()) vm->push(v3);
     
     
     return false;
@@ -525,7 +532,7 @@ std::string OpcodeInstruction::svalue() const
 
 void OpcodeInstruction::execute(VM *vm) const
 {
-  Value *v1, *v2, *v3;
+  Value v1, v2, v3;
   
   if (microCode.execute(vm, *this))
     return;
@@ -534,7 +541,7 @@ void OpcodeInstruction::execute(VM *vm) const
   {
     case OP_SWAP:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {
         vm->push(v2);
         vm->push(v1);
@@ -543,7 +550,7 @@ void OpcodeInstruction::execute(VM *vm) const
     }
     case OP_DROP:
     {
-      if (vm->popOne(&v1))
+      if (vm->popOne(v1))
       {
         
       }
@@ -551,16 +558,16 @@ void OpcodeInstruction::execute(VM *vm) const
     }
     case OP_PICK:
     {
-      if (vm->popOne(&v1) && v1->type == TYPE_INT)
+      if (vm->popOne(v1) && v1.type == TYPE_INT)
       {
-        integral_t i = v1->integral();
+        integral_t i = v1.integral();
         vm->push(vm->pick(i));
       }
       break;
     }
     case OP_RISE:
     {
-      if (vm->popThree(&v1, &v2, &v3))
+      if (vm->popThree(v1, v2, v3))
       {
         vm->push(v2);
         vm->push(v3);
@@ -570,7 +577,7 @@ void OpcodeInstruction::execute(VM *vm) const
     }
     case OP_SINK:
     {
-      if (vm->popThree(&v1, &v2, &v3))
+      if (vm->popThree(v1, v2, v3))
       {
         vm->push(v3);
         vm->push(v1);
@@ -582,21 +589,21 @@ void OpcodeInstruction::execute(VM *vm) const
     
     case OP_PLUS:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {  
-        if (v1->type == TYPE_STRING)
+        if (v1.type == TYPE_STRING)
         {
-          vm->push(new Value(new String(v1->string()->data() + v2->svalue())));
+          vm->push(new Value(new String(v1.string()->data() + v2.svalue())));
         }
         else
         {        
-          switch (TYPES(v1->type, v2->type))
+          switch (TYPES(v1.type, v2.type))
           {
-            case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(v1->real() + v2->integral())); break;
-            case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1->integral() + v2->real())); break;
-            case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(v1->real() + v2->real())); break;
-            case TYPES(TYPE_CHAR, TYPE_INT): vm->push(new Char(v1->character() + v2->integral())); break;
-            case TYPES(TYPE_CHAR, TYPE_CHAR): vm->push(new Value(new String(std::string(1,v1->character()) + v2->character()))); break;
+            case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(v1.real() + v2.integral())); break;
+            case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1.integral() + v2.real())); break;
+            case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(v1.real() + v2.real())); break;
+            case TYPES(TYPE_CHAR, TYPE_INT): vm->push(new Char(v1.character() + v2.integral())); break;
+            case TYPES(TYPE_CHAR, TYPE_CHAR): vm->push(new Value(new String(std::string(1,v1.character()) + v2.character()))); break;
           }
         }
       }
@@ -604,45 +611,45 @@ void OpcodeInstruction::execute(VM *vm) const
     }
     case OP_MINUS:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {  
-        switch (TYPES(v1->type, v2->type))
+        switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(v1->real() - v2->integral())); break;
-          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1->integral() - v2->real())); break;
-          case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(v1->real() - v2->real())); break;
-          case TYPES(TYPE_CHAR, TYPE_INT): vm->push(new Char(v1->character() - v2->integral())); break;
+          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(v1.real() - v2.integral())); break;
+          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1.integral() - v2.real())); break;
+          case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(v1.real() - v2.real())); break;
+          case TYPES(TYPE_CHAR, TYPE_INT): vm->push(new Char(v1.character() - v2.integral())); break;
         }
       }
       break;
     }
     case OP_TIMES:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {  
-        switch (TYPES(v1->type, v2->type))
+        switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1->integral() * v2->integral())); break;
-          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(v1->real() * v2->integral())); break;
-          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1->integral() * v2->real())); break;
-          case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(v1->real() * v2->real())); break;
+          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1.integral() * v2.integral())); break;
+          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(v1.real() * v2.integral())); break;
+          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1.integral() * v2.real())); break;
+          case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(v1.real() * v2.real())); break;
         }
       }
       break;
     }
     case OP_DIVIDE:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {  
-        switch (TYPES(v1->type, v2->type))
+        switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1->integral() / v2->integral())); break;
-          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(v1->real() / v2->integral())); break;
-          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1->integral() / v2->real())); break;
-          case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(v1->real() / v2->real())); break;            
+          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1.integral() / v2.integral())); break;
+          case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Float(v1.real() / v2.integral())); break;
+          case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Float(v1.integral() / v2.real())); break;
+          case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Float(v1.real() / v2.real())); break;            
           case TYPES(TYPE_SET, TYPE_SET):
           {
-            Set *s1 = v1->set(), *s2 = v2->set();
+            Set *s1 = v1.set(), *s2 = v2.set();
             const auto& d1 = s1->raw();
             const auto& d2 = s2->raw();
             Set::set_t result;
@@ -662,12 +669,12 @@ void OpcodeInstruction::execute(VM *vm) const
     }
     case OP_NEG:
     {
-      if (vm->popOne(&v1))
+      if (vm->popOne(v1))
       {
-        switch (v1->type)  
+        switch (v1.type)  
         {
-          case TYPE_INT: vm->push(new Int(-v1->integral())); break;
-          case TYPE_FLOAT: vm->push(new Float(-v1->real())); break;
+          case TYPE_INT: vm->push(new Int(-v1.integral())); break;
+          case TYPE_FLOAT: vm->push(new Float(-v1.real())); break;
           default: break;
         }
       }
@@ -677,14 +684,14 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_MOD:
     {
-      if (vm->popOne(&v2))
+      if (vm->popOne(v2))
       {
-        switch (v2->type)
+        switch (v2.type)
         {
           case TYPE_FLOAT:
           {
             double f, i;
-            f = modf(v2->real(), &i);
+            f = modf(v2.real(), &i);
             vm->push(new Float(i));
             vm->push(new Float(f));
             break;
@@ -692,13 +699,13 @@ void OpcodeInstruction::execute(VM *vm) const
           default:
           {
             
-            if (vm->popOne(&v1))
+            if (vm->popOne(v1))
             {
-              switch (TYPES(v1->type, v2->type))
+              switch (TYPES(v1.type, v2.type))
               {
                 case TYPES(TYPE_INT, TYPE_INT):
                 {
-                  vm->push(new Int(v1->integral() % v2->integral()));
+                  vm->push(new Int(v1.integral() % v2.integral()));
                   break;
                 }
               }
@@ -712,15 +719,15 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_AND:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {  
-        switch (TYPES(v1->type, v2->type))
+        switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_BOOL, TYPE_BOOL): vm->push(new Bool(v1->boolean() && v2->boolean())); break;
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1->integral() & v2->integral())); break;
+          case TYPES(TYPE_BOOL, TYPE_BOOL): vm->push(new Bool(v1.boolean() && v2.boolean())); break;
+          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1.integral() & v2.integral())); break;
           case TYPES(TYPE_SET, TYPE_SET):
           {
-            Set *s1 = v1->set(), *s2 = v2->set();
+            Set *s1 = v1.set(), *s2 = v2.set();
             const auto& d1 = s1->raw();
             const auto& d2 = s2->raw();
             Set::set_t result;
@@ -740,27 +747,27 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_OR:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {  
-        switch (TYPES(v1->type, v2->type))
+        switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_BOOL, TYPE_BOOL): vm->push(new Bool(v1->boolean() || v2->boolean())); break;
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1->integral() | v2->integral())); break;
+          case TYPES(TYPE_BOOL, TYPE_BOOL): vm->push(new Bool(v1.boolean() || v2.boolean())); break;
+          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1.integral() | v2.integral())); break;
           case TYPES(TYPE_RANGE, TYPE_RANGE):
           {
-            vm->push(new Range(((Range*)v1)->get().rangeUnion(((Range*)v2)->get())));
+            vm->push(new Range(v1.range()->raw().rangeUnion(v2.range()->raw())));
             break;
           }
           case TYPES(TYPE_RANGE, TYPE_INT):
           {
-            RangeVector rv = RangeVector(v2->integral(), v2->integral());
-            vm->push(new Range(((Range*)v1)->get().rangeUnion(rv)));
+            RangeVector rv = RangeVector(v2.integral(), v2.integral());
+            vm->push(new Range(v1.range()->raw().rangeUnion(rv)));
             break;
           }
             
           case TYPES(TYPE_SET, TYPE_SET):
           {
-            Set *s1 = v1->set(), *s2 = v2->set();
+            Set *s1 = v1.set(), *s2 = v2.set();
             const auto& d1 = s1->raw();
             const auto& d2 = s2->raw();
             Set::set_t result;
@@ -782,54 +789,53 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_NOT:
     {
-      if (vm->popOne(&v1))
+      if (vm->popOne(v1))
       {
-        switch (v1->type)
+        switch (v1.type)
         {
-          case TYPE_BOOL: vm->push(new Bool(!v1->boolean())); break;
-          case TYPE_INT: vm->push(new Int(~v1->integral())); break;
-          case TYPE_FLOAT: vm->push(new Float(1.0 / v1->real())); break;
+          case TYPE_BOOL: vm->push(new Bool(!v1.boolean())); break;
+          case TYPE_INT: vm->push(new Int(~v1.integral())); break;
+          case TYPE_FLOAT: vm->push(new Float(1.0 / v1.real())); break;
           case TYPE_LIST:
           {
-            const List::list_t& data = v1->list()->raw();
+            const List::list_t& data = v1.list()->raw();
             List::list_t nv = List::list_t(data.rbegin(), data.rend());
             vm->push(new List(nv));
             break;
           }
           case TYPE_ARRAY:
           {
-            const Array::array_t& ov = v1->array()->raw();
+            const Array::array_t& ov = v1.array()->raw();
             Array::array_t nv = Array::array_t(ov.rbegin(), ov.rend());
             vm->push(new Array(nv));
             break;
           }
           case TYPE_STRING:
           {
-            const std::string& ov = v1->string()->data();
+            const std::string& ov = v1.string()->data();
             std::string nv = std::string(ov.rbegin(), ov.rend());
             vm->push(new Value(TYPE_STRING, new String(nv)));
             break;
           }
           case TYPE_RANGE:
           {
-            Range *r = (Range*)v1;       
             Array::array_t nv;
-            auto iv = r->get().concretize();
+            auto iv = v1.range()->raw().concretize();
             
             nv.reserve(iv.size());
-            std::transform(iv.begin(), iv.end(), nv.end(), [] (int v) { return Int(v); });
+            std::transform(iv.begin(), iv.end(), nv.end(), [] (integral_t v) { return Value(v); });
 
             vm->push(new Array(nv));
             break;
           }
           case TYPE_LAZY_ARRAY:
           {
-            LazyArray *array = (LazyArray*)v1;
+            const LazyArray::data_t& array = v1.lazyArray()->raw();
             Array::array_t nv;
-            nv.reserve(array->size());
+            nv.reserve(array.size());
             
-            for (int i = 0; i < array->size(); ++i)
-              nv.push_back(*array->get().at(vm, i));
+            for (const auto& v : array)
+              nv.push_back(v);
             
             vm->push(v1);
             vm->push(new Array(nv));
@@ -843,19 +849,19 @@ void OpcodeInstruction::execute(VM *vm) const
     }
     case OP_RSHIFT:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {  
-        switch (TYPES(v1->type, v2->type))
+        switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1->integral() >> v2->integral())); break;
+          case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1.integral() >> v2.integral())); break;
           case TYPES(TYPE_LIST, TYPE_LAMBDA):
           {
-            filter(vm, v1->list(), v2->lambda()->code());
+            filter(vm, v1.list(), v2.lambda()->code());
             break;
           }
           case TYPES(TYPE_ARRAY, TYPE_LAMBDA):
           {
-            filter(vm, v1->array(), v2->lambda()->code());
+            filter(vm, v1.array(), v2.lambda()->code());
             break;
             break;
           }
@@ -865,21 +871,21 @@ void OpcodeInstruction::execute(VM *vm) const
     }
     case OP_LSHIFT:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {  
-        if (v1->type == TYPE_ARRAY)
+        if (v1.type == TYPE_ARRAY)
         {
           //TODO: undomented instruction?
           /*std::vector<Value*>* vs = ((Array*)v1)->get();
-          vs->assign(vs->size(), v2->clone());
+          vs->assign(vs->size(), v2.clone());
           vm->push(v1);
           */
         }
         else
         {
-          switch (TYPES(v1->type, v2->type))
+          switch (TYPES(v1.type, v2.type))
           {
-            case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1->integral() << v2->integral())); break;
+            case TYPES(TYPE_INT, TYPE_INT): vm->push(new Int(v1.integral() << v2.integral())); break;
           }
         }
       }
@@ -889,19 +895,19 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_EQUAL:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {  
-        vm->push(new Bool(v1->equals(v2)));
+        vm->push(v1.equals(v2));
       }
       break;
     }
     case OP_LESSER:
     {
-      if (vm->popOne(&v2))
+      if (vm->popOne(v2))
       {
-        if (v2->type == TYPE_LIST)
+        if (v2.type == TYPE_LIST)
         {
-          const List::list_t& v = v2->list()->raw();
+          const List::list_t& v = v2.list()->raw();
           
           vm->push(v2);
           
@@ -911,9 +917,9 @@ void OpcodeInstruction::execute(VM *vm) const
             vm->push(*it);
           }
         }
-        else if (v2->type == TYPE_ARRAY)
+        else if (v2.type == TYPE_ARRAY)
         {
-          const Array::array_t& v = v2->array()->raw();
+          const Array::array_t& v = v2.array()->raw();
           
           vm->push(v2);
           
@@ -925,14 +931,14 @@ void OpcodeInstruction::execute(VM *vm) const
         }
         else
         {
-          if (vm->popOne(&v1))
+          if (vm->popOne(v1))
           {  
-            switch (TYPES(v1->type, v2->type))
+            switch (TYPES(v1.type, v2.type))
             {
-              case TYPES(TYPE_INT, TYPE_INT): vm->push(new Bool(v1->integral() < v2->integral())); break;
-              case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Bool(v1->real() < v2->integral())); break;
-              case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Bool(v1->integral() < v2->real())); break;
-              case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Bool(v1->real() < v2->real())); break;
+              case TYPES(TYPE_INT, TYPE_INT): vm->push(new Bool(v1.integral() < v2.integral())); break;
+              case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Bool(v1.real() < v2.integral())); break;
+              case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Bool(v1.integral() < v2.real())); break;
+              case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Bool(v1.real() < v2.real())); break;
             }
           }
         }
@@ -942,11 +948,11 @@ void OpcodeInstruction::execute(VM *vm) const
     //TODO min and max should push nil if list is empty?
     case OP_GREATER:
     {
-      if (vm->popOne(&v2))
+      if (vm->popOne(v2))
       {
-        if (v2->type == TYPE_LIST)
+        if (v2.type == TYPE_LIST)
         {
-          const List::list_t& v = v2->list()->raw();
+          const List::list_t& v = v2.list()->raw();
           vm->push(v2);
           
           if (!v.empty())
@@ -955,9 +961,9 @@ void OpcodeInstruction::execute(VM *vm) const
             vm->push(*it);
           }
         }
-        else if (v2->type == TYPE_ARRAY)
+        else if (v2.type == TYPE_ARRAY)
         {
-          const Array::array_t& v = v2->array()->raw();
+          const Array::array_t& v = v2.array()->raw();
           vm->push(v2);
           
           if (!v.empty())
@@ -968,14 +974,14 @@ void OpcodeInstruction::execute(VM *vm) const
         }
         else
         {
-          if (vm->popOne(&v1))
+          if (vm->popOne(v1))
           {   
-            switch (TYPES(v1->type, v2->type))
+            switch (TYPES(v1.type, v2.type))
             {
-              case TYPES(TYPE_INT, TYPE_INT): vm->push(new Bool(v1->integral() > v2->integral())); break;
-              case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Bool(v1->real() > v2->integral())); break;
-              case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Bool(v1->integral() > v2->real())); break;
-              case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Bool(v1->real() > v2->real())); break;
+              case TYPES(TYPE_INT, TYPE_INT): vm->push(new Bool(v1.integral() > v2.integral())); break;
+              case TYPES(TYPE_FLOAT, TYPE_INT): vm->push(new Bool(v1.real() > v2.integral())); break;
+              case TYPES(TYPE_INT, TYPE_FLOAT): vm->push(new Bool(v1.integral() > v2.real())); break;
+              case TYPES(TYPE_FLOAT, TYPE_FLOAT): vm->push(new Bool(v1.real() > v2.real())); break;
             }
           }
         }
@@ -987,14 +993,14 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_BANG:
     {
-      if (vm->popOne(&v1))
+      if (vm->popOne(v1))
       {
-        if (v1->type == TYPE_LAMBDA)
-          vm->execute(v1->lambda()->code());
-        else if (v1->type == TYPE_INT)
+        if (v1.type == TYPE_LAMBDA)
+          vm->execute(v1.lambda()->code());
+        else if (v1.type == TYPE_INT)
         {
           double res = 1.0;
-          double v = v1->integral();
+          double v = v1.integral();
           
           while (v > 1)
             res *= v--;
@@ -1006,22 +1012,22 @@ void OpcodeInstruction::execute(VM *vm) const
     }
     case OP_QUESTION:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {
-        if (v1->type.isCollection())
+        if (v1.type.isCollection())
         {
-          TCollection* collection = v1->collection();
+          TCollection* collection = v1.collection();
           vm->push(v1);
-          vm->push(collection->contains(*v2));
+          vm->push(collection->contains(v2));
         }
         else
         {
-          switch (TYPES(v1->type, v2->type))
+          switch (TYPES(v1.type, v2.type))
           {
             case TYPES(TYPE_BOOL,TYPE_LAMBDA):
             {
-              if (v1->boolean())
-                vm->execute(v2->lambda()->code());
+              if (v1.boolean())
+                vm->execute(v2.lambda()->code());
               break;
             }
           }
@@ -1032,14 +1038,14 @@ void OpcodeInstruction::execute(VM *vm) const
     }
     case OP_DQUESTION:
     {
-      if (vm->popThree(&v1, &v2, &v3))
+      if (vm->popThree(v1, v2, v3))
       {
-        if (v1->type == TYPE_BOOL && v2->type == TYPE_LAMBDA && v3->type == TYPE_LAMBDA)
+        if (v1.type == TYPE_BOOL && v2.type == TYPE_LAMBDA && v3.type == TYPE_LAMBDA)
         {
-          if (v1->boolean())
-            vm->execute(v2->lambda()->code());
+          if (v1.boolean())
+            vm->execute(v2.lambda()->code());
           else
-            vm->execute(v3->lambda()->code());
+            vm->execute(v3.lambda()->code());
         }
       }
       break;
@@ -1048,19 +1054,19 @@ void OpcodeInstruction::execute(VM *vm) const
 
     case OP_PEEK:
     {
-      Value *v = vm->peek();
+      Value v = vm->peek();
       
-      if (v)
-        std::cout << v->svalue();
+      if (v.valid())
+        std::cout << v.svalue();
       
       break;
     }
       
     case OP_RAND:
     {
-      if (vm->popOne(&v1))
+      if (vm->popOne(v1))
       {
-        switch (v1->type)
+        switch (v1.type)
         {
           case TYPE_BOOL:
           {
@@ -1069,9 +1075,9 @@ void OpcodeInstruction::execute(VM *vm) const
           }
           case TYPE_RANGE:
           {
-            std::vector<int> iv = ((Range*)v1)->get().concretize();
-            int c = Util::randi(0, (int)iv.size());
-            vm->push(new Int(iv.at(c)));
+            auto iv = v1.range()->raw().concretize();
+            integral_t c = Util::randi(0, iv.size());
+            vm->push(iv[c]);
             break;
           }
           case TYPE_ARRAY:
@@ -1084,14 +1090,14 @@ void OpcodeInstruction::execute(VM *vm) const
           }
           default:
           {
-            if (vm->popOne(&v2))
+            if (vm->popOne(v2))
             {
-              switch (TYPES(v1->type, v2->type))
+              switch (TYPES(v1.type, v2.type))
               {
                 case TYPES(TYPE_INT, TYPE_INT):
                 {
-                  integral_t m = v2->integral();
-                  integral_t M = v1->integral();
+                  integral_t m = v2.integral();
+                  integral_t M = v1.integral();
                   
                   if (m > M)
                     std::swap(M, M);
@@ -1112,20 +1118,20 @@ void OpcodeInstruction::execute(VM *vm) const
       //TODO: add support for lambda based
     case OP_SORT:
     {
-      if (vm->popOne(&v1))
+      if (vm->popOne(v1))
       {
-        switch (v1->type)
+        switch (v1.type)
         {
           case TYPE_LIST:
           {
-            v1->list()->raw().sort(std::less<Value>());
-            //std::sort(v1->list()->begin(), v1->list()->end());
+            v1.list()->raw().sort(std::less<Value>());
+            //std::sort(v1.list()->begin(), v1.list()->end());
             vm->push(v1);
             break;
           }
           case TYPE_ARRAY:
           {
-            std::sort(v1->array()->begin(), v1->array()->end(), std::less<Value>());
+            std::sort(v1.array()->begin(), v1.array()->end(), std::less<Value>());
             vm->push(v1);
             break;
           }
@@ -1138,19 +1144,19 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_SHUFFLE:
     {
-      if (vm->popOne(&v1))
+      if (vm->popOne(v1))
       {
-        switch (v1->type)
+        switch (v1.type)
         {
           case TYPE_ARRAY:
           {
-            std::random_shuffle(v1->array()->begin(), v1->array()->end());
+            std::random_shuffle(v1.array()->begin(), v1.array()->end());
             vm->push(v1);
             break;
           }
           case TYPE_LIST:
           {
-            std::vector<Value> data(v1->list()->begin(), v1->list()->end());
+            std::vector<Value> data(v1.list()->begin(), v1.list()->end());
             std::random_shuffle(data.begin(), data.end());
             vm->push(new List(List::list_t(data.begin(), data.end())));
             break;
@@ -1164,11 +1170,11 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_AT:
     {
-      if (vm->popOne(&v2))
+      if (vm->popOne(v2))
       {
-        if (v2->type == TYPE_STACK)
+        if (v2.type == TYPE_STACK)
         {
-          List::list_t& stack = v2->stack()->raw();
+          List::list_t& stack = v2.stack()->raw();
           vm->push(v2);
           
           if (!stack.empty())
@@ -1177,9 +1183,9 @@ void OpcodeInstruction::execute(VM *vm) const
             stack.pop_front();
           }
         }
-        else if (v2->type == TYPE_QUEUE)
+        else if (v2.type == TYPE_QUEUE)
         {
-          List::list_t& queue = v2->queue()->raw();
+          List::list_t& queue = v2.queue()->raw();
           vm->push(v2);
           
           if (!queue.empty())
@@ -1190,11 +1196,11 @@ void OpcodeInstruction::execute(VM *vm) const
         }
         else
         {
-          if (vm->popOne(&v1))
+          if (vm->popOne(v1))
           {
-            if (v1->type == TYPE_MAP)
+            if (v1.type == TYPE_MAP)
             {
-              const Map::map_t& map = v1->map()->raw();
+              const Map::map_t& map = v1.map()->raw();
               vm->push(v1);
               
               auto it = map.find(v2);
@@ -1203,12 +1209,12 @@ void OpcodeInstruction::execute(VM *vm) const
             }
             else
             {            
-              switch (TYPES(v1->type, v2->type))
+              switch (TYPES(v1.type, v2.type))
               {
                 case TYPES(TYPE_ARRAY, TYPE_INT):
                 {
-                  const Array::utype_t& values = v1->array()->raw();
-                  integral_t i = v2->integral();
+                  const Array::utype_t& values = v1.array()->raw();
+                  integral_t i = v2.integral();
                   
                   vm->push(v1);
                   vm->push(i < values.size() ? values[i] : Value());
@@ -1217,11 +1223,11 @@ void OpcodeInstruction::execute(VM *vm) const
                 }
                 case TYPES(TYPE_ARRAY, TYPE_RANGE):
                 {
-                  RangeVector r = ((Range*)v2)->get();
+                  const RangeVector& r = v2.range()->raw();
                   Array::utype_t nv;
-                  const Array::utype_t& ov = v1->array()->raw();
+                  const Array::utype_t& ov = v1.array()->raw();
                   
-                  std::vector<int> iv = r.concretize();
+                  std::vector<integral_t> iv = r.concretize();
                   nv.reserve(iv.size());
                   
                   for (size_t i = 0; i < iv.size(); ++i)
@@ -1241,10 +1247,10 @@ void OpcodeInstruction::execute(VM *vm) const
                 }
                 case TYPES(TYPE_LAZY_ARRAY, TYPE_INT):
                 {
-                  LazyArray *array = (LazyArray*)v1;
-                  integral_t i = v2->integral();
+                  LazyArray *array = v1.lazyArray();
+                  integral_t i = v2.integral();
                   
-                  Value *v = array->get().at(vm, i);
+                  const Value& v = array->raw().at(vm, i);
                   
                   vm->push(v1);
                   vm->push(v);
@@ -1252,21 +1258,21 @@ void OpcodeInstruction::execute(VM *vm) const
                 }
                 case TYPES(TYPE_LAZY_ARRAY, TYPE_RANGE):
                 {
-                  RangeVector r = ((Range*)v2)->get();
+                  const RangeVector& r = v2.range()->raw();
                   Array::utype_t nv;
-                  LazyArray *ov = (LazyArray*)v1;
+                  LazyArray *ov = v1.lazyArray();
                   
-                  std::vector<int> iv = r.concretize();
+                  std::vector<integral_t> iv = r.concretize();
                   nv.reserve(iv.size());
                   
                   for (size_t i = 0; i < iv.size(); ++i)
                   {
-                    s64 j = iv[i];
+                    integral_t j = iv[i];
                     
                     if (j < 0)
                       continue;
                     
-                    nv.push_back(ov->get().at(vm, j));
+                    nv.push_back(ov->raw().at(vm, j));
                   }
                   
                   vm->push(v1);
@@ -1283,46 +1289,46 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_HASH:
     {
-      if (vm->popTwo(&v2, &v3))
+      if (vm->popTwo(v2, v3))
       {
-        if (v2->type == TYPE_SET)
+        if (v2.type == TYPE_SET)
         {
-          Set *set = v2->set();
+          Set *set = v2.set();
           set->put(v3);
           vm->push(v2);
         }
-        else if (v2->type == TYPE_STACK)
+        else if (v2.type == TYPE_STACK)
         {
-          v2->stack()->raw().push_front(v3);
+          v2.stack()->raw().push_front(v3);
           vm->push(v2);
         }
-        else if (v2->type == TYPE_QUEUE)
+        else if (v2.type == TYPE_QUEUE)
         {
-          v2->queue()->raw().push_back(v3);
+          v2.queue()->raw().push_back(v3);
           vm->push(v2);
         }
         else
         {
-          if (vm->popOne(&v1))
+          if (vm->popOne(v1))
           {
-            if (v1->type == TYPE_MAP)
+            if (v1.type == TYPE_MAP)
             {
-              v1->map()->raw().emplace(std::make_pair(*v2, *v3));
+              v1.map()->raw().emplace(std::make_pair(v2, v3));
               vm->push(v1);
             }
             else
             {            
-              switch (TYPES(v1->type, v2->type))
+              switch (TYPES(v1.type, v2.type))
               {
                 case TYPES(TYPE_ARRAY, TYPE_INT):
                 {
-                  auto& values = v1->array()->raw();
-                  integral_t i = v2->integral();
+                  auto& values = v1.array()->raw();
+                  integral_t i = v2.integral();
                   
                   if (i >= values.size() && i >= values.capacity())
                     values.resize(i+1, Value());
                   
-                  values[v2->integral()] = v3;
+                  values[v2.integral()] = v3;
                   
                   vm->push(v1);
                   break;
@@ -1337,11 +1343,11 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_AT_FRONT:
     {
-      if (vm->popOne(&v1))
+      if (vm->popOne(v1))
       {  
-        if (v1->type == TYPE_LIST)
+        if (v1.type == TYPE_LIST)
         {
-          auto& vv = v1->list()->raw();
+          auto& vv = v1.list()->raw();
           
           vm->push(v1);
           if (!vv.empty())
@@ -1359,11 +1365,11 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_AT_BACK:
     {
-      if (vm->popOne(&v1))
+      if (vm->popOne(v1))
       {  
-        if (v1->type == TYPE_LIST)
+        if (v1.type == TYPE_LIST)
         {
-          auto& vv = v1->list()->raw();
+          auto& vv = v1.list()->raw();
           
           vm->push(v1);
           if (!vv.empty())
@@ -1381,11 +1387,11 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_HASH_FRONT:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {  
-        if (v1->type == TYPE_LIST)
+        if (v1.type == TYPE_LIST)
         {
-          auto& vv = v1->list()->raw();
+          auto& vv = v1.list()->raw();
           vv.push_front(v2);
           vm->push(v1);
         }
@@ -1395,11 +1401,11 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_HASH_BACK:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {  
-        if (v1->type == TYPE_LIST)
+        if (v1.type == TYPE_LIST)
         {
-          auto& vv = v1->list()->raw();
+          auto& vv = v1.list()->raw();
           vv.push_back(v2);
           vm->push(v1);
         }
@@ -1409,11 +1415,11 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_ITER:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {  
-        if (v1->type.isCollection() && v2->type == TYPE_LAMBDA)
+        if (v1.type.isCollection() && v2.type == TYPE_LAMBDA)
         {
-          iter(v1->collection(), v2->lambda()->code(), vm);
+          iter(v1.collection(), v2.lambda()->code(), vm);
         }
       }
       break;
@@ -1421,14 +1427,14 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_ITERI:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {  
-        switch (TYPES(v1->type, v2->type))
+        switch (TYPES(v1.type, v2.type))
         {
           case TYPES(TYPE_ARRAY, TYPE_LAMBDA):
           {
-            Array* array = v1->array();
-            Code *code = v2->lambda()->code();
+            Array* array = v1.array();
+            Code *code = v2.lambda()->code();
             
             array->iterate();
             
@@ -1445,8 +1451,8 @@ void OpcodeInstruction::execute(VM *vm) const
           }
           case TYPES(TYPE_MAP, TYPE_LAMBDA):
           {
-            const Map::map_t& map = v1->map()->raw();
-            Code *c = v2->lambda()->code();
+            const Map::map_t& map = v1.map()->raw();
+            Code *c = v2.lambda()->code();
             
             std::unordered_map<Value*, Value*>::iterator it;
             
@@ -1464,14 +1470,14 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_MAP:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {  
-        switch (TYPES(v1->type, v2->type))
+        switch (TYPES(v1.type, v2.type))
         {
           case TYPES(TYPE_LIST, TYPE_LAMBDA):
           {
-            Lambda *lambda = v2->lambda();
-            List *values = (List*)v1;
+            Lambda *lambda = v2.lambda();
+            List *values = v1.list();
             List *nvalues = new List();
 
             map(values,nvalues,lambda->code(),vm);
@@ -1481,8 +1487,8 @@ void OpcodeInstruction::execute(VM *vm) const
           }
           case TYPES(TYPE_ARRAY, TYPE_LAMBDA):
           {
-            Lambda *lambda = v2->lambda();
-            Array* values = (Array*)v1;
+            Lambda *lambda = v2.lambda();
+            Array* values = v1.array();
             Array* nvalues = new Array();
             
             map(values,nvalues,lambda->code(),vm);
@@ -1492,8 +1498,8 @@ void OpcodeInstruction::execute(VM *vm) const
           }
           case TYPES(TYPE_RANGE, TYPE_LAMBDA):
           {
-            Lambda *lambda = v2->lambda();
-            Range* values = (Range*)v1;
+            Lambda *lambda = v2.lambda();
+            Range* values = v1.range();
             Array* nvalues = new Array();
             
             map(values,nvalues,lambda->code(),vm);
@@ -1503,8 +1509,8 @@ void OpcodeInstruction::execute(VM *vm) const
           }
           case TYPES(TYPE_SET, TYPE_LAMBDA):
           {
-            Lambda *lambda = v2->lambda();
-            Set* values = (Set*)v1;
+            Lambda *lambda = v2.lambda();
+            Set* values = v1.set();
             Set* nvalues = new Set();
             
             map(values,nvalues,lambda->code(),vm);
@@ -1514,8 +1520,8 @@ void OpcodeInstruction::execute(VM *vm) const
           }
           case TYPES(TYPE_STRING, TYPE_LAMBDA):
           {
-            Lambda *lambda = v2->lambda();
-            String* values = v1->string();
+            Lambda *lambda = v2.lambda();
+            String* values = v1.string();
             String* nvalues = new String();
             
             map(values,nvalues,lambda->code(),vm);
@@ -1531,25 +1537,15 @@ void OpcodeInstruction::execute(VM *vm) const
 
     case OP_FOLD:
     {
-      if (vm->popThree(&v1, &v2, &v3))
+      if (vm->popThree(v1, v2, v3))
       {
-        switch (TYPES(v1->type, v2->type))
+        switch (TYPES(v1.type, v2.type))
         {
           case TYPES(TYPE_LIST, TYPE_LAMBDA):
-          {
-            fold((List*)v1, &v3, v2->lambda()->code(), vm);
-            vm->push(v3);
-            break;
-          }
           case TYPES(TYPE_ARRAY, TYPE_LAMBDA):
-          {
-            fold((Array*)v1, &v3, v2->lambda()->code(), vm);
-            vm->push(v3);
-            break;
-          }
           case TYPES(TYPE_SET, TYPE_LAMBDA):
           {
-            fold((Set*)v1, &v3, v2->lambda()->code(), vm);
+            fold(v1.collection(), v3, v2.lambda()->code(), vm);
             vm->push(v3);
             break;
           }
@@ -1560,37 +1556,37 @@ void OpcodeInstruction::execute(VM *vm) const
             
     case OP_DMAP:
     {
-      if (vm->popThree(&v1, &v2, &v3))
+      if (vm->popThree(v1, v2, v3))
       {
-        if (v3->type == TYPE_LAMBDA)
+        if (v3.type == TYPE_LAMBDA)
         {
-          switch (TYPES(v1->type, v2->type))
+          switch (TYPES(v1.type, v2.type))
           {
             case TYPES(TYPE_LIST, TYPE_LIST):
             {
               List *list = new List();
-              doublemap((List*)v1, (List*)v2, list, v3->lambda()->code(), vm);
+              doublemap(v1.list(), v2.list(), list, v3.lambda()->code(), vm);
               vm->push(list);
               break;
             }
             case TYPES(TYPE_LIST, TYPE_ARRAY):
             {
               List *list = new List();
-              doublemap((List*)v1, (Array*)v2, list, v3->lambda()->code(), vm);
+              doublemap(v1.list(), v2.array(), list, v3.lambda()->code(), vm);
               vm->push(list);
               break;
             }
             case TYPES(TYPE_ARRAY, TYPE_LIST):
             {
               Array *list = new Array();
-              doublemap((Array*)v1, (List*)v2, list, v3->lambda()->code(), vm);
+              doublemap(v1.array(), v2.list(), list, v3.lambda()->code(), vm);
               vm->push(list);
               break;
             }
             case TYPES(TYPE_ARRAY, TYPE_ARRAY):
             {
               Array *list = new Array();
-              doublemap((Array*)v1, (Array*)v2, list, v3->lambda()->code(), vm);
+              doublemap(v1.array(), v2.array(), list, v3.lambda()->code(), vm);
               vm->push(list);
               break;
             }
@@ -1603,23 +1599,23 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_CARTESIAN:
     {
-      if (vm->popThree(&v1, &v2, &v3))
+      if (vm->popThree(v1, v2, v3))
       {
-        if (v3->type == TYPE_LAMBDA)
+        if (v3.type == TYPE_LAMBDA)
         {
-          switch (TYPES(v1->type, v2->type))
+          switch (TYPES(v1.type, v2.type))
           {
             case TYPES(TYPE_ARRAY, TYPE_ARRAY):
             {
               Array *list = new Array();
-              cartesian((Array*)v1, (Array*)v2, list, v3->lambda()->code(), vm);
+              cartesian(v1.array(), v2.array(), list, v3.lambda()->code(), vm);
               vm->push(list);
               break;
             }
             case TYPES(TYPE_RANGE, TYPE_RANGE):
             {
               Array *list = new Array();
-              cartesian((Range*)v1, (Range*)v2, list, v3->lambda()->code(), vm);
+              cartesian(v1.range(), v2.range(), list, v3.lambda()->code(), vm);
               vm->push(list);
               break;
             }
@@ -1632,42 +1628,28 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_ANY:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {
-        switch (TYPES(v1->type, v2->type))
+        switch (TYPES(v1.type, v2.type))
         {
           case TYPES(TYPE_INT, TYPE_INT):
           case TYPES(TYPE_FLOAT, TYPE_FLOAT):
           case TYPES(TYPE_INT, TYPE_FLOAT):
           case TYPES(TYPE_FLOAT, TYPE_INT):
           {
-            double x = v1->type == TYPE_INT ? v1->integral() : v1->real();
-            double y = v2->type == TYPE_INT ? v2->integral() : v2->real();            
+            double x = v1.type == TYPE_INT ? v1.integral() : v1.real();
+            double y = v2.type == TYPE_INT ? v2.integral() : v2.real();            
             vm->push(x < y ? v1 : v2);
             break;
           }
           case TYPES(TYPE_LIST, TYPE_LAMBDA):
-          {
-            Value *v = new Bool(false);
-            //TODO: leaks and below
-            Code *nc = v2->lambda()->code()->append(new OpcodeInstruction(OP_OR));
-            fold((List*)v1, &v, nc, vm);
-            vm->push(v);
-            break;
-          }
           case TYPES(TYPE_ARRAY, TYPE_LAMBDA):
-          {
-            Value *v = new Bool(false);
-            Code *nc = v2->lambda()->code()->append(new OpcodeInstruction(OP_OR));
-            fold((Array*)v1, &v, nc, vm);
-            vm->push(v);
-            break;
-          }
           case TYPES(TYPE_SET, TYPE_LAMBDA):
           {
-            Value *v = new Bool(false);
-            Code *nc = v2->lambda()->code()->append(new OpcodeInstruction(OP_OR));
-            fold((Set*)v1, &v, nc, vm);
+            Value v = false;
+            //TODO: leaks and below
+            Code *nc = v2.lambda()->code()->append(new OpcodeInstruction(OP_OR));
+            fold(v1.collection(), v, nc, vm);
             vm->push(v);
             break;
           }
@@ -1678,41 +1660,27 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_EVERY:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {
-        switch (TYPES(v1->type, v2->type))
+        switch (TYPES(v1.type, v2.type))
         {
           case TYPES(TYPE_INT, TYPE_INT):
           case TYPES(TYPE_FLOAT, TYPE_FLOAT):
           case TYPES(TYPE_INT, TYPE_FLOAT):
           case TYPES(TYPE_FLOAT, TYPE_INT):
           {
-            double x = v1->type == TYPE_INT ? v1->integral() : v1->real();
-            double y = v2->type == TYPE_INT ? v2->integral() : v2->real();            
+            double x = v1.type == TYPE_INT ? v1.integral() : v1.real();
+            double y = v2.type == TYPE_INT ? v2.integral() : v2.real();            
             vm->push(x > y ? v1 : v2);
             break;
           }
           case TYPES(TYPE_LIST, TYPE_LAMBDA):
-          {
-            Value *v = new Bool(true);
-            Code *nc = v2->lambda()->code()->append(new OpcodeInstruction(OP_AND));
-            fold((List*)v1, &v, nc, vm);
-            vm->push(v);
-            break;
-          }
           case TYPES(TYPE_ARRAY, TYPE_LAMBDA):
-          {
-            Value *v = new Bool(true);
-            Code *nc = v2->lambda()->code()->append(new OpcodeInstruction(OP_AND));
-            fold((Array*)v1, &v, nc, vm);
-            vm->push(v);
-            break;
-          }
           case TYPES(TYPE_SET, TYPE_LAMBDA):
           {
-            Value *v = new Bool(true);
-            Code *nc = v2->lambda()->code()->append(new OpcodeInstruction(OP_AND));
-            fold((Set*)v1, &v, nc, vm);
+            Value v = true;
+            Code *nc = v2.lambda()->code()->append(new OpcodeInstruction(OP_AND));
+            fold(v1.collection(), v, nc, vm);
             vm->push(v);
             break;
           }
@@ -1730,27 +1698,22 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_PLUS_MON:
     {
-      if (vm->popOne(&v1))
+      if (vm->popOne(v1))
       {
-        switch (v1->type)
+        switch (v1.type)
         {
           case TYPE_LIST:
-          {
-            Value *o = NULL;
-            sfold((List*)v1, &o, new CodeStandard(new OpcodeInstruction(OP_PLUS)), vm);
-            if (o)
-              vm->push(o);
-            break;
-          }
           case TYPE_ARRAY:
           {
-            Value *o = NULL;
-            sfold((Array*)v1, &o, new CodeStandard(new OpcodeInstruction(OP_PLUS)), vm);
-            if (o)
+            Value o;
+            sfold(v1.collection(), o, new CodeStandard(new OpcodeInstruction(OP_PLUS)), vm);
+            if (o.valid())
               vm->push(o);
             break;
           }
-          default: break;
+
+          default:
+            break;
         }
       }
       
@@ -1766,26 +1729,20 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_MINUS_MON:
     {
-      if (vm->popOne(&v1))
+      if (vm->popOne(v1))
       {
-        switch (v1->type)
+        switch (v1.type)
         {
           case TYPE_LIST:
-          {
-            Value *o = NULL;
-            sfold((List*)v1, &o, new CodeStandard(new OpcodeInstruction(OP_MINUS)), vm);
-            if (o)
-              vm->push(o);
-            break;
-          }
           case TYPE_ARRAY:
           {
-            Value *o = NULL;
-            sfold((Array*)v1, &o, new CodeStandard(new OpcodeInstruction(OP_MINUS)), vm);
-            if (o)
+            Value o;
+            sfold(v1.collection(), o, new CodeStandard(new OpcodeInstruction(OP_MINUS)), vm);
+            if (o.valid())
               vm->push(o);
             break;
           }
+
           default: break;
         }
       }
@@ -1802,23 +1759,16 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_TIMES_MON:
     {
-      if (vm->popOne(&v1))
+      if (vm->popOne(v1))
       {
-        switch (v1->type)
+        switch (v1.type)
         {
           case TYPE_LIST:
-          {
-            Value *o = NULL;
-            sfold((List*)v1, &o, new CodeStandard(new OpcodeInstruction(OP_TIMES)), vm);
-            if (o)
-              vm->push(o);
-            break;
-          }
           case TYPE_ARRAY:
           {
-            Value *o = NULL;
-            sfold((Array*)v1, &o, new CodeStandard(new OpcodeInstruction(OP_TIMES)), vm);
-            if (o)
+            Value o;
+            sfold(v1.collection(), o, new CodeStandard(new OpcodeInstruction(OP_TIMES)), vm);
+            if (o.valid())
               vm->push(o);
             break;
           }
@@ -1838,23 +1788,16 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_DIVIDE_MON:
     {
-      if (vm->popOne(&v1))
+      if (vm->popOne(v1))
       {
-        switch (v1->type)
+        switch (v1.type)
         {
           case TYPE_LIST:
-          {
-            Value *o = NULL;
-            sfold((List*)v1, &o, new CodeStandard(new OpcodeInstruction(OP_DIVIDE)), vm);
-            if (o)
-              vm->push(o);
-            break;
-          }
           case TYPE_ARRAY:
           {
-            Value *o = NULL;
-            sfold((Array*)v1, &o, new CodeStandard(new OpcodeInstruction(OP_DIVIDE)), vm);
-            if (o)
+            Value o;
+            sfold(v1.collection(), o, new CodeStandard(new OpcodeInstruction(OP_DIVIDE)), vm);
+            if (o.valid())
               vm->push(o);
             break;
           }
@@ -1874,23 +1817,23 @@ void OpcodeInstruction::execute(VM *vm) const
     {
       if (vm->lazy)
       {
-        if (vm->popOne(&v1) && v1->type == TYPE_INT)
+        if (vm->popOne(v1) && v1.type == TYPE_INT)
         {
-          vm->push(vm->lazy->at(vm, vm->lazy->index-v1->integral()));
+          vm->push(vm->lazy->at(vm, vm->lazy->index-v1.integral()));
         }
       }
-      else if (vm->popTwo(&v1, &v2))
+      else if (vm->popTwo(v1, v2))
       {
-        switch (TYPES(v1->type, v2->type))
+        switch (TYPES(v1.type, v2.type))
         {
           case TYPES(TYPE_LAMBDA, TYPE_LAMBDA):
           {
-            Code *condition = v1->lambda()->code();
-            Code *body = v2->lambda()->code();
+            Code *condition = v1.lambda()->code();
+            Code *body = v2.lambda()->code();
             
             vm->execute(condition);
             
-            while (vm->popOne(&v3) && v3->type == TYPE_BOOL && v3->boolean())
+            while (vm->popOne(v3) && v3.type == TYPE_BOOL && v3.boolean())
             {
               vm->execute(body);
               vm->execute(condition);
@@ -1899,8 +1842,8 @@ void OpcodeInstruction::execute(VM *vm) const
           }
           case TYPES(TYPE_INT, TYPE_LAMBDA):
           {
-            Code *c = v2->lambda()->code();
-            int j = v1->integral();
+            Code *c = v2.lambda()->code();
+            int j = v1.integral();
             
             for (int i = 0; i < j; ++i)
             {
@@ -1910,8 +1853,8 @@ void OpcodeInstruction::execute(VM *vm) const
           }
           case TYPES(TYPE_LIST, TYPE_LAMBDA):
           {
-            const auto& values = v1->list()->raw();
-            Code *c = v2->lambda()->code();
+            const auto& values = v1.list()->raw();
+            Code *c = v2.lambda()->code();
             std::list<Value*>::iterator it;
             
             List::utype_t ot, of;
@@ -1921,7 +1864,7 @@ void OpcodeInstruction::execute(VM *vm) const
               vm->push(v);
               vm->execute(c);
               
-              if (vm->popOne(&v3) && v3->type.traits().to_bool(v3))
+              if (vm->popOne(v3) && v3.type.traits().to_bool(v3))
                 ot.push_back(v);
               else
                 of.push_back(v);
@@ -1934,8 +1877,8 @@ void OpcodeInstruction::execute(VM *vm) const
           }
           case TYPES(TYPE_ARRAY, TYPE_LAMBDA):
           {
-            const auto& values = v1->array()->raw();
-            Code *c = v2->lambda()->code();
+            const auto& values = v1.array()->raw();
+            Code *c = v2.lambda()->code();
             std::list<Value*>::iterator it;
             
             Array::utype_t ot, of;
@@ -1945,7 +1888,7 @@ void OpcodeInstruction::execute(VM *vm) const
               vm->push(v);
               vm->execute(c);
               
-              if (vm->popOne(&v3) && v3->type.traits().to_bool(v3))
+              if (vm->popOne(v3) && v3.type.traits().to_bool(v3))
                 ot.push_back(v);
               else
                 of.push_back(v);
@@ -1959,18 +1902,18 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPES(TYPE_LAZY_ARRAY, TYPE_LAMBDA):
           {
             u32 s = 0;
-            LazyArray *lazy = (LazyArray*)v1;
-            Lambda *lambda = v2->lambda();
+            LazyArray *lazy = v1.lazyArray();
+            Lambda *lambda = v2.lambda();
             bool finished = false;
             
             do {
-              Value *v = lazy->get().at(vm, s);
+              const Value& v = lazy->raw().at(vm, s);
               vm->push(v);
               vm->execute(lambda->code());
               
-              if (vm->popOne(&v3))
+              if (vm->popOne(v3))
               {
-                if (v3->type != TYPE_BOOL || !v3->boolean())
+                if (v3.type.traits().to_bool(v3))
                   finished = true;
               }
               
@@ -1978,18 +1921,18 @@ void OpcodeInstruction::execute(VM *vm) const
               
             } while (!finished);
             
-            lazy->get().shrinkBy(1);
+            lazy->raw().shrinkBy(1);
             vm->push(v1);
             
             break;
           }
           case TYPES(TYPE_LAZY_ARRAY, TYPE_INT):
           {
-            LazyArray *lazy = (LazyArray*)v1;
-            integral_t i = v2->integral();
+            LazyArray *lazy = v1.lazyArray();
+            integral_t i = v2.integral();
             
-            for (int j = lazy->size(); j < i; ++j)
-              lazy->get().at(vm, j);
+            for (integral_t j = lazy->raw().size(); j < i; ++j)
+              lazy->raw().at(vm, j);
 
             vm->push(v1);
             
@@ -2002,9 +1945,9 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_DBANG:
     {
-      if (vm->popTwo(&v1, &v2))
+      if (vm->popTwo(v1, v2))
       {
-        if (v1->type == TYPE_LAMBDA)
+        if (v1.type == TYPE_LAMBDA)
         {
           //vm->push(new Lambda(new CurriedCode(((Lambda*)v1)->get(), v2)));
           break;
@@ -2018,13 +1961,13 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_RAISE_STACKV:
     { 
-      if (vm->popOne(&v1) && v1->type == TYPE_INT)
+      if (vm->popOne(v1) && v1.type == TYPE_INT)
       {
-        integral_t t = v1->integral();
+        integral_t t = v1.integral();
         
         if (vm->stackHasValues(t))
         {
-          std::list<Value*> tmpStack;
+          std::list<Value> tmpStack;
           
           for (int i = 0; i < t; ++i)
             tmpStack.push_back(vm->pop());
@@ -2043,13 +1986,13 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_LOWER_STACKV:
     { 
-      if (vm->popOne(&v1) && v1->type == TYPE_INT)
+      if (vm->popOne(v1) && v1.type == TYPE_INT)
       {
-        integral_t t = v1->integral();
+        integral_t t = v1.integral();
         
         if (vm->stackHasValues(t))
         {
-          std::list<Value*> tmpStack;
+          std::list<Value> tmpStack;
           
           for (int i = 0; i < t; ++i)
             tmpStack.push_back(vm->pop());
@@ -2068,9 +2011,9 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_STRING_CAST:
     {
-      if (vm->popOne(&v1))
+      if (vm->popOne(v1))
       {
-        vm->push(new Value(new String(v1->svalue())));
+        vm->push(new Value(new String(v1.svalue())));
       }
     }
 

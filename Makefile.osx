@@ -34,10 +34,10 @@ all opt: $(TARGET)
 $(BUILD_DIR) :
 	mkdir -p $@
 
-parser/lexer.cpp: parser/impossible.l
+parser/lexer.cpp: parser/impossible.l parser/parser.cpp
 	/usr/local/opt/flex/bin/flex -c++ --outfile=parser/lexer.cpp $<
 
-parser/parser.cpp: parser/impossible.ypp parser/lexer.cpp
+parser/parser.cpp: parser/impossible.ypp parser/parser.cpp
 	/usr/local/opt/bison/bin/bison -d -v --output-file=parser/parser.cpp $<
 
 $(TARGET) : $(OBJS)
@@ -49,7 +49,7 @@ $(BUILD_DIR)/parser-compiler.o: parser/compiler.cpp parser/parser.cpp
 $(BUILD_DIR)/parser-%.o: parser/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 	
-$(BUILD_DIR)/%.o: $(subst -,/,%.cpp) $(BUILD_DIR)
+$(BUILD_DIR)/%.o: $(subst -,/,%.cpp) $(BUILD_DIR) parser/parser.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:

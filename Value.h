@@ -33,6 +33,8 @@ class Stack;
 class Queue;
 class Set;
 class Map;
+class Range;
+class LazyArray;
 
 union value_data
 {
@@ -78,6 +80,10 @@ public:
   Value(Map* map);
   Value(Set* set);
   Value(Lambda* lambda);
+  Value(Range* range);
+  Value(LazyArray* lazyArray);
+  
+  bool valid() const { return type != TYPE_INVALID; }
   
   Value& operator=(const Value& other) { this->data = other.data; this->type = other.type; return *this; }
   
@@ -86,14 +92,13 @@ public:
   virtual std::string svalue() const { return type.traits().to_string(*this); }
   std::string lvalue();
 
-  virtual bool equals(const Value *value) const { return this->operator==(*value); }
+  bool equals(const Value& value) const { return this->operator==(value); }
   virtual Value* clone() const { return new Value(*this); }
 
   virtual ~Value() { };
 
-  template<typename T> auto as() const -> typename std::enable_if<std::is_integral<T>::value, T>::type { return static_cast<T>(data.i); }
   template<typename T> auto as() -> typename std::enable_if<std::is_pointer<T>::value, T>::type { return reinterpret_cast<T>(this); }
-  
+
   integral_t integral() const { return data.i; }
   real_t real() const { return data.f; }
   char character() const { return data.c; }
@@ -110,6 +115,8 @@ public:
   Set* set() const;
   Map* map() const;
   Array* array() const;
+  Range* range() const;
+  LazyArray* lazyArray() const;
   
   Lambda* lambda() const;
 };
@@ -120,10 +127,10 @@ public:
   virtual void iterate() const = 0;
   virtual bool hasNext() const = 0;
 
-  virtual Value *next() const = 0;
+  virtual const Value& next() const = 0;
 
-  virtual void put(Value *value) = 0;
-  virtual u32 size() const = 0;
+  virtual void put(Value value) = 0;
+  virtual integral_t size() const = 0;
   virtual bool empty() const = 0;
   
   //TODO: must override for map
@@ -133,7 +140,7 @@ public:
     
     while (hasNext())
     {
-      if (*next() == value)
+      if (next() == value)
         return true;
     }
     

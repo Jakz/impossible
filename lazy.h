@@ -18,30 +18,36 @@ class VM;
 
 class LazyArrayHolder
 {
+public:
+  using data_t = std::vector<Value>;
+  
 private:
-  std::vector<Value*>* values;
+  mutable data_t values;
   Lambda *lambda;
   
-  std::unordered_map<u32, Lambda*> indices;
+  std::unordered_map<integral_t, Lambda*> indices;
   const bool useIndices;
   
 public:
-  LazyArrayHolder(Lambda* lambda, bool useIndices) : values(new std::vector<Value*>()), lambda(lambda), useIndices(useIndices) { }
-  //LazyArray(Lambda *lambda, u32 index) : values(new vector<Value*>()), lambda(lambda) { generateUpTo(index); }
+  LazyArrayHolder(Lambda* lambda, bool useIndices) : lambda(lambda), useIndices(useIndices) { }
   
-  void shrinkBy(u32 i) { values->resize(values->size()-1); }
+  void shrinkBy(integral_t i) { values.resize(values.size()-1); }
   
   
-  void addMap(u32 i, Lambda* l) { indices[i] = l; }
+  void addMap(integral_t i, Lambda* l) { indices[i] = l; }
   
-  void generateUpTo(VM* vm, u32 index);
-  void generateNth(VM* vm, u32 index);
+  void generateUpTo(VM* vm, integral_t index);
+  void generateNth(VM* vm, integral_t index) const;
   //TODO: must become reference
-  Value *at(VM* vm, u32 index);
-  u32 index;
+  const Value& at(VM* vm, integral_t index) const;
+  mutable integral_t index;
   
   Lambda *code() const { return lambda; }
-  std::vector<Value*>* data() const { return values; }
+  const data_t& data() const { return values; }
+  size_t size() const { return values.size(); }
+  
+  data_t::const_iterator begin() const { return values.begin(); }
+  data_t::const_iterator end() const { return values.end(); }
 };
 
 

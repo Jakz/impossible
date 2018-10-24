@@ -50,18 +50,18 @@ bool collectionEquals(const Value& v1, const Value& v2)
     if (!c2->hasNext())
       return false;
   
-    if (!c1->next()->equals(c2->next()))
+    if (!c1->next().equals(c2->next()))
       return false;
   }
   
   return !c2->hasNext();
 }
 
-static const CollectionPrinter<Value*> ListPrinter = { "{", "}", " ", [] (const Value* v) { return v->svalue(); } };
-static const CollectionPrinter<Value*> StackPrinter = { "{>", "}", " ", [] (const Value* v) { return v->svalue(); } };
-static const CollectionPrinter<Value*> QueuePrinter = { "{<", "}", " ", [] (const Value* v) { return v->svalue(); } };
-static const CollectionPrinter<Value*> ArrayPrinter = { "(", ")", " ", [] (const Value* v) { return v->svalue(); } };
-static const CollectionPrinter<Value*> SetPrinter = { "{.", "}", " ", [] (const Value* v) { return v->svalue(); } };
+static const CollectionPrinter<Value> ListPrinter = { "{", "}", " ", [] (const Value& v) { return v.svalue(); } };
+static const CollectionPrinter<Value> StackPrinter = { "{>", "}", " ", [] (const Value& v) { return v.svalue(); } };
+static const CollectionPrinter<Value> QueuePrinter = { "{<", "}", " ", [] (const Value& v) { return v.svalue(); } };
+static const CollectionPrinter<Value> ArrayPrinter = { "(", ")", " ", [] (const Value& v) { return v.svalue(); } };
+static const CollectionPrinter<Value> SetPrinter = { "{.", "}", " ", [] (const Value& v) { return v.svalue(); } };
 
 const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::specs =
 {
@@ -105,7 +105,28 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     }
   },
 
-  { TYPE_RANGE, { TYPE_RANGE, false, true, "range" } },
+  { TYPE_RANGE,
+    { TYPE_RANGE, false, true, "range",
+      [] (const Value& v) {
+        std::vector<RangePair>::const_iterator it;
+        
+        std::stringstream ss(std::stringstream::out);
+        
+        bool first = true;
+        for (const auto& r : v.range()->raw())
+        {
+          if (first)
+            first = false;
+          else
+            ss << " ";
+          
+          ss << r.a << ".." << r.b;
+        }
+        
+        return ss.str();
+      }
+    }
+  },
   
   { TYPE_LIST,
     { TYPE_LIST, false, true, "list",

@@ -15,7 +15,14 @@ class String : public TCollection
 {
 private:
   std::string value;
-  mutable std::string::const_iterator it;
+  
+  struct iterator
+  {
+    std::string::const_iterator it;
+    Value value;
+  };
+  
+  mutable iterator it;
   
 public:
   String() { }
@@ -23,76 +30,92 @@ public:
   
   const std::string& data() const { return value; }
   
-  virtual void iterate() const { it = value.begin(); }
-  virtual bool hasNext() const { return it != value.end(); }
+  virtual void iterate() const { it.it = value.begin(); }
+  virtual bool hasNext() const { return it.it != value.end(); }
   
-  virtual Value* next() const;
+  virtual const Value& next() const override;
   
-  virtual void put(Value *value)
+  virtual void put(Value value) override
   {
-    this->value.append(value->svalue());
+    this->value.append(value.svalue());
   }
   
-  virtual u32 size() const { return (u32)value.length(); }
+  virtual integral_t size() const { return value.length(); }
   virtual bool empty() const { return this->value.empty(); }
 };
 
-class Range : public TValue<RangeVector>, public TCollection
+class Range : public TCollection
 {
+public:
+  struct iterator
+  {
+    const Range* range;
+    integral_t pair;
+    integral_t index;
+    
+    Value value;
+    
+    bool hasNext() const
+    {
+      return pair >= 0 && (index < range->raw()[pair].b || pair < range->raw().size() -1);
+    }
+  };
+  
 private:
-  mutable int currentPair;
-  mutable int currentIndex;
+  RangeVector data;
+  
+  mutable iterator it;
   
 public:
-  Range(RangeVector value) : TValue<RangeVector>(TYPE_RANGE, value) { }
+  Range(const RangeVector& data) : data(data) { }
   
-  virtual std::string svalue() const override;
-  
-  // TODO
-  virtual bool equals(const Value *value) const override { return false; }
-  virtual Value* clone() const override { return new Range(RangeVector(value.data)); }
-  
-  virtual u32 size() const override { return value.size(); }
-  virtual bool empty() const override { return this->value.data->empty(); }
+  virtual integral_t size() const override { return data.size(); }
+  virtual bool empty() const override { return data.empty(); }
   
   virtual void iterate() const override
   {
-    currentPair = 0;
-    if (value.data->size() > 0)
-      currentIndex = value.data->at(0).a;
+    it = { 0, 0 };
+
+    if (!empty() > 0)
+    {
+      it = { this, 0, data[0].a };
+    }
     else
     {
-      currentIndex = 0;
-      currentPair = -1;
+      it = { this, 0, -1 };
     }
   }
   
   virtual bool hasNext() const override
   {
-    return currentPair >= 0 && (currentIndex < value.data->at(currentPair).b || currentPair < value.data->size() -1);
+    return it.hasNext();
   }
 
-  virtual Value* next() const override
+  virtual const Value& next() const override
   {
-    if (currentIndex <= value.data->at(currentPair).b)
-      return new Int(currentIndex++);
-    else if (currentPair < value.data->size() - 1)
+    if (it.index <= data[it.pair].b)
+      it.value = it.index++;
+    else if (it.pair < data.size() - 1)
     {
-      ++currentPair;
-      currentIndex = value.data->at(currentPair).a;
-      return new Int(currentIndex++);
+      ++it.pair;
+      it.index = data[it.pair].a;
+      it.value = it.index++;
     }
+    else
+      it.value = TYPE_INVALID;
     
-    return NULL;
+    return it.value;
   }
   
-  virtual void put(Value *value) override
+  virtual void put(Value value) override
   {
-    if (value->type == TYPE_INT)
-      this->value.merge(value->as<int>());
-    else if (value->type == TYPE_RANGE)
-      this->value.rangeUnion(((Range*)value)->get());
+    if (value.type == TYPE_INT)
+      data.merge(value.integral());
+    else if (value.type == TYPE_RANGE)
+      data.rangeUnion(value.range()->raw());
   }
+  
+  const RangeVector& raw() const { return data; }
 };
 
 
@@ -215,23 +238,22 @@ public:
   
   virtual void iterate() const override { it = data.begin(); }
   virtual bool hasNext() const override { return it !=  data.end(); }
-  virtual Value *next() const override
+  virtual const Value& next() const override
   {
     if (it == data.end())
-      return nullptr;
+      return Value(TYPE_INVALID);
     else
     {
-      Value *v = new Value(*it++);
-      return v;
+      return *it++;
     }
   }
   
-  virtual void put(Value *value) override
+  virtual void put(Value value) override
   {
     data.push_back(value);
   }
   
-  virtual u32 size() const override { return (u32)data.size(); }
+  virtual integral_t size() const override { return data.size(); }
   virtual bool empty() const override { return data.empty(); }
   
   const list_t& raw() const { return data; }
@@ -276,24 +298,23 @@ public:
   
   virtual void iterate() const override { it = data.begin(); }
   virtual bool hasNext() const override { return it != data.end(); }
-  virtual Value *next() const override
+  virtual const Value& next() const override
   {
     if (it == data.end())
-      return NULL;
+      return Value(TYPE_INVALID);
     else
     {
-      Value *v = new Value(*it++);
-      return v;
+      return *it++;
     }
   }
   
   
-  virtual void put(Value *value) override
+  virtual void put(Value value) override
   {
-    this->data.push_back(*value);
+    this->data.push_back(value);
   }
   
-  virtual u32 size() const override { return (u32)data.size(); }
+  virtual integral_t size() const override { return data.size(); }
   virtual bool empty() const override { return this->data.empty(); }
 
   array_t& raw() { return data; }
@@ -303,55 +324,45 @@ public:
   array_t::iterator end() { return data.end(); }
 };
 
-class LazyArray : public TValue<LazyArrayHolder>, public TCollection
+class LazyArray : public TCollection
 {
+public:
+  using data_t = LazyArrayHolder;
+  
 private:
-  mutable std::vector<Value*>::iterator it;
+  LazyArrayHolder data;
+  
+  mutable std::vector<Value>::const_iterator it;
   
 public:
-  LazyArray(LazyArrayHolder holder) : TValue<LazyArrayHolder>(TYPE_LAZY_ARRAY, holder) { }
-  LazyArray(Lambda *lambda, bool useIndices) : TValue<LazyArrayHolder>(TYPE_LAZY_ARRAY, LazyArrayHolder(lambda, useIndices)) { }
+  LazyArray(const LazyArrayHolder& data) : data(data) { }
+  LazyArray(Lambda *lambda, bool useIndices) : data(lambda, useIndices) { }
   
   virtual std::string svalue() const;
-  //TODO: finire
-  virtual bool equals(const Value *value) const { return false; }
-  virtual Value* clone() const { return new LazyArray(value); }
-  
-  virtual void iterate() const { it = value.data()->begin(); }
-  virtual bool hasNext() const { return it != value.data()->end(); }
-  virtual Value *next() const
+
+  virtual void iterate() const override { it = data.data().begin(); }
+  virtual bool hasNext() const override { return it != data.data().end(); }
+  virtual const Value& next() const override
   {
-    if (it == value.data()->end())
-      return NULL;
+    if (it == data.data().end())
+      return Value(TYPE_INVALID);
     else
-    {
-      Value *v = *it++;
-      return v;
-    }
+      return *it++;
   }
   
-  
-  virtual void put(Value *value)
+  virtual void put(Value value) override
   {
     // OVERRIDDEN: it's forbidden to write values to a lazy array
   }
   
-  virtual u32 size() const { return (u32)value.data()->size(); }
-  virtual bool empty() const { return this->value.data()->empty(); }
+  //TODO: size not correct I gues
+  virtual integral_t size() const override { return data.data().size(); }
+  virtual bool empty() const override { return data.data().empty(); }
+  
+  const LazyArrayHolder& raw() const { return data; }
+  LazyArrayHolder& raw() { return data; }
+
 };
-
-
-
-/*template <>
- struct greater<Value*>
- {
- bool operator() (const Value* x, const Value* y)
- {
- return !less<Value*>()(x,y);
- }
- };*/
-
-
 
 class Set : public TCollection
 {
@@ -369,23 +380,22 @@ public:
   
   virtual void iterate() const override { it = data.begin(); }
   virtual bool hasNext() const override { return it != data.end(); }
-  virtual Value* next() const override
+  virtual const Value& next() const override
   {
     if (it == data.end())
-      return NULL;
+      return Value(TYPE_INVALID);
     else
     {
-      Value *v = new Value(*it++); // TODO: broken
-      return v;
+      return *it++;
     }
   }
   
-  virtual void put(Value *value) override
+  virtual void put(Value value) override
   {
     this->data.insert(value);
   }
   
-  virtual u32 size() const override { return (u32)data.size(); }
+  virtual integral_t size() const override { return data.size(); }
   virtual bool empty() const override { return this->data.empty(); }
   
   const set_t& raw() const { return data; } //TODO: rotto
@@ -407,24 +417,24 @@ public:
   
   virtual void iterate() const override { it = data.begin(); }
   virtual bool hasNext() const override { return it != data.end(); }
-  virtual Value *next() const override
+  virtual const Value& next() const override
   {
     if (it == data.end())
-      return NULL;
+      return Value(TYPE_INVALID);
     else
     {
-      Value *v = new Value(it->second); //TODO: broken
+      const Value& v = it->second; //TODO: broken
       ++it;
       return v;
     }
   }
   
-  virtual void put(Value *value) override
+  virtual void put(Value value) override
   {
     //this->value->push_back(value);
   }
   
-  virtual u32 size() const override { return (u32)data.size(); }
+  virtual integral_t size() const override { return data.size(); }
   virtual bool empty() const override { return this->data.empty(); }
   
   map_t& raw() { return data; }

@@ -157,7 +157,7 @@ class Unary : public Operation
   
     void execute(VM *vm) {
       Value *v1;
-      vm->popOne(&v1);
+      vm->popOne(v1);
       innerExecute(vm, static_cast<I1*>(v1));
     }
   
@@ -183,7 +183,7 @@ public:
   
   void execute(VM *vm) {
     Value *v1, *v2;
-    vm->popTwo(&v1, &v2);
+    vm->popOne(v1, v2);
     innerExecute(vm, static_cast<I1*>(v1), static_cast<I2*>(v2));
   }
   

@@ -82,7 +82,7 @@
 		04F6E06C217BE93D0037C307 /* help.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = help.h; path = ../../help.h; sourceTree = "<group>"; };
 		04F6E06F217BE93D0037C307 /* instruction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = instruction.cpp; path = ../../instruction.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		04F6E070217BE93D0037C307 /* instruction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = instruction.h; path = ../../instruction.h; sourceTree = "<group>"; };
-		04F6E071217BE93D0037C307 /* lazy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lazy.cpp; path = ../../lazy.cpp; sourceTree = "<group>"; };
+		04F6E071217BE93D0037C307 /* lazy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = lazy.cpp; path = ../../lazy.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		04F6E072217BE93D0037C307 /* lazy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lazy.h; path = ../../lazy.h; sourceTree = "<group>"; };
 		04F6E075217BE93D0037C307 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../main.cpp; sourceTree = "<group>"; };
 		04F6E076217BE93D0037C307 /* range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = range.h; path = ../../range.h; sourceTree = "<group>"; };
@@ -95,7 +95,7 @@
 		04F6E080217BE93D0037C307 /* vm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = vm.cpp; path = ../../vm.cpp; sourceTree = "<group>"; };
 		04F6E081217BE93D0037C307 /* vm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vm.h; path = ../../vm.h; sourceTree = "<group>"; };
 		04F6E082217BE93D0037C307 /* VTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VTable.cpp; path = ../../VTable.cpp; sourceTree = "<group>"; };
-		04F6E083217BE93D0037C307 /* VTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VTable.h; path = ../../VTable.h; sourceTree = "<group>"; };
+		04F6E083217BE93D0037C307 /* VTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = VTable.h; path = ../../VTable.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		04F6E092217CCB9C0037C307 /* TypeTraits.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TypeTraits.cpp; path = ../../TypeTraits.cpp; sourceTree = "<group>"; };
 		04F6E093217CCB9C0037C307 /* TypeTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TypeTraits.h; path = ../../TypeTraits.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */

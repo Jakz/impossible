@@ -10,6 +10,7 @@
 
 #include <list>
 #include <vector>
+#include <numeric>
 
 struct RangePair
 {
@@ -20,32 +21,38 @@ struct RangePair
 
 class RangeVector
 {
-  template<typename T> using vector = std::vector<T>;
+public:
+  using data_t = std::vector<RangePair>;
   
 public:
-  vector<RangePair> *data;
+  data_t data;
   
-  RangeVector(vector<RangePair>* data) : data(data) { }
-  
-  RangeVector() : data(new vector<RangePair>()) { }
-  
-  RangeVector(int a, int b) : data(new vector<RangePair>())
+  RangeVector(const data_t& data) : data(data) { }
+  RangeVector() { }
+  RangeVector(int a, int b)
   {
     if (b < a)
       std::swap(a, b);
     
-    data->push_back(RangePair(a,b));
+    data.push_back(RangePair(a,b));
   }
   
+  data_t::iterator begin() { return data.begin(); }
+  data_t::iterator end() { return data.begin(); }
+  data_t::const_iterator begin() const { return data.begin(); }
+  data_t::const_iterator end() const { return data.begin(); }
+  
+  const RangePair& operator[](const size_t index) const { return data[index]; }
+  
   //TODO: data type int?
-  vector<int> concretize()
+  std::vector<integral_t> concretize() const
   {
-    vector<int> v;
+    std::vector<integral_t> v;
     v.reserve(size());
     
-    for (size_t i = 0; i < data->size(); ++i)
+    for (size_t i = 0; i < data.size(); ++i)
     {
-      RangePair rp = data->at(i);
+      RangePair rp = data.at(i);
       for (int j = rp.a; j <= rp.b; ++j)
         v.push_back(j);
     }
@@ -53,64 +60,65 @@ public:
     return v;
   }
   
-  u32 size() const
+  bool empty() const { return data.empty(); }
+  
+  integral_t size() const
   {
-    u32 size = 0;
-    vector<RangePair> *d = data;
-    
-    for (size_t i = 0; i < d->size(); ++i)
-      size += d->at(i).b - d->at(i).a + 1;
-    
-    return size;
+    return std::accumulate(
+      data.begin(),
+      data.end(),
+      0LL,
+      [] (integral_t v, const RangePair& p) { return v + p.b - p.a + 1; }
+    );
   }
   
-  RangeVector *merge(int v)
+  RangeVector merge(int v) const
   {
-    vector<RangePair> *d = data;
-    RangeVector *res = new RangeVector();
+    const data_t& d = data;
+    RangeVector res;
     
-    if (v < d->front().a - 1)
+    if (v < d.front().a - 1)
     {
-      res->data->push_back(RangePair(v,v));
-      res->data->insert(res->data->end(), d->begin(), d->end());
+      res.data.push_back(RangePair(v,v));
+      res.data.insert(res.data.end(), d.begin(), d.end());
     }
-    else if (v == d->front().a - 1)
+    else if (v == d.front().a - 1)
     {
-      res->data->push_back(RangePair(v,d->front().b));
-      res->data->insert(res->data->end(), d->begin()+1, d->end());
+      res.data.push_back(RangePair(v,d.front().b));
+      res.data.insert(res.data.end(), d.begin()+1, d.end());
     }
-    else if (v > d->back().b + 1)
+    else if (v > d.back().b + 1)
     {
-      res->data->insert(res->data->begin(), d->begin(), d->end());
-      res->data->push_back(RangePair(v,v));
+      res.data.insert(res.data.begin(), d.begin(), d.end());
+      res.data.push_back(RangePair(v,v));
     }
-    else if (v == d->back().b + 1)
+    else if (v == d.back().b + 1)
     {
-      res->data->insert(res->data->begin(), d->begin(), d->end()-1);
-      res->data->push_back(RangePair(d->back().a,v));
+      res.data.insert(res.data.begin(), d.begin(), d.end()-1);
+      res.data.push_back(RangePair(d.back().a,v));
     }
     else
     {
       
     }
     
-    return NULL;
+    return res;
   }
   
-  RangeVector rangeUnion(RangeVector r2)
+  RangeVector rangeUnion(const RangeVector& r2) const
   {
-    vector<RangePair>* v1 = data;
-    vector<RangePair>* v2 = r2.data;
+    const data_t& v1 = data;
+    const data_t& v2 = r2.data;
     
     std::list<RangePair> s;
     
-    vector<RangePair>::iterator it1, it2;
+    data_t::const_iterator it1, it2;
     
-    for (it1 = v1->begin(), it2 = v2->begin(); it1 != v1->end() || it2 != v2->end(); )
+    for (it1 = v1.begin(), it2 = v2.begin(); it1 != v1.end() || it2 != v2.end(); )
     {
-      if (it1 != v1->end() && it2 != v2->end())
+      if (it1 != v1.end() && it2 != v2.end())
       {
-        RangePair &rp1 = *it1, &rp2 = *it2;
+        const RangePair &rp1 = *it1, &rp2 = *it2;
         
         if (rp1.a < rp2.a)
         {
@@ -143,19 +151,19 @@ public:
           }
         } 
       }
-      else if (it1 != v1->end())
+      else if (it1 != v1.end())
       {
-        s.insert(s.end(), it1, v1->end());
+        s.insert(s.end(), it1, v1.end());
         break;
       }
-      else if (it2 != v2->end())
+      else if (it2 != v2.end())
       {
-        s.insert(s.end(), it2, v2->end());
+        s.insert(s.end(), it2, v2.end());
         break;
       }
     }
     
-    vector<RangePair>* o = new vector<RangePair>();
+    data_t o;
     RangePair rp = s.front();
     s.pop_front();
     
@@ -172,13 +180,13 @@ public:
           rp.b = cp.b;
         else
         {
-          o->push_back(rp);
+          o.push_back(rp);
           rp = cp;
         }
       }
     }
     
-    o->push_back(rp);
+    o.push_back(rp);
     
     return RangeVector(o);
   }  

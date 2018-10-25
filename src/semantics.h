@@ -74,8 +74,7 @@ struct VariantFunction
   VariantFunction(const decltype(binary)& binary) : args(2), binary(binary) { }
   VariantFunction(const decltype(ternary)& ternary) : args(3), ternary(ternary) { }
   
-  
-  VariantFunction(const VariantFunction& o)
+  VariantFunction& operator=(const VariantFunction& o)
   {
     this->args = o.args;
     
@@ -99,6 +98,14 @@ struct VariantFunction
       default:
         assert(false);
     }
+    
+    return *this;
+
+  }
+  
+  VariantFunction(const VariantFunction& o)
+  {
+    this->operator=(o);
   }
   
   ~VariantFunction()
@@ -155,7 +162,8 @@ public:
 class MicroCode
 {
 private:
-  std::unordered_map<Signature, VariantFunction, Signature::hash> table;
+  /* mutable for optional caching of signatures */
+  mutable std::unordered_map<Signature, VariantFunction, Signature::hash> table;
   
   struct OpcodeData
   {
@@ -168,32 +176,46 @@ private:
   
   std::array<OpcodeData, Opcode::OPCODES_COUNT> opcodeData;
   
-  const VariantFunction* findBestOverload(Signature s) const
+  const VariantFunction* findBestOverload(Signature os) const
   {
     /* search for perfect match first */
-    auto it = table.find(s);
+    auto it = table.find(os);
     if (it != table.end()) return &it->second;
     
     /* then try replacing collection types with generic */
-    s = Signature(
-                  s.opcode,
-                  s.args.t[0].isCollection() ? TypeInfo(TYPE_COLLECTION) : s.args.t[0],
-                  s.args.t[1].isCollection() ? TypeInfo(TYPE_COLLECTION) : s.args.t[1],
-                  s.args.t[2].isCollection() ? TypeInfo(TYPE_COLLECTION) : s.args.t[2]
+    Signature s = Signature(
+                  os.opcode,
+                  os.args.t[0].isCollection() ? TypeInfo(TYPE_COLLECTION) : os.args.t[0],
+                  os.args.t[1].isCollection() ? TypeInfo(TYPE_COLLECTION) : os.args.t[1],
+                  os.args.t[2].isCollection() ? TypeInfo(TYPE_COLLECTION) : os.args.t[2]
                   );
     
     it = table.find(s);
-    if (it != table.end()) return &it->second;
+    if (it != table.end())
+    {
+#if CACHE_SIGNATURES_FOR_GENERIC_OPCODES
+      /* cache function with that signature for faster retrieval next time */
+      table.emplace(std::make_pair(os, it->second));
+#endif
+      return &it->second;
+    }
     
     /* then try with generic types */
     s = Signature(
-                  s.opcode,
-                  s.args.t[0] != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE,
-                  s.args.t[1] != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE,
-                  s.args.t[2] != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE
+                  os.opcode,
+                  os.args.t[0] != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE,
+                  os.args.t[1] != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE,
+                  os.args.t[2] != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE
                   );
     it = table.find(s);
-    if (it != table.end()) return &it->second;
+    if (it != table.end())
+    {
+#if CACHE_SIGNATURES_FOR_GENERIC_OPCODES
+      /* cache function with that signature for faster retrieval next time */
+      table.emplace(std::make_pair(os, it->second));
+#endif
+      return &it->second;
+    }
     
     return nullptr;
   }

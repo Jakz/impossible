@@ -239,15 +239,6 @@ void Instruction::execute(VM *vm) const
 
   switch (_value.opcode())
   {
-    case OP_SWAP:
-    {
-      if (vm->popTwo(v1, v2))
-      {
-        vm->push(v2);
-        vm->push(v1);
-      }
-      break;
-    }
     case OP_DROP:
     {
       if (vm->popOne(v1))

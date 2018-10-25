@@ -7,7 +7,7 @@ using namespace std;
 
 void Compiler::error(const location& l, const std::string& m)
 {
-  cerr << "Compiler error at " /*<< file << ": "*/ << l.begin.line << "," << l.begin.column << " : " << m << endl;
+  cerr << "Compiler error at " /* << file << ": "*/ << l.begin.line << "," << l.begin.column << " : " << m << endl;
 }
 
 void Compiler::error(const std::string& m)

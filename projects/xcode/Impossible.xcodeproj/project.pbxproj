@@ -185,11 +185,11 @@
 		04FE2F332180C1EF00871297 /* types */ = {
 			isa = PBXGroup;
 			children = (
-				04FE2F342180C1EF00871297 /* lazy.cpp */,
 				04FE2F352180C1EF00871297 /* lazy.h */,
+				04FE2F342180C1EF00871297 /* lazy.cpp */,
 				04FE2F362180C1EF00871297 /* range.h */,
-				04CE0A38218225DA0073AE98 /* traits.cpp */,
 				04CE0A39218225DA0073AE98 /* traits.h */,
+				04CE0A38218225DA0073AE98 /* traits.cpp */,
 			);
 			path = types;
 			sourceTree = "<group>";

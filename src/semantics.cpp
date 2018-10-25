@@ -104,7 +104,6 @@ void MicroCode::registerDefault()
     registerNumeric<true, math::greater>(OP_GREATER);
     
     
-    registerUnary({ OP_DUPE, TYPE_GENERIC }, { TYPE_GENERIC, TYPE_GENERIC }, [] (VM* vm, const Value& v1) { vm->push(v1); vm->push(v1); });
       
     
     const auto& v = vocabulary();

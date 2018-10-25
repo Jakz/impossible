@@ -21,13 +21,13 @@ struct Arguments
     && t[2] == o.t[2];
   }
   
-  bool matches(const Arguments& o) const
+  /*bool matches(const Arguments& o) const
   {
     return
     (t[0] == o.t[0] || (t[0] == TYPE_GENERIC && o.t[0] != TYPE_NONE)) &&
     (t[1] == o.t[1] || (t[1] == TYPE_GENERIC && o.t[1] != TYPE_NONE)) &&
     (t[2] == o.t[2] || (t[2] == TYPE_GENERIC && o.t[2] != TYPE_NONE));
-  }
+  }*/
   
   size_t count() const { return std::distance(t.begin(), std::find(t.begin(), t.end(), TYPE_NONE)); }
   
@@ -47,7 +47,8 @@ struct Signature
   };
   
   Signature(Opcode opcode, Type t1 = TYPE_NONE, Type t2 = TYPE_NONE, Type t3 = TYPE_NONE) : opcode(opcode), args(t1, t2, t3) { }
-  bool operator==(const Signature& o) const { return opcode == o.opcode && args.matches(o.args); }
+  Signature(Opcode opcode, Arguments&& args) : opcode(opcode), args(args) { }
+  bool operator==(const Signature& o) const { return opcode == o.opcode && args == o.args; }
   
   struct hash
   {

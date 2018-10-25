@@ -104,14 +104,25 @@ public:
     static_assert(sizeof(TypeInfo) == sizeof(Type), "must be same size");
   }
   //TypeInfo(const TypeInfo& other) : type(other.type) { assert(other.type <= TYPE_NONE); }
-    
+      
   inline const char* name() const { return traits().name.c_str(); }
   inline bool isCollection() const { return traits().isCollection; }
   
   inline const TypeTraits::TypeSpec& traits() const { return TypeTraits::traits(type); }
   
+  bool operator==(const TypeInfo& info) const { return this->operator==(info.type); }
+  bool operator<(const TypeInfo& info) const { return this->operator<(info.type); }
+  bool operator>(const TypeInfo& info) const { return info.operator<(this->type); }
+  
   bool operator==(Type type) const { return this->type == type; }
-  bool operator==(const TypeInfo& info) const { return this->type == info.type; }
+  bool operator<(Type type) const
+  {
+    if (type == TYPE_GENERIC)
+      return true;
+    else
+      return type == TYPE_COLLECTION && isCollection();
+  }
+  
   
   operator Type() const { return type; }
 };

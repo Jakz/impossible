@@ -23,11 +23,12 @@
 
 using namespace std;
 
+void registerFunctions(MicroCode& mc);
 
 int main (int argc, const char * argv[])
 {
   MicroCode mc;
-  mc.registerDefault();
+  registerFunctions(mc);
   
   Help::init();
 

@@ -18,14 +18,14 @@
 		04A637FB217F992200436B0F /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04A637F9217F992200436B0F /* lexer.cpp */; settings = {COMPILER_FLAGS = "-Wno-old-style-cast"; }; };
 		04C080D32180B4B80054BED3 /* collection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C080CD2180B4B80054BED3 /* collection.cpp */; };
 		04C080D42180B4B80054BED3 /* collection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C080CD2180B4B80054BED3 /* collection.cpp */; };
-		04C080D52180B4B80054BED3 /* traits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C080CF2180B4B80054BED3 /* traits.cpp */; };
-		04C080D62180B4B80054BED3 /* traits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C080CF2180B4B80054BED3 /* traits.cpp */; };
 		04C080D72180B4B80054BED3 /* value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C080D12180B4B80054BED3 /* value.cpp */; };
 		04C080D82180B4B80054BED3 /* value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C080D12180B4B80054BED3 /* value.cpp */; };
 		04CE0A33218175950073AE98 /* semantics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04CE0A31218175950073AE98 /* semantics.cpp */; };
 		04CE0A34218175950073AE98 /* semantics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04CE0A31218175950073AE98 /* semantics.cpp */; };
 		04CE0A362181F0DF0073AE98 /* microcode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04CE0A352181F0DF0073AE98 /* microcode.cpp */; };
 		04CE0A372181F0DF0073AE98 /* microcode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04CE0A352181F0DF0073AE98 /* microcode.cpp */; };
+		04CE0A3A218225DA0073AE98 /* traits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04CE0A38218225DA0073AE98 /* traits.cpp */; };
+		04CE0A3B218225DA0073AE98 /* traits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04CE0A38218225DA0073AE98 /* traits.cpp */; };
 		04F19E09217FBCB7003AAAE2 /* compiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F19E08217FBCB7003AAAE2 /* compiler.cpp */; };
 		04F19E0A217FBCB7003AAAE2 /* compiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F19E08217FBCB7003AAAE2 /* compiler.cpp */; };
 		04F6E084217BE93D0037C307 /* code.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E066217BE93D0037C307 /* code.cpp */; };
@@ -71,13 +71,13 @@
 		04A637F9217F992200436B0F /* lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lexer.cpp; sourceTree = "<group>"; };
 		04C080CD2180B4B80054BED3 /* collection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = collection.cpp; sourceTree = "<group>"; };
 		04C080CE2180B4B80054BED3 /* collection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = collection.h; sourceTree = "<group>"; };
-		04C080CF2180B4B80054BED3 /* traits.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = traits.cpp; sourceTree = "<group>"; };
-		04C080D02180B4B80054BED3 /* traits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = traits.h; sourceTree = "<group>"; };
 		04C080D12180B4B80054BED3 /* value.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = value.cpp; sourceTree = "<group>"; };
 		04C080D22180B4B80054BED3 /* value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = value.h; sourceTree = "<group>"; };
 		04CE0A31218175950073AE98 /* semantics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = semantics.cpp; sourceTree = "<group>"; };
 		04CE0A32218175950073AE98 /* semantics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = semantics.h; sourceTree = "<group>"; };
 		04CE0A352181F0DF0073AE98 /* microcode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = microcode.cpp; sourceTree = "<group>"; };
+		04CE0A38218225DA0073AE98 /* traits.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = traits.cpp; sourceTree = "<group>"; };
+		04CE0A39218225DA0073AE98 /* traits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = traits.h; sourceTree = "<group>"; };
 		04F19E08217FBCB7003AAAE2 /* compiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = compiler.cpp; sourceTree = "<group>"; };
 		04F6E05B217BE8FB0037C307 /* Impossible */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Impossible; sourceTree = BUILT_PRODUCTS_DIR; };
 		04F6E066217BE93D0037C307 /* code.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = code.cpp; sourceTree = "<group>"; };
@@ -125,14 +125,14 @@
 		04A637E9217F92E600436B0F /* parser */ = {
 			isa = PBXGroup;
 			children = (
-				04A637F9217F992200436B0F /* lexer.cpp */,
-				04A637F3217F977700436B0F /* lexer.h */,
-				04A637F4217F977700436B0F /* parser.cpp */,
-				04A637F5217F977700436B0F /* parser.hpp */,
 				04F19E08217FBCB7003AAAE2 /* compiler.cpp */,
 				04A637EA217F92E600436B0F /* compiler.h */,
 				04A637EB217F92E600436B0F /* impossible.l */,
 				04A637EC217F92E600436B0F /* impossible.ypp */,
+				04A637F9217F992200436B0F /* lexer.cpp */,
+				04A637F3217F977700436B0F /* lexer.h */,
+				04A637F4217F977700436B0F /* parser.cpp */,
+				04A637F5217F977700436B0F /* parser.hpp */,
 			);
 			path = parser;
 			sourceTree = "<group>";
@@ -157,26 +157,24 @@
 		04F6E065217BE9350037C307 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				0480650E217EA1880063ACD5 /* tests */,
 				04A637E9217F92E600436B0F /* parser */,
 				04FE2F332180C1EF00871297 /* types */,
+				0480650E217EA1880063ACD5 /* tests */,
 				04F6E066217BE93D0037C307 /* code.cpp */,
 				04F6E067217BE93D0037C307 /* code.h */,
+				04C080CD2180B4B80054BED3 /* collection.cpp */,
+				04C080CE2180B4B80054BED3 /* collection.h */,
 				04F6E06A217BE93D0037C307 /* defines.h */,
 				04F6E06B217BE93D0037C307 /* help.cpp */,
 				04F6E06C217BE93D0037C307 /* help.h */,
 				04F6E06F217BE93D0037C307 /* instruction.cpp */,
 				04F6E070217BE93D0037C307 /* instruction.h */,
-				04C080CD2180B4B80054BED3 /* collection.cpp */,
-				04C080CE2180B4B80054BED3 /* collection.h */,
+				04F6E075217BE93D0037C307 /* main.cpp */,
+				04CE0A352181F0DF0073AE98 /* microcode.cpp */,
 				04CE0A31218175950073AE98 /* semantics.cpp */,
 				04CE0A32218175950073AE98 /* semantics.h */,
-				04CE0A352181F0DF0073AE98 /* microcode.cpp */,
-				04C080CF2180B4B80054BED3 /* traits.cpp */,
-				04C080D02180B4B80054BED3 /* traits.h */,
 				04C080D12180B4B80054BED3 /* value.cpp */,
 				04C080D22180B4B80054BED3 /* value.h */,
-				04F6E075217BE93D0037C307 /* main.cpp */,
 				04F6E080217BE93D0037C307 /* vm.cpp */,
 				04F6E081217BE93D0037C307 /* vm.h */,
 			);
@@ -190,6 +188,8 @@
 				04FE2F342180C1EF00871297 /* lazy.cpp */,
 				04FE2F352180C1EF00871297 /* lazy.h */,
 				04FE2F362180C1EF00871297 /* range.h */,
+				04CE0A38218225DA0073AE98 /* traits.cpp */,
+				04CE0A39218225DA0073AE98 /* traits.h */,
 			);
 			path = types;
 			sourceTree = "<group>";
@@ -271,6 +271,7 @@
 			files = (
 				046E4F2D217EA22D00DB959C /* tests.cpp in Sources */,
 				046E4F18217EA22300DB959C /* vm.cpp in Sources */,
+				04CE0A3B218225DA0073AE98 /* traits.cpp in Sources */,
 				04A637FB217F992200436B0F /* lexer.cpp in Sources */,
 				046E4F19217EA22300DB959C /* code.cpp in Sources */,
 				04A637F7217F977700436B0F /* parser.cpp in Sources */,
@@ -279,7 +280,6 @@
 				04CE0A372181F0DF0073AE98 /* microcode.cpp in Sources */,
 				04C080D82180B4B80054BED3 /* value.cpp in Sources */,
 				046E4F1E217EA22300DB959C /* instruction.cpp in Sources */,
-				04C080D62180B4B80054BED3 /* traits.cpp in Sources */,
 				04FE2F382180C1EF00871297 /* lazy.cpp in Sources */,
 				04F19E0A217FBCB7003AAAE2 /* compiler.cpp in Sources */,
 				04CE0A34218175950073AE98 /* semantics.cpp in Sources */,
@@ -292,6 +292,7 @@
 			files = (
 				04F6E090217BE93D0037C307 /* vm.cpp in Sources */,
 				04F6E084217BE93D0037C307 /* code.cpp in Sources */,
+				04CE0A3A218225DA0073AE98 /* traits.cpp in Sources */,
 				04A637FA217F992200436B0F /* lexer.cpp in Sources */,
 				04F6E086217BE93D0037C307 /* help.cpp in Sources */,
 				04A637F6217F977700436B0F /* parser.cpp in Sources */,
@@ -299,7 +300,6 @@
 				04F6E088217BE93D0037C307 /* instruction.cpp in Sources */,
 				04CE0A362181F0DF0073AE98 /* microcode.cpp in Sources */,
 				04C080D72180B4B80054BED3 /* value.cpp in Sources */,
-				04C080D52180B4B80054BED3 /* traits.cpp in Sources */,
 				04FE2F372180C1EF00871297 /* lazy.cpp in Sources */,
 				04F6E08B217BE93D0037C307 /* main.cpp in Sources */,
 				04F19E09217FBCB7003AAAE2 /* compiler.cpp in Sources */,

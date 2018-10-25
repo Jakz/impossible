@@ -152,7 +152,6 @@ public:
   decltype(terms)::const_iterator end() const { return terms.end(); }
 };
 
-void registerFunctions();
 class MicroCode
 {
 private:

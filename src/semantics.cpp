@@ -105,9 +105,7 @@ void MicroCode::registerDefault()
     
     
     registerUnary({ OP_DUPE, TYPE_GENERIC }, { TYPE_GENERIC, TYPE_GENERIC }, [] (VM* vm, const Value& v1) { vm->push(v1); vm->push(v1); });
-  
-    registerUnary({ OP_NEG, TYPE_COLLECTION }, TYPE_COLLECTION, [] (VM* vm, const Value& v1) { vm->push(v1.collection()->size()); });
-    
+      
     
     const auto& v = vocabulary();
     

@@ -5,8 +5,7 @@
  * Created on 12/22/12
  */
 
-#ifndef _DEFINES_H_
-#define _DEFINES_H_
+#pragma once
 
 #include <stdlib.h>
 #include <algorithm>
@@ -162,7 +161,51 @@ enum Type : s16
   TYPE_NONE
 };
 
-#endif
+#include <string>
+#include <functional>
+#include <sstream>
+
+template<typename T>
+class string_joiner
+{
+  std::string prefix;
+  std::string suffix;
+  std::string separator;
+  std::function<std::string(const T&)> mapper;
+  std::function<bool(const T&)> skipper;
+  
+public:
+  string_joiner(
+                const std::string& prefix,
+                const std::string& suffix,
+                const std::string& separator,
+                const std::function<std::string(const T&)>& mapper,
+                const std::function<bool(const T&)>& skipper = [](const T&) { return false; }
+                )
+  : prefix(prefix), suffix(suffix), separator(separator), mapper(mapper), skipper(skipper) { }
+  
+  template<typename U> std::string join(const U& data)
+  {
+    std::stringstream ss(std::stringstream::out);
+    ss << prefix; bool first = true;
+    for (const auto& v : data)
+    {
+      if (skipper(v))
+        continue;
+      else if (first)
+        first = false;
+      else
+        ss << separator;
+    
+      ss << mapper(v);
+    }
+    
+    ss << suffix;
+    
+    return ss.str();
+  }
+};
+
 
 // EULER 1    1..1000~[$5//0=%3//0=|]>>+.
 // EULER 2    (?0:[1]1:[1][1<>2<>+])[4kk>~]<>~[2//0=]>>+.

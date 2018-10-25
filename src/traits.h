@@ -62,6 +62,7 @@ public:
   static const TypeSpec& traits(Type type)
   {
     auto it = specs.find(type);
+    assert(it != specs.end());
     return it->second;
   }
 
@@ -97,11 +98,15 @@ private:
   Type type;
   
 public:
-  TypeInfo(Type type) : type(type) { }
-  //TypeInfo(const TypeInfo& other) : type(other.type) { }
+  TypeInfo(Type type) : type(type)
+  {
+    assert(type <= TYPE_NONE);
+    static_assert(sizeof(TypeInfo) == sizeof(Type), "must be same size");
+  }
+  //TypeInfo(const TypeInfo& other) : type(other.type) { assert(other.type <= TYPE_NONE); }
     
-  inline const char* name() const { return TypeTraits::nameForType(type); }
-  inline bool isCollection() const { return TypeTraits::isCollection(type); }
+  inline const char* name() const { return traits().name.c_str(); }
+  inline bool isCollection() const { return traits().isCollection; }
   
   inline const TypeTraits::TypeSpec& traits() const { return TypeTraits::traits(type); }
   

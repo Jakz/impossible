@@ -22,8 +22,11 @@
 
 using namespace std;
 
+extern void registerFunctions();
+
 int main (int argc, const char * argv[])
 {
+  registerFunctions();
   Help::init();
   
   VM vm;

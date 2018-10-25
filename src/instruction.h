@@ -5,8 +5,7 @@
  * Created on 12/21/12
  */
 
-#ifndef _INSTRUCTION_H_
-#define _INSTRUCTION_H_
+#pragma once
 
 #include "defines.h"
 #include "value.h"
@@ -18,39 +17,52 @@
 class VM;
 class Code;
 
-class Instruction
+class Instruction final
 {
-  public:
-    Instruction() { }
-    virtual void execute(VM *vm) const = 0;
-    virtual bool equals(Instruction *) const { return false; } 
+private:
   
-    virtual std::string svalue() const = 0;
-};
-
-class Value;
-
-class PushInstruction : public Instruction
-{
-  private:
-    Value value;
-
-  public:
-    PushInstruction(Value& value) : Instruction(), value(value) { }
-    PushInstruction(Value&& value) : Instruction(), value(value) { }
-    virtual void execute(VM *vm) const;
-    virtual std::string svalue() const;
-};
-
-class OpcodeInstruction : public Instruction
-{
+  union
+  {
+    Value _value;
+    Opcode _opcode;
+  };
+  
+  bool isPush;
+  
 public:
-  const Opcode opcode;
-
-public:
-  OpcodeInstruction(Opcode opcode) : Instruction(), opcode(opcode) {}
-  virtual void execute(VM *vm) const;
-  virtual std::string svalue() const;
+  Instruction() { }
+  Instruction(Opcode opcode) : _opcode(opcode), isPush(false) { }
+  Instruction(Value&& value) : _value(value), isPush(true) { }
+  Instruction(const Value& value) : _value(value), isPush(true) { }
+  
+  Instruction(const Instruction& other)
+  {
+    isPush = other.isPush;
+    if (isPush) _value = other._value;
+    else _opcode = other._opcode;
+  }
+  
+  Instruction(const Instruction&& other)
+  {
+    isPush = other.isPush;
+    if (isPush) _value = std::move(other._value);
+    else _opcode = other._opcode;
+  }
+  
+  Instruction& operator=(const Instruction& other)
+  {
+    isPush = other.isPush;
+    if (isPush) _value = other._value;
+    else _opcode = other._opcode;
+    return *this;
+  }
+  
+  ~Instruction() { if (isPush) _value.~Value(); }
+  
+  void execute(VM *vm) const;
+  std::string svalue() const;
+  
+  Opcode opcode() const { return _opcode; }
+  const Value& value() const { return _value; }
+  
 };
-
-#endif

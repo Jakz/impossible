@@ -23,8 +23,7 @@ std::string Code::svalue() const
   
   for (size_t i = 0; i < size; ++i)
   {
-    const Instruction* in = at(i);
-    ss << in->svalue();
+    ss << at(i).svalue();
   }
   
   ss << "]";
@@ -39,7 +38,7 @@ std::string CodeStandard::svalue(size_t pc)
   
   for (int i = 0; i < size(); ++i)
   {
-    ss << code[i]->svalue() << " ";
+    ss << at(i).svalue() << " ";
     if (i+1 == pc)
       l = ss.str().length();
     
@@ -51,28 +50,4 @@ std::string CodeStandard::svalue(size_t pc)
   
   
   return ss.str();
-}
-
-
-CurriedCode::CurriedCode(Code *code, Value value) : code(code), value(new PushInstruction(value)) { };
-CurriedCode::CurriedCode(Code *code, PushInstruction *value) : code(code), value(value) { };
-
-size_t CurriedCode::size() const { return code->size() + 1; }
-
-Instruction *CurriedCode::at(size_t i) const
-{
-  if (i == 0)
-    return value;
-  else
-    return code->at(i-1);
-}
-
-void CurriedCode::set(size_t i, Instruction *is)
-{
-  code->set(i-1, is);
-}
-
-Code *CurriedCode::append(Instruction *ins)
-{
-  return new CurriedCode(code->append(ins), value);
 }

@@ -178,8 +178,8 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
         
         for (size_t i = 0; i < size; ++i)
         {
-          const Instruction* in = v.lambda()->code()->at(i);
-          ss << in->svalue();
+          const Instruction& in = v.lambda()->code()->at(i);
+          ss << in.svalue();
         }
         
         ss << "]";
@@ -202,5 +202,11 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   { TYPE_GENERIC2, { TYPE_GENERIC, true, false, "B" } },
   { TYPE_GENERIC3, { TYPE_GENERIC, true, false, "C" } },
   
+  { TYPE_COLLECTION, { TYPE_COLLECTION, false, true, "collection" } },
+
+  
   { TYPE_UNKNOWN, { TYPE_UNKNOWN, true, false, "?" } },
+  
+  { TYPE_INVALID, { TYPE_INVALID, false, false, "invalid" } },
+  { TYPE_NONE, { TYPE_NONE, false, false, "none" } }
 };

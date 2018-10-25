@@ -31,9 +31,9 @@ void VM::run()
 {
   while (exec.pc < exec.code->size() && running)
   {
-    Instruction *i = exec.code->at(exec.pc);
+    const Instruction &i = exec.code->at(exec.pc);
     
-    i->execute(this);
+    i.execute(this);
     
     exec.pc++;
   }

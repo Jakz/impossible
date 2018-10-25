@@ -10,7 +10,6 @@
 
 #include "defines.h"
 #include "range.h"
-#include "code.h"
 #include "lazy.h"
 
 #include "traits.h"
@@ -35,6 +34,7 @@ class Set;
 class Map;
 class Range;
 class LazyArray;
+class Code;
 
 union value_data
 {
@@ -54,7 +54,7 @@ union value_data
   bool operator==(const value_data& o) const { return i == o.i; }
 };
 
-class Value
+class Value final
 {
 public:
   value_data data;
@@ -84,20 +84,12 @@ public:
   Value(Range* range);
   Value(LazyArray* lazyArray);
   
+  Value& operator=(const Value& other) { this->data = other.data; this->type = other.type; return *this; }
   bool valid() const { return type != TYPE_INVALID; }
   
-  Value& operator=(const Value& other) { this->data = other.data; this->type = other.type; return *this; }
-  
   bool operator==(const Value& value) const { return type.traits().equal_to(*this, value); }
-  
-  virtual std::string svalue() const { return type.traits().to_string(*this); }
-
+  std::string svalue() const { return type.traits().to_string(*this); }
   bool equals(const Value& value) const { return this->operator==(value); }
-  virtual Value* clone() const { return new Value(*this); }
-
-  virtual ~Value() { };
-
-  template<typename T> auto as() -> typename std::enable_if<std::is_pointer<T>::value, T>::type { return reinterpret_cast<T>(this); }
 
   integral_t integral() const { return data.i; }
   real_t real() const { return data.f; }
@@ -110,7 +102,7 @@ public:
   
   template<typename T> T* object() const { return static_cast<T*>(data.ptr); }
   
-  virtual TCollection* collection() const; //TODO: temporarily virtual to override in collections
+  TCollection* collection() const; //TODO: temporarily virtual to override in collections
   
   String* string() const;
   List* list() const;
@@ -153,20 +145,6 @@ public:
     
     return false;
   }
-};
-
-
-template <class T>
-class TValue : public Value
-{
-  protected:
-    T value;
-    
-  public:
-    TValue(Type type, T value) : Value(type), value(value) {}
-    
-    void set(T value) { this->value = value; }
-    T get() const { return this->value; }
 };
 
 class Heap

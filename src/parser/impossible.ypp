@@ -19,6 +19,8 @@
   class Instruction;
   
   #include "value.h"
+  #include "instruction.h"
+
 }
 
 %lex-param { compiler::Lexer &lexer }
@@ -37,7 +39,6 @@
   #include "lexer.h"
   #include "compiler.h"
   
-  #include "instruction.h"
   
   static compiler::Parser::symbol_type yylex(compiler::Lexer& scanner, compiler::Compiler& compiler)
   {
@@ -162,8 +163,8 @@
 %type<Value> value
 %type<std::pair<bool, Value>> opt_value "optional_value"
 
-%type<Instruction*> instruction
-%type<std::vector<Instruction*>> instructions
+%type<Instruction> instruction
+%type<std::vector<Instruction>> instructions
 
 %type<std::list<Value>> values
 %type<std::list<std::pair<Value, Value>>> value_pairs
@@ -176,13 +177,13 @@ start:
 ;
 
 instructions:
-  { $$ = std::vector<Instruction*>(); }
+  { $$ = std::vector<Instruction>(); }
   | instructions instruction { $1.push_back($2); $$ = $1; }
 ;
 
 instruction:
-  value { $$ = new PushInstruction($1); }
-  | OPCODE { $$ = new OpcodeInstruction($1); }
+  value { $$ = Instruction($1); }
+  | OPCODE { $$ = Instruction($1); }
 ;
 
 values:

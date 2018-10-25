@@ -20,6 +20,6 @@ namespace compiler
 
     Code* compile(const std::string& text);
     
-    void setCode(const std::vector<Instruction*>& instructions);
+    void setCode(const std::vector<Instruction>& instructions);
   };
 }

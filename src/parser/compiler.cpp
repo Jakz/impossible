@@ -28,7 +28,7 @@ Code* Compiler::compile(const std::string &text)
   return parser.parse() == 0 ? code.release() : nullptr;
 }
 
-void Compiler::setCode(const std::vector<Instruction*>& instructions)
+void Compiler::setCode(const std::vector<Instruction>& instructions)
 {
   code.reset(new CodeStandard(instructions));
 }

@@ -156,22 +156,23 @@ void filter(VM* vm, const T* collection, Code* predicate)
 
 struct Arguments
 {
-  TypeInfo t1, t2, t3;
+  std::array<TypeInfo, 3> t;
   
-  Arguments(Type t1 = TYPE_NONE, Type t2 = TYPE_NONE, Type t3 = TYPE_NONE) : t1(t1), t2(t2), t3(t3) { }
+  Arguments(Type t1 = TYPE_NONE, Type t2 = TYPE_NONE, Type t3 = TYPE_NONE) : t({t1, t2, t3}) { }
+  
   bool operator==(const Arguments& o) const
   {
-    return t1 == o.t1
-      && t2 == o.t2
-      && t3 == o.t3;
+    return t[0] == o.t[0]
+      && t[1] == o.t[1]
+      && t[2] == o.t[2];
   }
   
   bool matches(const Arguments& o) const
   {
     return
-      (t1 == o.t1 || (t1 == TYPE_GENERIC && o.t1 != TYPE_NONE)) &&
-      (t2 == o.t2 || (t2 == TYPE_GENERIC && o.t2 != TYPE_NONE)) &&
-      (t3 == o.t3 || (t3 == TYPE_GENERIC && o.t3 != TYPE_NONE));
+      (t[0] == o.t[0] || (t[0] == TYPE_GENERIC && o.t[0] != TYPE_NONE)) &&
+      (t[1] == o.t[1] || (t[1] == TYPE_GENERIC && o.t[1] != TYPE_NONE)) &&
+      (t[2] == o.t[2] || (t[2] == TYPE_GENERIC && o.t[2] != TYPE_NONE));
   }
 };
 
@@ -257,7 +258,39 @@ struct VariantFunction
 template<typename T> struct type_of { };
 template<> struct type_of<integral_t> { static constexpr Type value = TYPE_INT; };
 template<> struct type_of<real_t> { static constexpr Type value = TYPE_FLOAT; };
+template<> struct type_of<bool> { static constexpr Type value = TYPE_BOOL; };
 
+
+class Vocabulary
+{
+public:
+  struct Term
+  {
+    Opcode opcode;
+    Arguments input;
+    Arguments output;
+    
+    Term(Opcode opcode, const Arguments& input, const Arguments& output) :
+      opcode(opcode), input(input), output(output) { }
+  };
+  
+  std::vector<Term> terms;
+  
+public:
+  
+  void add(const Signature& signature, const Arguments& output)
+  {
+    terms.push_back(Term(signature.opcode, signature.args, output));
+  }
+  
+  void add(const Signature& signature, Type returnType)
+  {
+    terms.push_back(Term(signature.opcode, signature.args, Arguments(returnType)));
+  }
+  
+  decltype(terms)::const_iterator begin() const { return terms.begin(); }
+  decltype(terms)::const_iterator end() const { return terms.end(); }
+};
 
 void registerFunctions();
 class MicroCode
@@ -285,9 +318,9 @@ private:
     /* then try replacing collection types with generic */
     s = Signature(
                   s.opcode,
-                  s.args.t1.isCollection() ? TypeInfo(TYPE_COLLECTION) : s.args.t1,
-                  s.args.t2.isCollection() ? TypeInfo(TYPE_COLLECTION) : s.args.t2,
-                  s.args.t3.isCollection() ? TypeInfo(TYPE_COLLECTION) : s.args.t3
+                  s.args.t[0].isCollection() ? TypeInfo(TYPE_COLLECTION) : s.args.t[0],
+                  s.args.t[1].isCollection() ? TypeInfo(TYPE_COLLECTION) : s.args.t[1],
+                  s.args.t[2].isCollection() ? TypeInfo(TYPE_COLLECTION) : s.args.t[2]
                   );
     
     it = microCode.find(s);
@@ -296,9 +329,9 @@ private:
     /* then try with generic types */
     s = Signature(
                   s.opcode,
-                  s.args.t1 != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE,
-                  s.args.t2 != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE,
-                  s.args.t3 != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE
+                  s.args.t[0] != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE,
+                  s.args.t[1] != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE,
+                  s.args.t[2] != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE
                   );
     it = microCode.find(s);
     if (it != microCode.end()) return &it->second;
@@ -314,38 +347,42 @@ private:
     microCode.emplace(std::make_pair(signature, function));
   }
   
+  Vocabulary _vocabulary;
+  
 public:
   MicroCode()
   {
     static_assert(sizeof(Signature) == sizeof(u64), "");
-    registerFunctions();
-    
   }
   
+  const Vocabulary& vocabulary() { return _vocabulary; }
   const decltype(microCode)& data() { return microCode; }
   size_t size() { return microCode.size(); }
   
-  void registerUnary(Signature signature, const decltype(VariantFunction::unary)&& function)
+  void registerUnary(Signature signature, Arguments retn, const decltype(VariantFunction::unary)&& function)
   {
     emplace(signature, VariantFunction(function));
+    _vocabulary.add(signature,retn);
     opcodeData[signature.opcode].hasUnary = true;
   }
   
-  void registerBinary(Signature signature, const decltype(VariantFunction::binary)&& function)
+  void registerBinary(Signature signature, Arguments retn, const decltype(VariantFunction::binary)&& function)
   {
     emplace(signature, VariantFunction(function));
+    _vocabulary.add(signature,retn);
     opcodeData[signature.opcode].hasBinary = true;
   }
   
-  void registerNullary(Signature signature, const decltype(VariantFunction::nullary)&& function)
+  void registerNullary(Signature signature, Arguments retn, const decltype(VariantFunction::nullary)&& function)
   {
     emplace(signature, VariantFunction(function));
+    _vocabulary.add(signature,retn);
     opcodeData[signature.opcode].hasNullary = true;
   }
 
   template<typename T, typename U, typename R, template<typename TT, typename UU, typename RR> class F> void registerNumericTemplate(Opcode opcode)
   {
-    registerBinary({ opcode, type_of<T>::value, type_of<U>::value }, [] (VM* vm, const Value& v1, const Value& v2) { vm->push(F<T, U, R>()(v1.number<T>(), v2.number<U>())); });
+    registerBinary({ opcode, type_of<T>::value, type_of<U>::value }, type_of<R>::value, [] (VM* vm, const Value& v1, const Value& v2) { vm->push(F<T, U, R>()(v1.number<T>(), v2.number<U>())); });
   }
   
   template<typename T1, bool IS_COMPARISON> using return_type = typename std::conditional<IS_COMPARISON, bool, T1>::type;
@@ -358,9 +395,9 @@ public:
     registerNumericTemplate<integral_t, integral_t, return_type<integral_t, IS_COMPARISON>, OP>(opcode);
   }
   
-  bool execute(VM* vm, const OpcodeInstruction& instruction)
+  bool execute(VM* vm, const Instruction& instruction)
   {
-    const Opcode opcode = instruction.opcode;
+    const Opcode opcode = instruction.opcode();
     const size_t stackSize = vm->stackSize();
     
     Value v1 = Value::INVALID, v2 = Value::INVALID, v3 = Value::INVALID;
@@ -469,105 +506,117 @@ void registerFunctions()
   mc.registerNumeric<true, math::greater>(OP_GREATER);
 
   
-  mc.registerUnary({ OP_DUPE, TYPE_GENERIC }, [] (VM* vm, const Value& v1) { vm->push(v1); vm->push(v1); });
+  mc.registerUnary({ OP_DUPE, TYPE_GENERIC }, { TYPE_GENERIC, TYPE_GENERIC }, [] (VM* vm, const Value& v1) { vm->push(v1); vm->push(v1); });
   
-  mc.registerUnary({ OP_NEG, TYPE_COLLECTION }, [] (VM* vm, const Value& v1) { vm->push(v1.collection()->size()); });
+  mc.registerUnary({ OP_NEG, TYPE_COLLECTION }, TYPE_COLLECTION, [] (VM* vm, const Value& v1) { vm->push(v1.collection()->size()); });
   
-  std::cout << "Registered " << mc.data().size() << " operations." << std::endl;
-}
-
-
-void PushInstruction::execute(VM *vm) const
-{
-  vm->push(value);
-}
-
-std::string PushInstruction::svalue() const { return value.svalue(); }
-
-
-std::string OpcodeInstruction::svalue() const
-{
-  switch (opcode) {
-    case OP_PLUS: return "+";
-    case OP_MINUS: return "-";
-    case OP_TIMES: return "*";
-    case OP_DIVIDE: return "/";
-      
-    case OP_NEG: return "_";
-      
-    case OP_MOD: return "//";
-      
-    case OP_RAND: return "@>";
-    case OP_SORT: return "#>";
-    case OP_SHUFFLE: return "$>";
-      
-    case OP_PLUS_MON: return "+.";
-    case OP_PLUS_DIA: return "+:";
-    case OP_MINUS_MON: return "-.";
-    case OP_MINUS_DIA: return "-:";
-    case OP_TIMES_MON: return "*.";
-    case OP_TIMES_DIA: return "*:";
-    case OP_DIVIDE_MON: return "/.";
-    case OP_DIVIDE_DIA: return "/:";
-      
-    case OP_AND: return "&";
-    case OP_NOT: return "~";
-    case OP_OR: return "|";
-    case OP_RSHIFT: return ">>";
-    case OP_LSHIFT: return ">>";
-      
-    case OP_BANG: return "!";
-    case OP_DBANG: return "!!";
-    case OP_QUESTION: return "?";
-    case OP_DQUESTION: return "??";
-      
-    case OP_EQUAL: return "=";
-    case OP_LESSER: return "<";
-    case OP_GREATER: return ">";
-      
-    case OP_DUPE: return "$";
-    case OP_SWAP: return "%";
-    case OP_DROP: return ";";
-    case OP_PICK: return ",";
-    case OP_RISE: return "(>";
-    case OP_SINK: return "<)";
-      
-    case OP_PEEK: return "^";
-      
-    case OP_AT: return "@";
-    case OP_HASH: return "#";
-    case OP_AT_FRONT: return "<@";
-    case OP_AT_BACK: return ">@";
-    case OP_HASH_FRONT: return "<#";
-    case OP_HASH_BACK: return ">#";
-    
-    case OP_ITER: return ".>";
-    case OP_ITERI: return ".>:";
-    case OP_MAP: return ".>.";
-    case OP_FOLD: return ":>.";
-    case OP_DMAP: return ":>:";
-    case OP_CARTESIAN: return ":*.";
-      
-    case OP_ANY: return ".?";
-    case OP_EVERY: return ":?";
-      
-    case OP_RECUR: return "[#]";
-    case OP_RECURV: return "{#}";
-    case OP_WHILE: return "<>";
+  
+  const auto& v = mc.vocabulary();
+  
+  string_joiner<TypeInfo> argsJoiner("", "", ", ", [] (const auto& t) { return t.name(); }, [] (const auto& t) { return t == TYPE_NONE; });
+  
+  for (const auto& term : v)
+  {
+    std::cout << Instruction(term.opcode).svalue() << "  " << argsJoiner.join(term.input.t) << " -> " << argsJoiner.join(term.output.t) << std::endl;
   }
   
-  assert(false);
+  std::cout << "Registered " << mc.data().size() << " terms." << std::endl;
 }
 
 
-void OpcodeInstruction::execute(VM *vm) const
+std::string Instruction::svalue() const
 {
+  if (isPush)
+    return _value.svalue();
+  else
+  {
+    switch (_opcode) {
+      case OP_PLUS: return "+";
+      case OP_MINUS: return "-";
+      case OP_TIMES: return "*";
+      case OP_DIVIDE: return "/";
+        
+      case OP_NEG: return "_";
+        
+      case OP_MOD: return "//";
+        
+      case OP_RAND: return "@>";
+      case OP_SORT: return "#>";
+      case OP_SHUFFLE: return "$>";
+        
+      case OP_PLUS_MON: return "+.";
+      case OP_PLUS_DIA: return "+:";
+      case OP_MINUS_MON: return "-.";
+      case OP_MINUS_DIA: return "-:";
+      case OP_TIMES_MON: return "*.";
+      case OP_TIMES_DIA: return "*:";
+      case OP_DIVIDE_MON: return "/.";
+      case OP_DIVIDE_DIA: return "/:";
+        
+      case OP_AND: return "&";
+      case OP_NOT: return "~";
+      case OP_OR: return "|";
+      case OP_RSHIFT: return ">>";
+      case OP_LSHIFT: return ">>";
+        
+      case OP_BANG: return "!";
+      case OP_DBANG: return "!!";
+      case OP_QUESTION: return "?";
+      case OP_DQUESTION: return "??";
+        
+      case OP_EQUAL: return "=";
+      case OP_LESSER: return "<";
+      case OP_GREATER: return ">";
+        
+      case OP_DUPE: return "$";
+      case OP_SWAP: return "%";
+      case OP_DROP: return ";";
+      case OP_PICK: return ",";
+      case OP_RISE: return "(>";
+      case OP_SINK: return "<)";
+        
+      case OP_PEEK: return "^";
+        
+      case OP_AT: return "@";
+      case OP_HASH: return "#";
+      case OP_AT_FRONT: return "<@";
+      case OP_AT_BACK: return ">@";
+      case OP_HASH_FRONT: return "<#";
+      case OP_HASH_BACK: return ">#";
+        
+      case OP_ITER: return ".>";
+      case OP_ITERI: return ".>:";
+      case OP_MAP: return ".>.";
+      case OP_FOLD: return ":>.";
+      case OP_DMAP: return ":>:";
+      case OP_CARTESIAN: return ":*.";
+        
+      case OP_ANY: return ".?";
+      case OP_EVERY: return ":?";
+        
+      case OP_RECUR: return "[#]";
+      case OP_RECURV: return "{#}";
+      case OP_WHILE: return "<>";
+    }
+    
+    assert(false);
+  }
+}
+
+void Instruction::execute(VM *vm) const
+{
+  if (isPush)
+  {
+    vm->push(_value);
+    return;
+  }
+
   Value v1, v2, v3;
   
   if (microCode.execute(vm, *this))
     return;
   
-  switch (opcode)
+  switch (_opcode)
   {
     case OP_SWAP:
     {
@@ -1632,7 +1681,7 @@ void OpcodeInstruction::execute(VM *vm) const
           {
             Value v = false;
             //TODO: leaks and below
-            Code *nc = v2.lambda()->code()->append(new OpcodeInstruction(OP_OR));
+            Code *nc = v2.lambda()->code()->append(Instruction(OP_OR));
             fold(v1.collection(), v, nc, vm);
             vm->push(v);
             break;
@@ -1663,7 +1712,7 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPES(TYPE_SET, TYPE_LAMBDA):
           {
             Value v = true;
-            Code *nc = v2.lambda()->code()->append(new OpcodeInstruction(OP_AND));
+            Code *nc = v2.lambda()->code()->append(Instruction(OP_AND));
             fold(v1.collection(), v, nc, vm);
             vm->push(v);
             break;
@@ -1675,8 +1724,8 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_PLUS_DIA:
     {
-      vm->push(new Lambda(new CodeStandard(new OpcodeInstruction(OP_PLUS))));
-      OpcodeInstruction(OP_DMAP).execute(vm);
+      vm->push(new Lambda(new CodeStandard(Instruction(OP_PLUS))));
+      Instruction(OP_DMAP).execute(vm);
       break;
     }
       
@@ -1690,7 +1739,7 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPE_ARRAY:
           {
             Value o;
-            sfold(v1.collection(), o, new CodeStandard(new OpcodeInstruction(OP_PLUS)), vm);
+            sfold(v1.collection(), o, new CodeStandard(Instruction(OP_PLUS)), vm);
             if (o.valid())
               vm->push(o);
             break;
@@ -1706,8 +1755,8 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_MINUS_DIA:
     {
-      vm->push(new Lambda(new CodeStandard(new OpcodeInstruction(OP_MINUS))));
-      OpcodeInstruction(OP_DMAP).execute(vm);
+      vm->push(new Lambda(new CodeStandard(Instruction(OP_MINUS))));
+      Instruction(OP_DMAP).execute(vm);
       break;
     }
       
@@ -1721,7 +1770,7 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPE_ARRAY:
           {
             Value o;
-            sfold(v1.collection(), o, new CodeStandard(new OpcodeInstruction(OP_MINUS)), vm);
+            sfold(v1.collection(), o, new CodeStandard(Instruction(OP_MINUS)), vm);
             if (o.valid())
               vm->push(o);
             break;
@@ -1736,8 +1785,8 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_TIMES_DIA:
     {
-      vm->push(new Lambda(new CodeStandard(new OpcodeInstruction(OP_TIMES))));
-      OpcodeInstruction(OP_DMAP).execute(vm);
+      vm->push(new Lambda(new CodeStandard(Instruction(OP_TIMES))));
+      Instruction(OP_DMAP).execute(vm);
       break;
     }
       
@@ -1751,7 +1800,7 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPE_ARRAY:
           {
             Value o;
-            sfold(v1.collection(), o, new CodeStandard(new OpcodeInstruction(OP_TIMES)), vm);
+            sfold(v1.collection(), o, new CodeStandard(Instruction(OP_TIMES)), vm);
             if (o.valid())
               vm->push(o);
             break;
@@ -1765,8 +1814,8 @@ void OpcodeInstruction::execute(VM *vm) const
       
     case OP_DIVIDE_DIA:
     {
-      vm->push(new Lambda(new CodeStandard(new OpcodeInstruction(OP_DIVIDE))));
-      OpcodeInstruction(OP_DMAP).execute(vm);
+      vm->push(new Lambda(new CodeStandard(Instruction(OP_DIVIDE))));
+      Instruction(OP_DMAP).execute(vm);
       break;
     }
       
@@ -1780,7 +1829,7 @@ void OpcodeInstruction::execute(VM *vm) const
           case TYPE_ARRAY:
           {
             Value o;
-            sfold(v1.collection(), o, new CodeStandard(new OpcodeInstruction(OP_DIVIDE)), vm);
+            sfold(v1.collection(), o, new CodeStandard(Instruction(OP_DIVIDE)), vm);
             if (o.valid())
               vm->push(o);
             break;

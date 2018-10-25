@@ -58,6 +58,8 @@ public:
   
   void push(const Value& value)
   {
+    std::string str = value.svalue();
+    std::cout << "pushing " << str << std::endl << std::flush;
     valueStack->push_back(value);
   }
 
@@ -142,7 +144,7 @@ public:
       v1 = pop();
     
     if (!running)
-      std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc)->svalue() << "\' required three values." << std::endl;
+      std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc).svalue() << "\' required three values." << std::endl;
     
     return running;
   }
@@ -155,7 +157,7 @@ public:
       v1 = pop();
     
     if (!running)
-      std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc)->svalue() << "\' required two values." << std::endl;
+      std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc).svalue() << "\' required two values." << std::endl;
     
     return running;
   }
@@ -165,7 +167,7 @@ public:
     v1 = pop();
     
     if (!running)
-      std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc)->svalue() << "\' required a value." << std::endl;
+      std::cout << "ERROR: stack was empty but instruction \'" << exec.code->at(exec.pc).svalue() << "\' required a value." << std::endl;
     
     return running;
   }

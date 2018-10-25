@@ -204,17 +204,6 @@ struct std::less<Value>
   }
 };
 
-
-template<typename T>
-class CollectionBase : public TValue<T>, public TCollection
-{
-  
-public:
-  CollectionBase(Type type, T t) : TValue<T>(type, t) { }
-  CollectionBase(Type type) : TValue<T>(type, new T()) { }
-};
-
-
 class List : public TCollection
 {
 public:

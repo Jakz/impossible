@@ -58,8 +58,6 @@ public:
   
   void push(const Value& value)
   {
-    std::string str = value.svalue();
-    std::cout << "pushing " << str << std::endl << std::flush;
     valueStack->push_back(value);
   }
 

@@ -7,6 +7,19 @@
 
 #pragma once
 
+/**************************
+ * CONFIG
+ **************************/
+
+#define USE_PACKED_VALUES false
+
+
+
+
+
+
+/**************************/
+
 #include <stdlib.h>
 #include <algorithm>
 

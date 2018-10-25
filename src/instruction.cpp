@@ -1121,6 +1121,11 @@ void Instruction::execute(VM *vm) const
           vv.push_back(v2);
           vm->push(v1);
         }
+        else if (v1.type == TYPE_LAMBDA)
+        {
+          Code* code = v1.lambda()->code();
+          vm->push(new Lambda(code->append(Instruction(v2))));
+        }
       }
       break;
     }

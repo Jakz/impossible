@@ -85,7 +85,7 @@ int main (int argc, const char * argv[])
     else if (input == "info")
     {
       cout << "  arch: " << (sizeof(void*) == 4 ? "x86" : "x86-64") << endl;
-      cout << "  size of value        : " << sizeof(Value) << endl;
+      cout << "  size of value        : " << sizeof(Value) << (sizeof(Value) == sizeof(value_data) + sizeof(Type) ? "  (packed)" : "") << endl;
       cout << "  size of instruction  : " << sizeof(Instruction) << endl;
       cout << "  size of opcode       : " << sizeof(Opcode) << endl;
     }

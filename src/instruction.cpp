@@ -154,55 +154,6 @@ void filter(VM* vm, const T* collection, Code* predicate)
   vm->push(new T(ot));
 }
 
-#include "semantics.h"
-
-MicroCode microCode;
-
-
-namespace math
-{
-  template<typename T, typename U, typename R> struct plus { public: R operator()(T t, U u) { return t + u;} };
-  template<typename T, typename U, typename R> struct minus { public: R operator()(T t, U u) { return t - u;} };
-  template<typename T, typename U, typename R> struct times { public: R operator()(T t, U u) { return t * u;} };
-  template<typename T, typename U, typename R> struct divide { public: R operator()(T t, U u) { return t / u;} };
-
-  template<typename T, typename U, typename R> struct lesser { public: R operator()(T t, U u) { return t < u;} };
-  template<typename T, typename U, typename R> struct greater { public: R operator()(T t, U u) { return t > u;} };
-
-}
-
-
-void registerFunctions()
-{
-  auto& mc = microCode;
-  
-  mc.registerNumeric<false, math::plus>(OP_PLUS);
-  mc.registerNumeric<false, math::minus>(OP_MINUS);
-  mc.registerNumeric<false, math::times>(OP_TIMES);
-  mc.registerNumeric<false, math::divide>(OP_DIVIDE);
-  
-  mc.registerNumeric<true, math::lesser>(OP_LESSER);
-  mc.registerNumeric<true, math::greater>(OP_GREATER);
-
-  
-  mc.registerUnary({ OP_DUPE, TYPE_GENERIC }, { TYPE_GENERIC, TYPE_GENERIC }, [] (VM* vm, const Value& v1) { vm->push(v1); vm->push(v1); });
-  
-  mc.registerUnary({ OP_NEG, TYPE_COLLECTION }, TYPE_COLLECTION, [] (VM* vm, const Value& v1) { vm->push(v1.collection()->size()); });
-  
-  
-  const auto& v = mc.vocabulary();
-  
-  string_joiner<TypeInfo> argsJoiner("", "", ", ", [] (const auto& t) { return t.name(); }, [] (const auto& t) { return t == TYPE_NONE; });
-  
-  for (const auto& term : v)
-  {
-    std::cout << Instruction(term.opcode).svalue() << "  " << argsJoiner.join(term.input.t) << " -> " << argsJoiner.join(term.output.t) << std::endl;
-  }
-  
-  std::cout << "Registered " << mc.data().size() << " terms." << std::endl;
-}
-
-
 std::string Instruction::svalue() const
 {
   if (_value.type != TYPE_OPCODE)
@@ -284,17 +235,8 @@ std::string Instruction::svalue() const
 
 void Instruction::execute(VM *vm) const
 {
-  if (_value.type != TYPE_OPCODE)
-  {
-    vm->push(_value);
-    return;
-  }
-
   Value v1, v2, v3;
-  
-  if (microCode.execute(vm, _value.opcode()))
-    return;
-  
+
   switch (_value.opcode())
   {
     case OP_SWAP:

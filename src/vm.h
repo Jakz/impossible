@@ -19,6 +19,7 @@
 #include "instruction.h"
 
 class Instruction;
+class MicroCode;
 
 struct ActivationRecord
 {
@@ -46,8 +47,11 @@ private:
   bool running;
   bool stackPreserve;
   
+  const MicroCode& microcode;
+  
 public:
-  VM() : valueStack(new stack_t()), exec(ActivationRecord(nullptr)), running(false), stackPreserve(false), lazy(NULL), memory()
+  VM(MicroCode& microcode) : valueStack(new stack_t()), exec(ActivationRecord(nullptr)), running(false), stackPreserve(false), lazy(NULL), memory(),
+  microcode(microcode)
   {
   }
   

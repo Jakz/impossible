@@ -28,6 +28,9 @@ struct Arguments
     (t[1] == o.t[1] || (t[1] == TYPE_GENERIC && o.t[1] != TYPE_NONE)) &&
     (t[2] == o.t[2] || (t[2] == TYPE_GENERIC && o.t[2] != TYPE_NONE));
   }
+  
+  TypeInfo& operator[](size_t index) { return t[index]; }
+  const TypeInfo& operator[](size_t index) const { return t[index]; }
 };
 
 struct Signature
@@ -142,6 +145,7 @@ public:
     terms.push_back(Term(signature.opcode, signature.args, Arguments(returnType)));
   }
   
+  size_t size() const { return terms.size(); }
   decltype(terms)::const_iterator begin() const { return terms.begin(); }
   decltype(terms)::const_iterator end() const { return terms.end(); }
 };
@@ -150,7 +154,7 @@ void registerFunctions();
 class MicroCode
 {
 private:
-  std::unordered_map<Signature, VariantFunction, Signature::hash> microCode;
+  std::unordered_map<Signature, VariantFunction, Signature::hash> table;
   
   struct OpcodeData
   {
@@ -163,11 +167,11 @@ private:
   
   std::array<OpcodeData, Opcode::OPCODES_COUNT> opcodeData;
   
-  const VariantFunction* findBestOverload(Signature s)
+  const VariantFunction* findBestOverload(Signature s) const
   {
     /* search for perfect match first */
-    auto it = microCode.find(s);
-    if (it != microCode.end()) return &it->second;
+    auto it = table.find(s);
+    if (it != table.end()) return &it->second;
     
     /* then try replacing collection types with generic */
     s = Signature(
@@ -177,8 +181,8 @@ private:
                   s.args.t[2].isCollection() ? TypeInfo(TYPE_COLLECTION) : s.args.t[2]
                   );
     
-    it = microCode.find(s);
-    if (it != microCode.end()) return &it->second;
+    it = table.find(s);
+    if (it != table.end()) return &it->second;
     
     /* then try with generic types */
     s = Signature(
@@ -187,18 +191,18 @@ private:
                   s.args.t[1] != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE,
                   s.args.t[2] != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE
                   );
-    it = microCode.find(s);
-    if (it != microCode.end()) return &it->second;
+    it = table.find(s);
+    if (it != table.end()) return &it->second;
     
     return nullptr;
   }
   
   void emplace(const Signature& signature, VariantFunction&& function)
   {
-    if (microCode.find(signature) != microCode.end())
+    if (table.find(signature) != table.end())
       assert(false);
     
-    microCode.emplace(std::make_pair(signature, function));
+    table.emplace(std::make_pair(signature, function));
   }
   
   Vocabulary _vocabulary;
@@ -210,8 +214,6 @@ public:
   }
   
   const Vocabulary& vocabulary() { return _vocabulary; }
-  const decltype(microCode)& data() { return microCode; }
-  size_t size() { return microCode.size(); }
   
   void registerUnary(Signature signature, Arguments retn, const decltype(VariantFunction::unary)&& function)
   {
@@ -249,5 +251,7 @@ public:
     registerNumericTemplate<integral_t, integral_t, return_type<integral_t, IS_COMPARISON>, OP>(opcode);
   }
   
-  bool execute(VM* vm, Opcode opcode);
+  bool execute(VM* vm, Opcode opcode) const;
+  
+  void registerDefault();
 };

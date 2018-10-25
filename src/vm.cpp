@@ -7,6 +7,7 @@
 
 #include "vm.h"
 
+#include "semantics.h"
 #include "instruction.h"
 
 void VM::execute(Code *code)
@@ -31,10 +32,19 @@ void VM::run()
 {
   while (exec.pc < exec.code->size() && running)
   {
-    const Instruction &i = exec.code->at(exec.pc);
+    const Instruction& i = exec.code->at(exec.pc);
     
-    i.execute(this);
+    if (i.isValue())
+      push(i.value());
+    else
+    {
+      if (microcode.execute(this, i.opcode()))
+        return;
+      
+      i.execute(this);
+
+    }
     
-    exec.pc++;
+    ++exec.pc;
   }
 }

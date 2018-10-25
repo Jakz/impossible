@@ -11,22 +11,23 @@
 #include "defines.h"
 #include "value.h"
 #include "collection.h"
+#include "semantics.h"
 
 #include <map>
 #include <set>
 #include <string>
 #include <vector>
 
-enum Topic
+enum class Topic
 {
-  TOPIC_NUMERICS,
-  TOPIC_BITWISE,
-  TOPIC_COLLECTIONS,
-  TOPIC_STACK,
-  TOPIC_FUNCTIONAL,
-  TOPIC_UTILITY,
-  TOPIC_LOGIC,
-  TOPIC_TEXT
+  NUMERICS,
+  BITWISE,
+  COLLECTIONS,
+  STACK,
+  FUNCTIONAL,
+  UTILITY,
+  LOGIC,
+  TEXT
 };
 
 struct TypeConstructor
@@ -48,9 +49,9 @@ struct OpHelpEntry
   using string = std::string;
   
   u32 io, oo;
-  Type i[3];
-  Type o[3];
-  
+  Arguments i;
+  Arguments o;
+
   string desc;
   string ident;
   Topic topic;
@@ -197,7 +198,7 @@ class Help
 {
   private:
     static std::multimap<std::string, OpHelpEntry> operators;
-    static std::multimap<int, TypeConstructor> constructors;
+    static std::multimap<Type, TypeConstructor> constructors;
   
     static void addConstructor(Type type, TypeConstructor constructor);
     static void addOperator(std::string op, OpHelpEntry entry);

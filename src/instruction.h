@@ -31,6 +31,8 @@ public:
   void execute(VM *vm) const;
   std::string svalue() const;
   
+  bool isValue() const { return _value.type != TYPE_OPCODE; }
+  
   Opcode opcode() const { return _value.opcode(); }
   const Value& value() const { return _value; }
   

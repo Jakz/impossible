@@ -29,6 +29,8 @@ struct Arguments
     (t[2] == o.t[2] || (t[2] == TYPE_GENERIC && o.t[2] != TYPE_NONE));
   }
   
+  size_t count() const { return std::distance(t.begin(), std::find(t.begin(), t.end(), TYPE_NONE)); }
+  
   TypeInfo& operator[](size_t index) { return t[index]; }
   const TypeInfo& operator[](size_t index) const { return t[index]; }
 };

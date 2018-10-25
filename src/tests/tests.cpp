@@ -6,12 +6,21 @@
 //
 //
 
-#define CATCH_CONFIG_MAIN
-
-#include "compiler.h"
-
+#define CATCH_CONFIG_RUNNER
 #include "catch.h"
 
+#include "semantics.h"
+extern void registerFunctions(MicroCode& mc);
+
+MicroCode mc;
+int main(int argc, char* argv[])
+{
+  registerFunctions(mc);
+  int result = Catch::Session().run(argc, argv);
+  return result;
+}
+
+#include "compiler.h"
 #include "vm.h"
 
 #include <vector>
@@ -62,10 +71,21 @@ template<typename... Args> void executeAndVerifyStack(std::string code, Args... 
   Code* program = Compiler().compile(code.c_str());
   REQUIRE(program != nullptr);
   
-  VM vm;
+  VM vm(mc);
   vm.execute(program);
   
   verifyStack(vm, args...);
+}
+
+TEST_CASE("support types")
+{
+  SECTION("Arguments")
+  {
+    REQUIRE(Arguments().count() == 0);
+    REQUIRE(Arguments(TYPE_INT).count() == 1);
+    REQUIRE(Arguments(TYPE_INT, TYPE_INT).count() == 2);
+    REQUIRE(Arguments(TYPE_INT, TYPE_INT, TYPE_INT).count() == 3);
+  }
 }
 
 TEST_CASE("primitive literals")

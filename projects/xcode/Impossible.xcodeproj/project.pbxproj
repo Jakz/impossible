@@ -24,6 +24,8 @@
 		04C080D82180B4B80054BED3 /* value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04C080D12180B4B80054BED3 /* value.cpp */; };
 		04CE0A33218175950073AE98 /* semantics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04CE0A31218175950073AE98 /* semantics.cpp */; };
 		04CE0A34218175950073AE98 /* semantics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04CE0A31218175950073AE98 /* semantics.cpp */; };
+		04CE0A362181F0DF0073AE98 /* microcode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04CE0A352181F0DF0073AE98 /* microcode.cpp */; };
+		04CE0A372181F0DF0073AE98 /* microcode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04CE0A352181F0DF0073AE98 /* microcode.cpp */; };
 		04F19E09217FBCB7003AAAE2 /* compiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F19E08217FBCB7003AAAE2 /* compiler.cpp */; };
 		04F19E0A217FBCB7003AAAE2 /* compiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F19E08217FBCB7003AAAE2 /* compiler.cpp */; };
 		04F6E084217BE93D0037C307 /* code.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F6E066217BE93D0037C307 /* code.cpp */; };
@@ -75,6 +77,7 @@
 		04C080D22180B4B80054BED3 /* value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = value.h; sourceTree = "<group>"; };
 		04CE0A31218175950073AE98 /* semantics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = semantics.cpp; sourceTree = "<group>"; };
 		04CE0A32218175950073AE98 /* semantics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = semantics.h; sourceTree = "<group>"; };
+		04CE0A352181F0DF0073AE98 /* microcode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = microcode.cpp; sourceTree = "<group>"; };
 		04F19E08217FBCB7003AAAE2 /* compiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = compiler.cpp; sourceTree = "<group>"; };
 		04F6E05B217BE8FB0037C307 /* Impossible */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Impossible; sourceTree = BUILT_PRODUCTS_DIR; };
 		04F6E066217BE93D0037C307 /* code.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = code.cpp; sourceTree = "<group>"; };
@@ -168,6 +171,7 @@
 				04C080CE2180B4B80054BED3 /* collection.h */,
 				04CE0A31218175950073AE98 /* semantics.cpp */,
 				04CE0A32218175950073AE98 /* semantics.h */,
+				04CE0A352181F0DF0073AE98 /* microcode.cpp */,
 				04C080CF2180B4B80054BED3 /* traits.cpp */,
 				04C080D02180B4B80054BED3 /* traits.h */,
 				04C080D12180B4B80054BED3 /* value.cpp */,
@@ -272,6 +276,7 @@
 				04A637F7217F977700436B0F /* parser.cpp in Sources */,
 				04C080D42180B4B80054BED3 /* collection.cpp in Sources */,
 				046E4F1B217EA22300DB959C /* help.cpp in Sources */,
+				04CE0A372181F0DF0073AE98 /* microcode.cpp in Sources */,
 				04C080D82180B4B80054BED3 /* value.cpp in Sources */,
 				046E4F1E217EA22300DB959C /* instruction.cpp in Sources */,
 				04C080D62180B4B80054BED3 /* traits.cpp in Sources */,
@@ -292,6 +297,7 @@
 				04A637F6217F977700436B0F /* parser.cpp in Sources */,
 				04C080D32180B4B80054BED3 /* collection.cpp in Sources */,
 				04F6E088217BE93D0037C307 /* instruction.cpp in Sources */,
+				04CE0A362181F0DF0073AE98 /* microcode.cpp in Sources */,
 				04C080D72180B4B80054BED3 /* value.cpp in Sources */,
 				04C080D52180B4B80054BED3 /* traits.cpp in Sources */,
 				04FE2F372180C1EF00871297 /* lazy.cpp in Sources */,

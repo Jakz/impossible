@@ -30,6 +30,14 @@ const char* Help::topicString(Topic topic)
   }
 }
 
+#include "instruction.h"
+void Help::addOperator(Opcode opcode, const Arguments& input, const Arguments& output, Topic topic, const std::string& name, const std::string& description, const OpHelpEntry::examples_t& examples)
+{
+  addOperator(Instruction(opcode).svalue(),
+              OpHelpEntry(name, topic, input, output, description, examples)
+              );
+}
+
 void Help::init()
 {
   addOperator("+", OpHelpEntry::binary(TYPE_INT, TYPE_INT, TYPE_INT, "sum", Topic::NUMERICS, "addition between integers", "2 2 +", "4"));
@@ -308,24 +316,26 @@ void Help::printOperator(string op, OpHelpEntry o)
 {
   cout << "  " << op << " (" << o.ident << ") : ";
   
-  for (int i = 0; i < o.io; ++i)
+  const size_t oc = o.o.count(), ic = o.i.count();
+  
+  for (int i = 0; i < ic; ++i)
   {
     cout << TypeTraits::nameForType(o.i[i]);
     
-    if (i < o.io - 1)
+    if (i < ic - 1)
       cout << ", ";
-    else if (o.oo > 0)
+    else if (oc > 0)
       cout << " -> ";
   }
   
-  if (o.io == 0 || o.oo == 0)
+  if (ic == 0 || oc == 0)
     cout << " -> ";
   
-  for (int i = 0; i < o.oo; ++i)
+  for (int i = 0; i < oc; ++i)
   {
     cout << TypeTraits::nameForType(o.o[i]);
     
-    if (i < o.oo - 1)
+    if (i < oc - 1)
       cout << ", ";
   }
   

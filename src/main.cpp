@@ -109,26 +109,3 @@ int main (int argc, const char * argv[])
     }
   }
 }
-
-#include "semantics.h"
-
-void registerUnary(Topic topic, const std::string& name, const std::string& desc,
-                   const std::vector<std::pair<std::string,std::string>>& examples,
-                   Signature signature, Arguments retn,
-                   const decltype(VariantFunction::unary)&& functor)
-{
-  
-}
-
-void registerFunctions()
-{
-  registerUnary(
-      Topic::COLLECTIONS, "size", "returns size of the collection",
-      {{"(1 2 3)_", "3"}, {"{}_", "0"}},
-      { OP_NEG, TYPE_COLLECTION }, TYPE_COLLECTION,
-      [] (VM* vm, const Value& v1) { vm->push(v1.collection()->size()); });
-
-  
-  
-}
-

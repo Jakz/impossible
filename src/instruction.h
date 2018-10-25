@@ -20,49 +20,18 @@ class Code;
 class Instruction final
 {
 private:
-  
-  union
-  {
-    Value _value;
-    Opcode _opcode;
-  };
-  
-  bool isPush;
-  
+  Value _value;
+
 public:
   Instruction() { }
-  Instruction(Opcode opcode) : _opcode(opcode), isPush(false) { }
-  Instruction(Value&& value) : _value(value), isPush(true) { }
-  Instruction(const Value& value) : _value(value), isPush(true) { }
-  
-  Instruction(const Instruction& other)
-  {
-    isPush = other.isPush;
-    if (isPush) _value = other._value;
-    else _opcode = other._opcode;
-  }
-  
-  Instruction(const Instruction&& other)
-  {
-    isPush = other.isPush;
-    if (isPush) _value = std::move(other._value);
-    else _opcode = other._opcode;
-  }
-  
-  Instruction& operator=(const Instruction& other)
-  {
-    isPush = other.isPush;
-    if (isPush) _value = other._value;
-    else _opcode = other._opcode;
-    return *this;
-  }
-  
-  ~Instruction() { if (isPush) _value.~Value(); }
+  Instruction(Opcode opcode) : _value(opcode) { }
+  Instruction(Value&& value) : _value(value) { }
+  Instruction(const Value& value) : _value(value) { }
   
   void execute(VM *vm) const;
   std::string svalue() const;
   
-  Opcode opcode() const { return _opcode; }
+  Opcode opcode() const { return _value.opcode(); }
   const Value& value() const { return _value; }
   
 };

@@ -24,6 +24,7 @@
 
 #define TYPES(x, y) (x << 4 | y)
 
+using opcode_t = Opcode;
 class TCollection;
 class String;
 class Array;
@@ -38,12 +39,14 @@ class Code;
 
 union value_data
 {
+  opcode_t op;
   integral_t i;
   real_t f;
   char c;
   bool b;
   managed_object* ptr;
   
+  value_data(opcode_t op) : op(op) { }
   value_data(integral_t i) : i(i) { }
   value_data(real_t f) : f(f) { }
   value_data(char c) : c(c) { }
@@ -72,6 +75,7 @@ public:
   Value(real_t value) : type(TYPE_FLOAT), data(value) { }
   Value(char value) : type(TYPE_CHAR), data(value) { }
   Value(bool value) : type(TYPE_BOOL), data(value) { }
+  Value(opcode_t value) : type(TYPE_OPCODE), data(value) { }
   
   Value(String* string);
   Value(List* list);
@@ -95,6 +99,7 @@ public:
   real_t real() const { return data.f; }
   char character() const { return data.c; }
   bool boolean() const { return data.b; }
+  opcode_t opcode() const { return data.op; }
   
   template<typename T> auto number() const -> typename std::enable_if<std::is_same<T, integral_t>::value, T>::type { return data.i; }
   template<typename T> auto number() const -> typename std::enable_if<std::is_same<T, real_t>::value, T>::type { return data.f; }

@@ -130,6 +130,7 @@ enum Type : s16
   TYPE_INVALID = -1,
   
   TYPE_NIL = 0,
+  TYPE_OPCODE,
   TYPE_INT,
   TYPE_FLOAT,
   

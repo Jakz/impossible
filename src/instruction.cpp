@@ -205,11 +205,11 @@ void registerFunctions()
 
 std::string Instruction::svalue() const
 {
-  if (isPush)
+  if (_value.type != TYPE_OPCODE)
     return _value.svalue();
   else
   {
-    switch (_opcode) {
+    switch (_value.opcode()) {
       case OP_PLUS: return "+";
       case OP_MINUS: return "-";
       case OP_TIMES: return "*";
@@ -284,7 +284,7 @@ std::string Instruction::svalue() const
 
 void Instruction::execute(VM *vm) const
 {
-  if (isPush)
+  if (_value.type != TYPE_OPCODE)
   {
     vm->push(_value);
     return;
@@ -292,10 +292,10 @@ void Instruction::execute(VM *vm) const
 
   Value v1, v2, v3;
   
-  if (microCode.execute(vm, _opcode))
+  if (microCode.execute(vm, _value.opcode()))
     return;
   
-  switch (_opcode)
+  switch (_value.opcode())
   {
     case OP_SWAP:
     {

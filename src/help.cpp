@@ -282,6 +282,7 @@ void Help::printHelpMain()
   cout << "  help 'term'     : search for term inside name or desc of available instruction" << endl;
   cout << "  stack : prints the content of the stack" << endl;
   cout << "  wipe  : empties the stack" << endl;
+  cout << "  info  : displays information about environment" << endl;
   cout << "  exit  : exits the interpreter" << endl;
 }
 

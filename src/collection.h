@@ -431,4 +431,6 @@ public:
   operator Code*() { return _code; }
   
   Code* code() { return _code; }
+  
+  void put(size_t index, Value value);
 };

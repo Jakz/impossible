@@ -23,6 +23,7 @@ class Code
 public:
   virtual size_t size() const = 0;
   virtual const Instruction& at(size_t i) const = 0;
+  
   virtual Code* append(const Instruction& ins) = 0;
   
   std::string svalue() const;

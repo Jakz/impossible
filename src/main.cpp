@@ -45,18 +45,18 @@ int main (int argc, const char * argv[])
     getline(cin, input);
     
     
-    if (input.compare("exit") == 0)
+    if (input == "exit")
       finished = true;
-    else if (input.compare("stack") == 0)
+    else if (input == "stack")
     {
       cout << ">>  ";
       vm.printStack();
     }
-    else if (input.compare("wipe") == 0)
+    else if (input == "wipe")
       vm.wipe();
     else if (input.substr(0,4).compare("help") == 0)
     {
-      if (input.compare("help") == 0)
+      if (input == "help")
       {
         Help::printHelpMain();
       }
@@ -64,9 +64,9 @@ int main (int argc, const char * argv[])
       {
         string params = input.substr(5);
         
-        if (params.compare("operators") == 0)
+        if (params == "operators")
           Help::printOperators();
-        else if (params.compare("types") == 0)
+        else if (params == "types")
           Help::printTypes();
         else if (Help::printHelpForOperator(params))
         {
@@ -81,6 +81,13 @@ int main (int argc, const char * argv[])
           
         }
       }
+    }
+    else if (input == "info")
+    {
+      cout << "  arch: " << (sizeof(void*) == 4 ? "x86" : "x86-64") << endl;
+      cout << "  size of value        : " << sizeof(Value) << endl;
+      cout << "  size of instruction  : " << sizeof(Instruction) << endl;
+      cout << "  size of opcode       : " << sizeof(Opcode) << endl;
     }
     else
     {

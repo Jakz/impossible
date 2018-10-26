@@ -12,12 +12,6 @@
  **************************/
 
 #define USE_PACKED_VALUES false
-#define CACHE_SIGNATURES_FOR_GENERIC_OPCODES true
-
-
-
-
-
 
 /**************************/
 

@@ -14,20 +14,18 @@ struct Arguments
   
   Arguments(Type t1 = TYPE_NONE, Type t2 = TYPE_NONE, Type t3 = TYPE_NONE) : t({t1, t2, t3}) { }
   
-  bool operator==(const Arguments& o) const
+  bool operator==(const Arguments& other) const
   {
-    return t[0] == o.t[0]
-    && t[1] == o.t[1]
-    && t[2] == o.t[2];
+    return t == other.t;
   }
   
-  /*bool matches(const Arguments& o) const
+  bool operator<(const Arguments& other) const
   {
-    return
-    (t[0] == o.t[0] || (t[0] == TYPE_GENERIC && o.t[0] != TYPE_NONE)) &&
-    (t[1] == o.t[1] || (t[1] == TYPE_GENERIC && o.t[1] != TYPE_NONE)) &&
-    (t[2] == o.t[2] || (t[2] == TYPE_GENERIC && o.t[2] != TYPE_NONE));
-  }*/
+    for (size_t i = 0; i < t.size(); ++i)
+      if (t[i] != TYPE_NONE && !(t[i] < other.t[i]))
+        return false;
+    return true;
+  }
   
   size_t count() const { return std::distance(t.begin(), std::find(t.begin(), t.end(), TYPE_NONE)); }
   
@@ -163,8 +161,11 @@ public:
 class MicroCode
 {
 private:
+
+  
+  mutable std::unordered_map<Opcode, std::vector<std::pair<Signature, VariantFunction>>> table;
   /* mutable for optional caching of signatures */
-  mutable std::unordered_map<Signature, VariantFunction, Signature::hash> table;
+  mutable std::unordered_map<Signature, const VariantFunction*, Signature::hash> cache;
   
   struct OpcodeData
   {
@@ -179,54 +180,50 @@ private:
   
   const VariantFunction* findBestOverload(Signature os) const
   {
+    auto cit = cache.find(os);
+    if (cit != cache.end())
+      return cit->second;
+    
+    const VariantFunction* matching = nullptr;
+    
+    const auto& functions = table[os.opcode];
+    
     /* search for perfect match first */
-    auto it = table.find(os);
-    if (it != table.end()) return &it->second;
+    auto it = std::find_if(functions.begin(), functions.end(), [&os] (const auto& fun) { return fun.first.args == os.args; });
     
-    /* then try replacing collection types with generic */
-    Signature s = Signature(
-                  os.opcode,
-                  os.args.t[0].isCollection() ? TypeInfo(TYPE_COLLECTION) : os.args.t[0],
-                  os.args.t[1].isCollection() ? TypeInfo(TYPE_COLLECTION) : os.args.t[1],
-                  os.args.t[2].isCollection() ? TypeInfo(TYPE_COLLECTION) : os.args.t[2]
-                  );
-    
-    it = table.find(s);
-    if (it != table.end())
+    /* otherwise search for compatible overloads */
+    if (it == functions.end())
     {
-#if CACHE_SIGNATURES_FOR_GENERIC_OPCODES
-      /* cache function with that signature for faster retrieval next time */
-      table.emplace(std::make_pair(os, it->second));
-#endif
-      return &it->second;
+      std::vector<VariantFunction*> compatibles;
+      for (const auto& fun : functions)
+        if (os.args < fun.first.args)
+        {
+          if (matching) assert(false);
+          else
+          {
+            matching = &fun.second;
+            break;
+          }
+        }
     }
+    else
+      matching = &it->second;
     
-    /* then try with generic types */
-    s = Signature(
-                  os.opcode,
-                  os.args.t[0] != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE,
-                  os.args.t[1] != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE,
-                  os.args.t[2] != TYPE_NONE ? TYPE_GENERIC : TYPE_NONE
-                  );
-    it = table.find(s);
-    if (it != table.end())
+    if (matching)
     {
-#if CACHE_SIGNATURES_FOR_GENERIC_OPCODES
-      /* cache function with that signature for faster retrieval next time */
-      table.emplace(std::make_pair(os, it->second));
-#endif
-      return &it->second;
+      if (cache.find(os) != cache.end())
+        assert(false);
+      
+      cache[os] = matching;
+      return matching;
     }
-    
-    return nullptr;
+    else
+      return nullptr;
   }
   
   void emplace(const Signature& signature, VariantFunction&& function)
   {
-    if (table.find(signature) != table.end())
-      assert(false);
-    
-    table.emplace(std::make_pair(signature, function));
+    table[signature.opcode].push_back(std::make_pair(signature, function));
   }
   
   Vocabulary _vocabulary;

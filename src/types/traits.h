@@ -117,7 +117,9 @@ public:
   bool operator==(Type type) const { return this->type == type; }
   bool operator<(Type type) const
   {
-    if (type == TYPE_GENERIC)
+    if (this->type == TYPE_NONE || type == TYPE_NONE)
+      return false;
+    else if (type == TYPE_GENERIC)
       return true;
     else
       return type == TYPE_COLLECTION && isCollection();

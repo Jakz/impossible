@@ -121,7 +121,7 @@ class Traits
 public:
   class Countable
   {
-    virtual integral_t size() const = 0;
+  public: virtual integral_t size() const = 0;
   };
   
   class Indexable

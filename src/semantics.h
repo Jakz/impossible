@@ -27,6 +27,12 @@ public:
   bool operator&&(Trait trait) const { return ((value & ~TRAIT_SPECIFIC_TYPE) & trait) != 0; }
   
   bool operator!=(Type type) const { return !this->operator==(type); }
+  
+  
+  bool isCompatibleWith(Type type) const
+  {
+    return (isType() && this->type() == type) || (!isType() && TypeInfo(type).operator<(trait()));
+  }
 };
 
 using ArgumentType = Type;

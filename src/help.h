@@ -184,7 +184,8 @@ private:
 
   static void addConstructor(Type type, TypeConstructor constructor);
   static void addOperator(std::string op, OpHelpEntry entry);
-  static void printOperator(std::string op, OpHelpEntry o);
+  
+  static void printOperator(std::string op, const OpHelpEntry& o);
 
   static const char* topicString(Topic topic);
 

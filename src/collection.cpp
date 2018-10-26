@@ -30,3 +30,5 @@ void Lambda::put(size_t index, Value value)
 {
   index = std::min(index, _code->size());
 }
+
+integral_t Lambda::size() const { return _code->size(); }

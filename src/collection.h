@@ -421,7 +421,7 @@ public:
   const map_t& raw() const { return data; }
 };
 
-class Lambda : public managed_object
+class Lambda : public managed_object, public Traits::Countable
 {
 private:
   Code* _code;
@@ -433,4 +433,6 @@ public:
   Code* code() { return _code; }
   
   void put(size_t index, Value value);
+  
+  integral_t size() const override;
 };

@@ -38,7 +38,7 @@ void registerFunctions(MicroCode& mc)
   mc.registerDefault();
   
   registerUnary(mc,
-                Topic::COLLECTIONS, "size", "returns size of the collection",
+                Topic::COLLECTIONS, "size", "returns size/length of the value on stackk",
                 {{"(1 2 3)_", "3"}, {"{}_", "0"}},
                 { OP_NEG, TRAIT_COUNTABLE }, { TYPE_INT },
                 [] (VM* vm, const Value& v1) {

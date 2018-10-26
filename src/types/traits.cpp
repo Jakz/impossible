@@ -170,7 +170,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   { TYPE_MAP, { TYPE_MAP, { TRAIT_COUNTABLE }, "map" } },
   
   { TYPE_LAMBDA,
-    { TYPE_LAMBDA, {}, "lambda",
+    { TYPE_LAMBDA, { TRAIT_COUNTABLE }, "lambda",
       [] (const Value& v) {
         std::stringstream ss(std::stringstream::out);
         size_t size = v.lambda()->code()->size();

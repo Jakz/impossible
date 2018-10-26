@@ -129,7 +129,7 @@ public:
   static Value INVALID;
 };
 
-class TCollection : public managed_object
+class TCollection : public managed_object, public Traits::Countable
 {
 public:
   virtual void iterate() const = 0;
@@ -138,7 +138,6 @@ public:
   virtual const Value& next() const = 0;
 
   virtual void put(Value value) = 0;
-  virtual integral_t size() const = 0;
   virtual bool empty() const = 0;
   
   //TODO: must override for map

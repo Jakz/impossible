@@ -76,20 +76,13 @@ void Help::init()
   
   addOperator("/", OpHelpEntry::binary(TYPE_INT, TYPE_INT, TYPE_INT, "div", Topic::NUMERICS, "division between integers", "", ""));
   addOperator("/", OpHelpEntry::binary(TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, "div", Topic::NUMERICS, "division between floats", "", ""));
-  addOperator("/", OpHelpEntry::binary(TYPE_SET, TYPE_SET, TYPE_SET, "union", Topic::COLLECTIONS, "computes set difference", "", ""));
+  addOperator("/", OpHelpEntry::binary(TYPE_SET, TYPE_SET, TYPE_SET, "difference", Topic::COLLECTIONS, "computes set difference", "", ""));
   
   addOperator("*", OpHelpEntry::binary(TYPE_INT, TYPE_INT, TYPE_INT, "mul", Topic::NUMERICS, "multiplication between integers", "", ""));
   addOperator("*", OpHelpEntry::binary(TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, "mul", Topic::NUMERICS, "multiplication between floats", "", ""));
   
   addOperator("_", OpHelpEntry::unary(TYPE_INT, TYPE_INT, "negation", Topic::NUMERICS, "negates integer", "", ""));
   addOperator("_", OpHelpEntry::unary(TYPE_FLOAT, TYPE_FLOAT, "negation", Topic::NUMERICS, "negates float", "", ""));
-  addOperator("_", OpHelpEntry::unaryO(TYPE_LIST, TYPE_LIST, TYPE_INT, "size", Topic::COLLECTIONS, "pushes the size of the list", "", ""));
-  addOperator("_", OpHelpEntry::unaryO(TYPE_ARRAY, TYPE_ARRAY, TYPE_INT, "size", Topic::COLLECTIONS, "pushes the size of the array", "", ""));
-  addOperator("_", OpHelpEntry::unaryO(TYPE_STACK, TYPE_STACK, TYPE_INT, "size", Topic::COLLECTIONS, "pushes the size of the stack", "", ""));
-  addOperator("_", OpHelpEntry::unaryO(TYPE_QUEUE, TYPE_QUEUE, TYPE_INT, "size", Topic::COLLECTIONS, "pushes the size of the queue", "", ""));
-  addOperator("_", OpHelpEntry::unaryO(TYPE_MAP, TYPE_MAP, TYPE_INT, "size", Topic::COLLECTIONS, "pushes the size of the map", "", ""));
-  addOperator("_", OpHelpEntry::unaryO(TYPE_STRING, TYPE_LIST, TYPE_INT, "length", Topic::COLLECTIONS, "pushes the length of the string", "", ""));
-  addOperator("_", OpHelpEntry::unaryO(TYPE_LAZY_ARRAY, TYPE_LAZY_ARRAY, TYPE_INT, "size", Topic::COLLECTIONS, "pushes the size of the generated terms of the lazy array", "", ""));
   
   addOperator("//", OpHelpEntry::binary(TYPE_INT, TYPE_INT, TYPE_INT, "mod", Topic::NUMERICS, "computes modulo between integers", "", ""));
   addOperator("//", OpHelpEntry::unaryO(TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, "modf", Topic::NUMERICS, "computes integer and fractional part of a float number", "", ""));
@@ -310,7 +303,7 @@ void Help::addOperator(string op, OpHelpEntry entry)
   operators.insert(std::make_pair(op, entry));
 }
 
-void Help::printOperator(string op, OpHelpEntry o)
+void Help::printOperator(string op, const OpHelpEntry& o)
 {
   cout << "  " << op << " (" << o.ident << ") : ";
   
@@ -404,15 +397,25 @@ bool Help::printHelpForType(const std::string& stype)
     
     cout << endl << "available operators:" << endl;
     
+    using iterator_t = decltype(operators)::const_iterator;
+    std::vector<iterator_t> operations;
+    
     multimap<string, OpHelpEntry>::iterator it;
     
     for (it = operators.begin(); it != operators.end(); ++it)
     {
       const OpHelpEntry& o = it->second;
       
-      if (o.i[0] == type)
-        printOperator(it->first, o);
+      if (o.i[0].isCompatibleWith(type))
+        operations.push_back(it);
     }
+    
+    std::sort(operations.begin(), operations.end(), [] (const iterator_t& i1, const iterator_t& i2) {
+      return i1->second.ident < i2->second.ident;
+    });
+    
+    for (const auto& it : operations)
+      printOperator(it->first, it->second);
     
     return true;
     

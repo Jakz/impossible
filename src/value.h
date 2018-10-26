@@ -109,7 +109,12 @@ public:
   template<typename T> auto number() const -> typename std::enable_if<std::is_same<T, real_t>::value, T>::type { return data.f; }
 
   
-  template<typename T> T* object() const { return static_cast<T*>(data.ptr); }
+  template<typename T> T* object() const
+  {
+    T* ptr = dynamic_cast<T*>(data.ptr);
+    assert(ptr);
+    return ptr;
+  }
   
   TCollection* collection() const; //TODO: temporarily virtual to override in collections
   
@@ -122,6 +127,8 @@ public:
   Array* array() const;
   Range* range() const;
   LazyArray* lazyArray() const;
+  
+  Traits::Indexable* indexable() const;
   
   Lambda* lambda() const;
   

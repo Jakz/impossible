@@ -70,6 +70,7 @@ public:
     return it->second;
   }
   
+  static std::string nameForTrait(Trait trait);
   static std::string nameForSignatureType(SignatureType type);
 
   static Type typeForName(const std::string& name)
@@ -126,7 +127,9 @@ public:
   
   class Indexable
   {
-    virtual const Value& at(integral_t index) = 0;
+  public: virtual Value at(integral_t index) const = 0;
   };
+  
+  class IndexableAndCountable : public Countable, public Indexable { };
 };
 

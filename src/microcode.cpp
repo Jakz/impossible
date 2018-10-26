@@ -38,13 +38,44 @@ void registerFunctions(MicroCode& mc)
   mc.registerDefault();
   
   registerUnary(mc,
-                Topic::COLLECTIONS, "size", "returns size/length of the value on stackk",
+                Topic::COLLECTIONS, "size", "returns size/length of the value on stack",
                 {{"(1 2 3)_", "3"}, {"{}_", "0"}},
                 { OP_NEG, TRAIT_COUNTABLE }, { TYPE_INT },
                 [] (VM* vm, const Value& v1) {
                   vm->push(v1.collection()->size());
                 }
                 );
+  
+  registerBinary(mc,
+                 Topic::COLLECTIONS, "at", "retrieves i-th element from indexable type",
+                 {{"(1 2 3)1@", "2"}, {"\"hello\"0@", "'h"}},
+                 { OP_AT, TRAIT_INDEXABLE, TYPE_INT }, { TRAIT_ANY_TYPE },
+                 [] (VM* vm, const Value& v1, const Value& v2) { vm->push(v1.indexable()->at(v2.integral())); }
+                 );
+  
+  registerBinary(mc,
+                 Topic::COLLECTIONS, "extract", "retrieves all elements of range from indexable type",
+                 {},
+                 { OP_AT, TRAIT_INDEXABLE | TRAIT_COUNTABLE, TYPE_RANGE }, { TYPE_ARRAY },
+                 [] (VM* vm, const Value& v1, const Value& v2) {
+                   const RangeVector& r = v2.range()->raw();
+                   Array::utype_t nv;
+                   Traits::Indexable* source = v1.object<Traits::Indexable>();
+                   integral_t size = v1.object<Traits::Countable>()->size();
+                   
+                   std::vector<integral_t> iv = r.concretize();
+                   nv.reserve(iv.size());
+                   
+                   for (size_t i = 0; i < iv.size(); ++i)
+                   {
+                     integral_t j = iv[i];
+                     if (j < 0) j += size;
+                     if (j < size) nv.push_back(source->at(j));
+                   }
+                   
+                   vm->push(v1);
+                   vm->push(new Array(nv));
+                 });
   
   /** STACK FUNCTIONS **/
   registerUnary(mc,
@@ -60,5 +91,7 @@ void registerFunctions(MicroCode& mc)
                 { OP_SWAP, TRAIT_ANY_TYPE, TRAIT_ANY_TYPE2 }, { TRAIT_ANY_TYPE2, TRAIT_ANY_TYPE },
                 [] (VM* vm, const Value& v1, const Value& v2) { vm->push(v2); vm->push(v1); }
                 );
+  
+
 }
 

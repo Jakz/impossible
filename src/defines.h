@@ -179,8 +179,14 @@ enum Trait : u32
   TRAIT_ANY_TYPE2     = TRAIT_ANY_TYPE + 1,
   TRAIT_ANY_TYPE_LAST = 0x41000009,
   
-  TRAIT_COUNTABLE     = 0x00000001
+  TRAIT_COUNTABLE               = 0x00000001,
+  TRAIT_INDEXABLE               = 0x00000002,
+  
+  TRAIT_MAX = 8
 };
+
+inline bool operator&&(Trait t1, Trait t2) { return (static_cast<std::underlying_type<Trait>::type>(t1) & static_cast<std::underlying_type<Trait>::type>(t2)) != 0; }
+inline Trait operator|(Trait t1, Trait t2) { return static_cast<Trait>((u32)t1 | (u32)t2); }
 
 #include <string>
 #include <functional>

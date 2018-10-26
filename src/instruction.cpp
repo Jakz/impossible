@@ -857,16 +857,6 @@ void Instruction::execute(VM *vm) const
             {            
               switch (TYPES(v1.type, v2.type))
               {
-                case TYPES(TYPE_ARRAY, TYPE_INT):
-                {
-                  const Array::utype_t& values = v1.array()->raw();
-                  integral_t i = v2.integral();
-                  
-                  vm->push(v1);
-                  vm->push(i < values.size() ? values[i] : Value());
-                  
-                  break;
-                }
                 case TYPES(TYPE_ARRAY, TYPE_RANGE):
                 {
                   const RangeVector& r = v2.range()->raw();
@@ -878,7 +868,7 @@ void Instruction::execute(VM *vm) const
                   
                   for (size_t i = 0; i < iv.size(); ++i)
                   {
-                    s64 j = iv[i];
+                    integral_t j = iv[i];
                     
                     if (j < 0)
                       j += ov.size();

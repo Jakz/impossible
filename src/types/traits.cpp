@@ -99,7 +99,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
   
   { TYPE_STRING,
-    { TYPE_STRING, { TRAIT_COUNTABLE }, "string",
+    { TYPE_STRING, { TRAIT_COUNTABLE, TRAIT_INDEXABLE }, "string",
       [] (const Value& v) { return v.string()->raw(); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STRING && v2.string()->raw() == v1.string()->raw(); }
     }
@@ -134,7 +134,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
   
   { TYPE_ARRAY,
-    { TYPE_ARRAY, { TRAIT_COUNTABLE }, "array",
+    { TYPE_ARRAY, { TRAIT_COUNTABLE, TRAIT_INDEXABLE }, "array",
       [] (const Value& v) { return ArrayPrinter.svalue(v.array()); }
     }
   },
@@ -215,6 +215,28 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
 
 #include "semantics.h"
 
+std::string TypeTraits::nameForTrait(Trait trait)
+{
+  std::string result;
+
+  static const std::unordered_map<Trait, std::string, enum_hash> names = {
+    { Trait::TRAIT_COUNTABLE, "countable" },
+    { Trait::TRAIT_INDEXABLE, "indexable" },
+  };
+  
+  for (const auto& e : names)
+  {
+    if (e.first && trait)
+    {
+      if (!result.empty())
+        result += " ";
+      result += e.second;
+    }
+  }
+  
+  return result;
+}
+
 std::string TypeTraits::nameForSignatureType(SignatureType type)
 {
   if (type.isType())
@@ -233,13 +255,9 @@ std::string TypeTraits::nameForSignatureType(SignatureType type)
     if (trait >= TRAIT_ANY_TYPE && trait <= TRAIT_ANY_TYPE_LAST)
       return std::string(1, 'A' + (trait - TRAIT_ANY_TYPE));
     
-    switch (trait)
-    {
-      case Trait::TRAIT_COUNTABLE: return "countable";
-      case Trait::TRAIT_ANY_TYPE: return "any";
-      default:
-        assert(false);
-        return nullptr;
-    }
+    std::string name = nameForTrait(trait);
+    
+    assert(!name.empty());
+    return name;
   }
 }

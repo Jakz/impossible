@@ -10,7 +10,7 @@
 
 #include "value.h"
 
-class String : public TCollection
+class String final : public TCollection, public Traits::Indexable
 {
 public:
   using data_t = std::string;
@@ -40,8 +40,10 @@ public:
     this->value.append(value.svalue());
   }
   
-  virtual integral_t size() const override { return value.length(); }
   virtual bool empty() const override { return this->value.empty(); }
+  
+  integral_t size() const override { return value.length(); }
+  Value at(integral_t index) const override { return value[index]; }
   
   const std::string& raw() const { return value; }
 };
@@ -261,7 +263,7 @@ public:
 };
 
 
-class Array : public TCollection
+class Array : public TCollection, public Traits::Indexable
 {
 public:
   using array_t = std::vector<Value>;
@@ -304,6 +306,8 @@ public:
   
   array_t::iterator begin() { return data.begin(); }
   array_t::iterator end() { return data.end(); }
+  
+  Value at(integral_t index) const override { return data[index]; }
 };
 
 class LazyArray : public TCollection

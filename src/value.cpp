@@ -41,4 +41,7 @@ Range* Value::range() const { assert(type == TYPE_RANGE); return object<Range>()
 Lambda* Value::lambda() const { assert(type == TYPE_LAMBDA); return object<Lambda>(); }
 LazyArray* Value::lazyArray() const { assert(type == TYPE_LAZY_ARRAY); return object<LazyArray>(); }
 
+Traits::Indexable* Value::indexable() const { return object<Traits::Indexable>(); }
+
+
 Value Value::INVALID = Value(TYPE_INVALID);

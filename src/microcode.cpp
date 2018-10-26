@@ -40,7 +40,7 @@ void registerFunctions(MicroCode& mc)
   registerUnary(mc,
                 Topic::COLLECTIONS, "size", "returns size of the collection",
                 {{"(1 2 3)_", "3"}, {"{}_", "0"}},
-                { OP_NEG, TYPE_COLLECTION }, { TYPE_INT },
+                { OP_NEG, TRAIT_COUNTABLE }, { TYPE_INT },
                 [] (VM* vm, const Value& v1) {
                   vm->push(v1.collection()->size());
                 }
@@ -50,14 +50,14 @@ void registerFunctions(MicroCode& mc)
   registerUnary(mc,
                 Topic::STACK, "dupe", "duplicates topmost stack value",
                 {{"(1 2)$", "(1 2)(1 2)"}, {"tf$", "tff"}},
-                { OP_DUPE, TYPE_GENERIC }, { TYPE_GENERIC, TYPE_GENERIC },
+                { OP_DUPE, TRAIT_ANY_TYPE }, { TRAIT_ANY_TYPE, TRAIT_ANY_TYPE },
                 [] (VM* vm, const Value& v1) { vm->push(v1); vm->push(v1); }
                 );
   
   registerBinary(mc,
                 Topic::STACK, "swap", "swap two topmost stack values",
                 {{"1 2%", "2 1"}},
-                { OP_SWAP, TYPE_GENERIC, TYPE_GENERIC2 }, { TYPE_GENERIC, TYPE_GENERIC2 },
+                { OP_SWAP, TRAIT_ANY_TYPE, TRAIT_ANY_TYPE2 }, { TRAIT_ANY_TYPE2, TRAIT_ANY_TYPE },
                 [] (VM* vm, const Value& v1, const Value& v2) { vm->push(v2); vm->push(v1); }
                 );
 }

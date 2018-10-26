@@ -93,7 +93,7 @@ struct Signature
     u64 data;
   };
   
-  Signature(Opcode opcode, Type t1 = TYPE_NONE, Type t2 = TYPE_NONE, Type t3 = TYPE_NONE) : opcode(opcode), args(t1, t2, t3) { }
+  Signature(Opcode opcode, SignatureType t1 = TYPE_NONE, SignatureType t2 = TYPE_NONE, SignatureType t3 = TYPE_NONE) : opcode(opcode), args(t1, t2, t3) { }
   Signature(Opcode opcode, SignatureArguments&& args) : opcode(opcode), args(args) { }
   bool operator==(const Signature& o) const { return opcode == o.opcode && args == o.args; }
 };

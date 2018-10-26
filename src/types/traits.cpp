@@ -215,7 +215,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
 
 #include "semantics.h"
 
-const char* TypeTraits::nameForSignatureType(SignatureType type)
+std::string TypeTraits::nameForSignatureType(SignatureType type)
 {
   if (type.isType())
   {
@@ -229,6 +229,9 @@ const char* TypeTraits::nameForSignatureType(SignatureType type)
   else
   {
     Trait trait = type.trait();
+    
+    if (trait >= TRAIT_ANY_TYPE && trait <= TRAIT_ANY_TYPE_LAST)
+      return std::string(1, 'A' + (trait - TRAIT_ANY_TYPE));
     
     switch (trait)
     {

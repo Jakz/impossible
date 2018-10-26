@@ -70,7 +70,7 @@ public:
     return it->second;
   }
   
-  static const char* nameForSignatureType(SignatureType type);
+  static std::string nameForSignatureType(SignatureType type);
 
   static Type typeForName(const std::string& name)
   {
@@ -106,7 +106,7 @@ public:
   {
     if (this->type == TYPE_NONE)
       return false;
-    else if (trait == TRAIT_ANY_TYPE)
+    else if (trait >= TRAIT_ANY_TYPE && trait <= TRAIT_ANY_TYPE_LAST)
       return true;
     else
       return traits().traits && trait;

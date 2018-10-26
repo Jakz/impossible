@@ -15,20 +15,9 @@
 
 #include "defines.h"
 
-enum Type : s16;
+enum Type : u16;
 class Value;
-
-class Traits
-{
-public:
-  static constexpr u64 INDEXABLE = 0x01;
-  
-public:
-  class Indexable
-  {
-    virtual const Value& at(integral_t index) = 0;
-  };
-};
+class SignatureType;
 
 class VirtualTable
 {
@@ -38,14 +27,29 @@ public:
   virtual bool equal_to(const Value& self, const Value& other) { return false; }
 };
 
+class TraitMask
+{
+private:
+  std::underlying_type<Trait>::type traits;
+  
+public:
+  TraitMask(const std::initializer_list<Trait>& traits)
+  {
+    this->traits = 0U;
+    for (const Trait& trait : traits)
+      this->traits |= trait;
+  }
+  
+  bool operator&&(Trait trait) const { return (traits & trait) != 0; }
+};
+
 class TypeTraits
 {
 public:
   struct TypeSpec
   {
     Type type;
-    bool isPrimitive;
-    bool isCollection;
+    TraitMask traits;
     std::string name;
     
     std::function<std::string(const Value& v)> to_string;
@@ -65,22 +69,8 @@ public:
     assert(it != specs.end());
     return it->second;
   }
-
-  static bool isCollection(Type type)
-  {
-    auto it = specs.find(type);
-    return it != specs.end() ? it->second.isCollection : false;
-  }
   
-  static const char* nameForType(Type type)
-  {
-    auto it = specs.find(type);
-    if (it != specs.end())
-      return it->second.name.c_str();
-    
-    assert(false);
-    return nullptr;
-  }
+  static const char* nameForSignatureType(SignatureType type);
 
   static Type typeForName(const std::string& name)
   {
@@ -106,26 +96,37 @@ public:
   //TypeInfo(const TypeInfo& other) : type(other.type) { assert(other.type <= TYPE_NONE); }
       
   inline const char* name() const { return traits().name.c_str(); }
-  inline bool isCollection() const { return traits().isCollection; }
   
   inline const TypeTraits::TypeSpec& traits() const { return TypeTraits::traits(type); }
   
   bool operator==(const TypeInfo& info) const { return this->operator==(info.type); }
-  bool operator<(const TypeInfo& info) const { return this->operator<(info.type); }
-  bool operator>(const TypeInfo& info) const { return info.operator<(this->type); }
-  
   bool operator==(Type type) const { return this->type == type; }
-  bool operator<(Type type) const
+  
+  bool operator<(Trait trait) const
   {
-    if (this->type == TYPE_NONE || type == TYPE_NONE)
+    if (this->type == TYPE_NONE)
       return false;
-    else if (type == TYPE_GENERIC)
+    else if (trait == TRAIT_ANY_TYPE)
       return true;
     else
-      return type == TYPE_COLLECTION && isCollection();
+      return traits().traits && trait;
   }
   
   
   operator Type() const { return type; }
+};
+
+class Traits
+{
+public:
+  class Countable
+  {
+    virtual integral_t size() const = 0;
+  };
+  
+  class Indexable
+  {
+    virtual const Value& at(integral_t index) = 0;
+  };
 };
 

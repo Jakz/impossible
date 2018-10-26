@@ -133,10 +133,8 @@ enum Opcode : u16
   OPCODES_COUNT
 };
 
-enum Type : s16
+enum Type : u16
 {
-  TYPE_INVALID = -1,
-  
   TYPE_NIL = 0,
   TYPE_OPCODE,
   TYPE_INT,
@@ -157,20 +155,28 @@ enum Type : s16
   
   TYPE_LAMBDA,
   
-  TYPES_COUNT,
-  
   TYPE_COLLECTION,
 
-  TYPE_GENERIC,
-  TYPE_GENERIC2 = 500,
+  TYPE_GENERIC = 256,
+  TYPE_GENERIC2,
   TYPE_GENERIC3,
 
-  TYPE_UNKNOWN,
-  
-  TYPE_NONE,
-  
   TYPE_FIRST_GENERIC = TYPE_GENERIC,
   TYPE_LAST_GENERIC = TYPE_GENERIC3,
+  
+  TYPE_NONE = 512,
+  TYPE_UNKNOWN,
+  TYPE_INVALID,
+  
+  TYPE_MASK = 0xFFFF
+};
+
+enum Trait : u32
+{  
+  TRAIT_SPECIFIC_TYPE = 0x80000000,
+  TRAIT_ANY_TYPE      = 0x81000000,
+  
+  TRAIT_COUNTABLE     = 0x00000001
 };
 
 #include <string>

@@ -659,7 +659,8 @@ void Instruction::execute(VM *vm) const
     {
       if (vm->popTwo(v1, v2))
       {
-        if (v1.type.isCollection())
+        //TODO: fix
+        if (false /*v1.type.isCollection()*/)
         {
           TCollection* collection = v1.collection();
           vm->push(v1);
@@ -1067,7 +1068,8 @@ void Instruction::execute(VM *vm) const
     {
       if (vm->popTwo(v1, v2))
       {  
-        if (v1.type.isCollection() && v2.type == TYPE_LAMBDA)
+        //TODO: fix
+        //if (v1.type.isCollection() && v2.type == TYPE_LAMBDA)
         {
           iter(v1.collection(), v2.lambda()->code(), vm);
         }

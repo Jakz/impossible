@@ -95,25 +95,25 @@ namespace math
 
 void MicroCode::registerDefault()
 {    
-    registerNumeric<false, math::plus>(OP_PLUS);
-    registerNumeric<false, math::minus>(OP_MINUS);
-    registerNumeric<false, math::times>(OP_TIMES);
-    registerNumeric<false, math::divide>(OP_DIVIDE);
+  registerNumeric<false, math::plus>(OP_PLUS);
+  registerNumeric<false, math::minus>(OP_MINUS);
+  registerNumeric<false, math::times>(OP_TIMES);
+  registerNumeric<false, math::divide>(OP_DIVIDE);
+  
+  registerNumeric<true, math::lesser>(OP_LESSER);
+  registerNumeric<true, math::greater>(OP_GREATER);
+  
+  
     
-    registerNumeric<true, math::lesser>(OP_LESSER);
-    registerNumeric<true, math::greater>(OP_GREATER);
-    
-    
-      
-    
-    const auto& v = vocabulary();
-    
-    string_joiner<TypeInfo> argsJoiner("", "", ", ", [] (const auto& t) { return t.name(); }, [] (const auto& t) { return t == TYPE_NONE; });
-    
-    for (const auto& term : v)
-    {
-      std::cout << Instruction(term.opcode).svalue() << "  " << argsJoiner.join(term.input.t) << " -> " << argsJoiner.join(term.output.t) << std::endl;
-    }
-    
-    std::cout << "Registered " << vocabulary().size() << " terms." << std::endl;
+  
+  const auto& v = vocabulary();
+  
+  string_joiner<SignatureType> argsJoiner("", "", ", ", [] (const auto& t) { return TypeTraits::nameForSignatureType(t); }, [] (const auto& t) { return t == TYPE_NONE; });
+  
+  for (const auto& term : v)
+  {
+    std::cout << Instruction(term.opcode).svalue() << "  " << argsJoiner.join(term.input.t) << " -> " << argsJoiner.join(term.output.t) << std::endl;
+  }
+  
+  std::cout << "Registered " << vocabulary().size() << " terms." << std::endl;
 }

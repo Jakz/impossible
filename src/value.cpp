@@ -27,7 +27,7 @@ Value::Value(LazyArray* map) : type(TYPE_LAZY_ARRAY), data(map) { }
 
 TCollection* Value::collection() const
 {
-  assert(type.isCollection());
+  //TODO: reenable assert(type.isCollection());
   return static_cast<TCollection*>(data.ptr);
 }
 String* Value::string() const { assert(type == TYPE_STRING); return object<String>(); }

@@ -49,8 +49,8 @@ struct OpHelpEntry
   using examples_t = std::vector<std::pair<std::string, std::string>>;
   using string = std::string;
   
-  Arguments i;
-  Arguments o;
+  SignatureArguments i;
+  SignatureArguments o;
 
   string desc;
   string ident;
@@ -58,7 +58,7 @@ struct OpHelpEntry
   examples_t examples;
   
   OpHelpEntry() { }
-  OpHelpEntry(const std::string& name, Topic topic, const Arguments& input, const Arguments& output, const std::string& desc, const examples_t& examples) :
+  OpHelpEntry(const std::string& name, Topic topic, const SignatureArguments& input, const SignatureArguments& output, const std::string& desc, const examples_t& examples) :
   i(input), o(output), ident(name), desc(desc), topic(topic), examples(examples) { }
   
   static OpHelpEntry unary(Type i1, string ident, Topic topic, string desc, string example, string example2)
@@ -199,7 +199,7 @@ public:
   static void printHelpMain();
   static void printHelpSummary();
   
-  static void addOperator(Opcode opcode, const Arguments& input, const Arguments& output, Topic topic, const std::string& name, const std::string& description, const OpHelpEntry::examples_t& examples);
+  static void addOperator(Opcode opcode, const SignatureArguments& input, const SignatureArguments& output, Topic topic, const std::string& name, const std::string& description, const OpHelpEntry::examples_t& examples);
 };
 
 #endif

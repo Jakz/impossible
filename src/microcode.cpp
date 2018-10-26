@@ -1,11 +1,11 @@
 #include "semantics.h"
 #include "help.h"
 
-Arguments normalize(const Arguments& args)
+SignatureArguments normalize(const SignatureArguments& args)
 {
-  Arguments args2 = args;
-  std::for_each(args2.t.begin(), args2.t.end(), [] (TypeInfo& type) {
-    if (type >= TYPE_FIRST_GENERIC && type <= TYPE_LAST_GENERIC)
+  SignatureArguments args2 = args;
+  std::for_each(args2.t.begin(), args2.t.end(), [] (SignatureType& type) {
+    if (type.type() >= TYPE_FIRST_GENERIC && type.type() <= TYPE_LAST_GENERIC)
       type = TYPE_GENERIC;
   });
   
@@ -14,7 +14,7 @@ Arguments normalize(const Arguments& args)
 
 void registerUnary(MicroCode& mc, Topic topic, const std::string& name, const std::string& desc,
                    const std::vector<std::pair<std::string,std::string>>& examples,
-                   Signature signature, Arguments retn,
+                   Signature signature, SignatureArguments retn,
                    const decltype(VariantFunction::unary)&& functor)
 {
   
@@ -24,7 +24,7 @@ void registerUnary(MicroCode& mc, Topic topic, const std::string& name, const st
 
 void registerBinary(MicroCode& mc, Topic topic, const std::string& name, const std::string& desc,
                    const std::vector<std::pair<std::string,std::string>>& examples,
-                   Signature signature, Arguments retn,
+                   Signature signature, SignatureArguments retn,
                    const decltype(VariantFunction::binary)&& functor)
 {
   
@@ -40,7 +40,7 @@ void registerFunctions(MicroCode& mc)
   registerUnary(mc,
                 Topic::COLLECTIONS, "size", "returns size of the collection",
                 {{"(1 2 3)_", "3"}, {"{}_", "0"}},
-                { OP_NEG, TYPE_COLLECTION }, TYPE_INT,
+                { OP_NEG, TYPE_COLLECTION }, { TYPE_INT },
                 [] (VM* vm, const Value& v1) {
                   vm->push(v1.collection()->size());
                 }

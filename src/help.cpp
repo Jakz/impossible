@@ -31,7 +31,7 @@ const char* Help::topicString(Topic topic)
 }
 
 #include "instruction.h"
-void Help::addOperator(Opcode opcode, const Arguments& input, const Arguments& output, Topic topic, const std::string& name, const std::string& description, const OpHelpEntry::examples_t& examples)
+void Help::addOperator(Opcode opcode, const SignatureArguments& input, const SignatureArguments& output, Topic topic, const std::string& name, const std::string& description, const OpHelpEntry::examples_t& examples)
 {
   addOperator(Instruction(opcode).svalue(),
               OpHelpEntry(name, topic, input, output, description, examples)
@@ -318,7 +318,7 @@ void Help::printOperator(string op, OpHelpEntry o)
   
   for (int i = 0; i < ic; ++i)
   {
-    cout << TypeTraits::nameForType(o.i[i]);
+    cout << TypeTraits::nameForSignatureType(o.i[i]);
     
     if (i < ic - 1)
       cout << ", ";
@@ -331,7 +331,7 @@ void Help::printOperator(string op, OpHelpEntry o)
   
   for (int i = 0; i < oc; ++i)
   {
-    cout << TypeTraits::nameForType(o.o[i]);
+    cout << TypeTraits::nameForSignatureType(o.o[i]);
     
     if (i < oc - 1)
       cout << ", ";
@@ -462,7 +462,7 @@ void Help::printTypes()
   set<string> ops;
   
   for (it = operators.begin(); it != operators.end(); ++it)
-    ops.insert(TypeTraits::nameForType(it->second.i[0]));
+    ops.insert(TypeTraits::nameForSignatureType(it->second.i[0]));
   
   set<string>::iterator it2;
 

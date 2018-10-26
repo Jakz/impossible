@@ -66,13 +66,13 @@ static const CollectionPrinter<Value> SetPrinter = { "{.", "}", " ", [] (const V
 const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::specs =
 {
   { TYPE_INT,
-    { TYPE_INT, true, false, "int",
+    { TYPE_INT, {}, "int",
       [] (const Value& v) { return std::to_string(v.data.i); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_INT && v2.data.i == v1.data.i; }
     }
   },
   { TYPE_FLOAT,
-    { TYPE_FLOAT, true, false, "float",
+    { TYPE_FLOAT, {}, "float",
       [] (const Value& v) {
         std::stringstream ss(std::stringstream::out);
         ss << std::setiosflags(std::ios::fixed) << std::setprecision(4) << v.data.f;
@@ -83,7 +83,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
   { TYPE_BOOL,
     {
-      TYPE_BOOL, true, false, "bool",
+      TYPE_BOOL, {}, "bool",
       [] (const Value& v) { return v.data.b ? "true" : "false"; },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_BOOL && v2.data.b == v1.data.b; },
       [] (const Value& v) { return v == TYPE_BOOL && v.data.b; }
@@ -92,21 +92,21 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
   { TYPE_CHAR,
     {
-      TYPE_CHAR, true, false, "char",
+      TYPE_CHAR, {}, "char",
       [] (const Value& v) { return std::string(1, v.data.c); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_CHAR && v2.data.c == v1.data.c; }
     }
   },
   
   { TYPE_STRING,
-    { TYPE_STRING, false, true, "string",
+    { TYPE_STRING, { TRAIT_COUNTABLE }, "string",
       [] (const Value& v) { return v.string()->raw(); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STRING && v2.string()->raw() == v1.string()->raw(); }
     }
   },
 
   { TYPE_RANGE,
-    { TYPE_RANGE, false, true, "range",
+    { TYPE_RANGE, { TRAIT_COUNTABLE }, "range",
       [] (const Value& v) {
         std::stringstream ss(std::stringstream::out);
         
@@ -127,37 +127,37 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
   
   { TYPE_LIST,
-    { TYPE_LIST, false, true, "list",
+    { TYPE_LIST, { TRAIT_COUNTABLE }, "list",
       [] (const Value& v) { return ListPrinter.svalue(v.list()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_LIST && v2.list()->raw() == v1.list()->raw(); }
     }
   },
   
   { TYPE_ARRAY,
-    { TYPE_ARRAY, false, true, "array",
+    { TYPE_ARRAY, { TRAIT_COUNTABLE }, "array",
       [] (const Value& v) { return ArrayPrinter.svalue(v.array()); }
     }
   },
 
   { TYPE_SET,
-    { TYPE_SET, false, true, "set",
+    { TYPE_SET, { TRAIT_COUNTABLE }, "set",
       [] (const Value& v) { return SetPrinter.svalue(v.set()); }
     }
   },
   { TYPE_STACK,
-    { TYPE_STACK, false, true, "stack",
+    { TYPE_STACK, { TRAIT_COUNTABLE }, "stack",
       [] (const Value& v) { return QueuePrinter.svalue(v.stack()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STACK && v2.list()->raw() == v1.list()->raw(); }
     }  },
   { TYPE_QUEUE,
-    { TYPE_QUEUE, false, true, "queue",
+    { TYPE_QUEUE, { TRAIT_COUNTABLE }, "queue",
       [] (const Value& v) { return StackPrinter.svalue(v.stack()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_QUEUE && v2.list()->raw() == v1.list()->raw(); }
     }
   },
 
   { TYPE_LAZY_ARRAY,
-    { TYPE_LAZY_ARRAY, false, true, "larray",
+    { TYPE_LAZY_ARRAY, { TRAIT_COUNTABLE }, "larray",
       [] (const Value& v) {
         std::string s("(? ");
         s += v.lazyArray()->raw().code()->code()->svalue();
@@ -167,9 +167,10 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     }
   },
   
-  { TYPE_MAP, { TYPE_MAP, false, true, "map" } },
+  { TYPE_MAP, { TYPE_MAP, { TRAIT_COUNTABLE }, "map" } },
+  
   { TYPE_LAMBDA,
-    { TYPE_LAMBDA, false, true, "lambda",
+    { TYPE_LAMBDA, {}, "lambda",
       [] (const Value& v) {
         std::stringstream ss(std::stringstream::out);
         size_t size = v.lambda()->code()->size();
@@ -190,7 +191,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     }
   },
   { TYPE_NIL,
-    { TYPE_NIL, true, false, "nil",
+    { TYPE_NIL, {}, "nil",
       [] (const Value& v) { return "nil"; }
     }
   
@@ -198,15 +199,44 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
 
   
   
-  { TYPE_GENERIC, { TYPE_GENERIC, true, false, "A" } },
-  { TYPE_GENERIC2, { TYPE_GENERIC, true, false, "B" } },
-  { TYPE_GENERIC3, { TYPE_GENERIC, true, false, "C" } },
+  { TYPE_GENERIC, { TYPE_GENERIC, {}, "A" } },
+  { TYPE_GENERIC2, { TYPE_GENERIC, {}, "B" } },
+  { TYPE_GENERIC3, { TYPE_GENERIC, {}, "C" } },
   
-  { TYPE_COLLECTION, { TYPE_COLLECTION, false, true, "collection" } },
+  { TYPE_COLLECTION, { TYPE_COLLECTION, {}, "collection" } },
 
   
-  { TYPE_UNKNOWN, { TYPE_UNKNOWN, true, false, "?" } },
+  { TYPE_UNKNOWN, { TYPE_UNKNOWN, {}, "?" } },
   
-  { TYPE_INVALID, { TYPE_INVALID, false, false, "invalid" } },
-  { TYPE_NONE, { TYPE_NONE, false, false, "none" } }
+  { TYPE_INVALID, { TYPE_INVALID, {}, "invalid" } },
+  { TYPE_NONE, { TYPE_NONE, {}, "none" } }
 };
+
+
+#include "semantics.h"
+
+const char* TypeTraits::nameForSignatureType(SignatureType type)
+{
+  if (type.isType())
+  {
+    auto it = specs.find(type.type());
+    if (it != specs.end())
+      return it->second.name.c_str();
+    
+    assert(false);
+    return nullptr;
+  }
+  else
+  {
+    Trait trait = type.trait();
+    
+    switch (trait)
+    {
+      case Trait::TRAIT_COUNTABLE: return "countable";
+      case Trait::TRAIT_ANY_TYPE: return "any";
+      default:
+        assert(false);
+        return nullptr;
+    }
+  }
+}

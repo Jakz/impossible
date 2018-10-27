@@ -229,7 +229,7 @@ std::string TypeTraits::nameForTrait(Trait trait)
     if (e.first && trait)
     {
       if (!result.empty())
-        result += " ";
+        result += "&";
       result += e.second;
     }
   }

@@ -460,12 +460,11 @@ void Help::printTypes()
 {
   cout << "  - available types:" << endl;
   
-  multimap<string, OpHelpEntry>::iterator it;
-  
   set<string> ops;
   
-  for (it = operators.begin(); it != operators.end(); ++it)
-    ops.insert(TypeTraits::nameForSignatureType(it->second.i[0]));
+  for (auto it = operators.begin(); it != operators.end(); ++it)
+    if (it->second.i[0].isType())
+      ops.insert(TypeTraits::nameForSignatureType(it->second.i[0]));
   
   set<string>::iterator it2;
 

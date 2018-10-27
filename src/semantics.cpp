@@ -106,7 +106,7 @@ void MicroCode::registerDefault()
   
     
   
-  const auto& v = vocabulary();
+  /*const auto& v = vocabulary();
   
   string_joiner<SignatureType> argsJoiner("", "", ", ", [] (const auto& t) { return TypeTraits::nameForSignatureType(t); }, [] (const auto& t) { return t == TYPE_NONE; });
   
@@ -115,5 +115,5 @@ void MicroCode::registerDefault()
     std::cout << Instruction(term.opcode).svalue() << "  " << argsJoiner.join(term.input.t) << " -> " << argsJoiner.join(term.output.t) << std::endl;
   }
   
-  std::cout << "Registered " << vocabulary().size() << " terms." << std::endl;
+  std::cout << "Registered " << vocabulary().size() << " terms." << std::endl;*/
 }

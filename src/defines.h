@@ -181,11 +181,16 @@ enum Trait : u32
   
   TRAIT_COUNTABLE               = 0x00000001,
   TRAIT_INDEXABLE               = 0x00000002,
-  
-  TRAIT_MAX = 8
+  TRAIT_FRONT_ACCESSIBLE        = 0x00000004,
+  TRAIT_BACK_ACCESSIBLE         = 0x00000008,
 };
 
-inline bool operator&&(Trait t1, Trait t2) { return (static_cast<std::underlying_type<Trait>::type>(t1) & static_cast<std::underlying_type<Trait>::type>(t2)) != 0; }
+inline bool operator&&(Trait t1, Trait t2) {
+  return (static_cast<std::underlying_type<Trait>::type>(t1) & static_cast<std::underlying_type<Trait>::type>(t2)) == static_cast<std::underlying_type<Trait>::type>(t2);
+}
+inline bool operator&(Trait t1, Trait t2) {
+  return (static_cast<std::underlying_type<Trait>::type>(t1) & static_cast<std::underlying_type<Trait>::type>(t2)) != 0;
+}
 inline Trait operator|(Trait t1, Trait t2) { return static_cast<Trait>((u32)t1 | (u32)t2); }
 
 #include <string>

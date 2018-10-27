@@ -65,6 +65,7 @@
   I "i"
 
   LARRAY_OPEN "(?"
+  STACK_OPEN "{>"
 ;
 
 %define api.token.prefix {T_}
@@ -236,8 +237,8 @@ value:
   | LBRACE values RBRACE { $$ = new List($2); }
   | LBRACE RBRACE { $$ = new List(); }
   
-  | LBRACE GREATER values RBRACE { $$ = new Stack($3); }
-  | LBRACE GREATER RBRACE { $$ = new Stack(); }
+  | STACK_OPEN values RBRACE { $$ = new Stack($2); }
+  | STACK_OPEN RBRACE { $$ = new Stack(); }
   
   | LBRACE LESSER values RBRACE { $$ = new Queue($3); }
   | LBRACE LESSER RBRACE { $$ = new Queue(); }

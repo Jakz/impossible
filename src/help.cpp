@@ -40,6 +40,8 @@ void Help::addOperator(Opcode opcode, const SignatureArguments& input, const Sig
 
 void Help::init()
 {
+  return;
+  
   addOperator("+", OpHelpEntry::binary(TYPE_INT, TYPE_INT, TYPE_INT, "sum", Topic::NUMERICS, "addition between integers", "2 2 +", "4"));
   addOperator("+", OpHelpEntry::binary(TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, "sum", Topic::NUMERICS, "addition between floats", "", ""));
   addOperator("+", OpHelpEntry::binary(TYPE_CHAR, TYPE_INT, TYPE_CHAR, "shift", Topic::TEXT, "shift a char by adding an integer value to its value", "", ""));
@@ -145,8 +147,6 @@ void Help::init()
   
   addOperator("??", OpHelpEntry::ternary(TYPE_BOOL, TYPE_LAMBDA, TYPE_LAMBDA, TYPE_UNKNOWN, "if-else", Topic::LOGIC, "executes first lambda if boolean is true, second lambda otherwise", "", ""));
   
-  addOperator("@", OpHelpEntry::binaryO(TYPE_ARRAY, TYPE_INT, TYPE_ARRAY, TYPE_GENERIC, "at", Topic::COLLECTIONS, "retrieves n-th element from an array", "", ""));
-  addOperator("@", OpHelpEntry::binaryO(TYPE_ARRAY, TYPE_INT, TYPE_ARRAY, TYPE_ARRAY, "extract", Topic::COLLECTIONS, "retrieves all the elements specified by the range into a new array", "", ""));
   addOperator("@", OpHelpEntry::unaryO(TYPE_STACK, TYPE_STACK, TYPE_GENERIC, "pop", Topic::COLLECTIONS, "pop element from stack", "", ""));
   addOperator("@", OpHelpEntry::unaryO(TYPE_QUEUE, TYPE_QUEUE, TYPE_GENERIC, "pop", Topic::COLLECTIONS, "pop element from top of the queue", "", ""));
   addOperator("@", OpHelpEntry::binaryO(TYPE_MAP, TYPE_GENERIC, TYPE_MAP, TYPE_GENERIC2, "get", Topic::COLLECTIONS, "get element specified by key from map, pushes nil if key is not present", "", ""));

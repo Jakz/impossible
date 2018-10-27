@@ -53,6 +53,7 @@ void registerFunctions(MicroCode& mc)
                  [] (VM* vm, const Value& v1, const Value& v2) { vm->push(v1.indexable()->at(v2.integral())); }
                  );
   
+  //TODO: should return a String if input is a String
   registerBinary(mc,
                  Topic::COLLECTIONS, "extract", "retrieves all elements of range from indexable type",
                  {},

@@ -146,12 +146,12 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
   { TYPE_STACK,
     { TYPE_STACK, { TRAIT_COUNTABLE }, "stack",
-      [] (const Value& v) { return QueuePrinter.svalue(v.stack()); },
+      [] (const Value& v) { return StackPrinter.svalue(v.stack()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STACK && v2.list()->raw() == v1.list()->raw(); }
     }  },
   { TYPE_QUEUE,
     { TYPE_QUEUE, { TRAIT_COUNTABLE }, "queue",
-      [] (const Value& v) { return StackPrinter.svalue(v.stack()); },
+      [] (const Value& v) { return QueuePrinter.svalue(v.stack()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_QUEUE && v2.list()->raw() == v1.list()->raw(); }
     }
   },
@@ -226,7 +226,7 @@ std::string TypeTraits::nameForTrait(Trait trait)
   
   for (const auto& e : names)
   {
-    if (e.first && trait)
+    if (e.first & trait)
     {
       if (!result.empty())
         result += "&";

@@ -857,30 +857,6 @@ void Instruction::execute(VM *vm) const
             {            
               switch (TYPES(v1.type, v2.type))
               {
-                case TYPES(TYPE_ARRAY, TYPE_RANGE):
-                {
-                  const RangeVector& r = v2.range()->raw();
-                  Array::utype_t nv;
-                  const Array::utype_t& ov = v1.array()->raw();
-                  
-                  std::vector<integral_t> iv = r.concretize();
-                  nv.reserve(iv.size());
-                  
-                  for (size_t i = 0; i < iv.size(); ++i)
-                  {
-                    integral_t j = iv[i];
-                    
-                    if (j < 0)
-                      j += ov.size();
-                    
-                    if (j < ov.size())
-                      nv.push_back(ov.at(j));
-                  }
-                  
-                  vm->push(v1);
-                  vm->push(new Array(nv));            
-                  break;
-                }
                 case TYPES(TYPE_LAZY_ARRAY, TYPE_INT):
                 {
                   LazyArray *array = v1.lazyArray();

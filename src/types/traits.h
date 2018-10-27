@@ -40,7 +40,8 @@ public:
       this->traits |= trait;
   }
   
-  bool operator&&(Trait trait) const { return (traits & trait) != 0; }
+  bool operator&&(Trait trait) const { return (traits & trait) == trait; }
+
 };
 
 class TypeTraits
@@ -130,6 +131,18 @@ public:
   public: virtual Value at(integral_t index) const = 0;
   };
   
-  class IndexableAndCountable : public Countable, public Indexable { };
+  class FrontAccessible
+  {
+  public:
+    virtual Value popFront() = 0;
+    virtual void pushFront(const Value& value) = 0;
+  };
+  
+  class BackAccessible
+  {
+  public:
+    virtual Value popBack() = 0;
+    virtual void pushBack(const Value& value) = 0;
+  };
 };
 

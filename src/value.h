@@ -22,11 +22,12 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#define TYPES(x, y) (x << 4 | y)
+#define TYPES(x, y) (x << 8 | y)
 
 using opcode_t = Opcode;
 class TCollection;
 class String;
+class Tuple;
 class Array;
 class List;
 class Stack;
@@ -82,6 +83,7 @@ public:
   Value(opcode_t value) : type(TYPE_OPCODE), data(value) { }
   
   Value(String* string);
+  Value(Tuple* tuple);
   Value(List* list);
   Value(Stack* list);
   Value(Queue* list);
@@ -119,6 +121,7 @@ public:
   TCollection* collection() const; //TODO: temporarily virtual to override in collections
   
   String* string() const;
+  Tuple* tuple() const;
   List* list() const;
   Stack* stack() const;
   Queue* queue() const;

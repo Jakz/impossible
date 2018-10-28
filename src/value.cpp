@@ -13,6 +13,7 @@
 #include <sstream>
 
 Value::Value(String* string) : type(TYPE_STRING), data(string) { }
+Value::Value(Tuple* tuple) : type(TYPE_TUPLE), data(tuple) { }
 Value::Value(List* list) : type(TYPE_LIST), data(list) { }
 Value::Value(Stack* stack) : type(TYPE_STACK), data(stack) { }
 Value::Value(Queue* queue) : type(TYPE_QUEUE), data(queue) { }
@@ -31,6 +32,7 @@ TCollection* Value::collection() const
   return static_cast<TCollection*>(data.ptr);
 }
 String* Value::string() const { assert(type == TYPE_STRING); return object<String>(); }
+Tuple* Value::tuple() const { assert(type == TYPE_TUPLE); return object<Tuple>(); }
 List* Value::list() const { assert(type == TYPE_LIST); return object<List>(); }
 Stack* Value::stack() const { assert(type == TYPE_STACK); return object<Stack>(); }
 Queue* Value::queue() const { assert(type == TYPE_QUEUE); return object<Queue>(); }

@@ -48,9 +48,14 @@ public:
   const std::string& raw() const { return value; }
 };
 
-class Range : public TCollection
+class Range : public TCollection, public Traits::Iterable
 {
 public:
+
+  
+private:
+  RangeVector data;
+  
   struct iterator
   {
     const Range* range;
@@ -64,9 +69,7 @@ public:
       return pair >= 0 && (index < range->raw()[pair].b || pair < range->raw().size() -1);
     }
   };
-  
-private:
-  RangeVector data;
+
   
   mutable iterator it;
   
@@ -118,6 +121,53 @@ public:
     else if (value.type == TYPE_RANGE)
       data.rangeUnion(value.range()->raw());
   }
+  
+  Iterator iterator() const override
+  {
+    class Behavior : public Iterator::Behavior
+    {
+    private:
+      const RangeVector& data;
+      integral_t pair, index;
+      
+    public:
+      Behavior(const RangeVector& data) : data(data)
+      {
+        pair = index = 0;
+        
+        if (!data.empty())
+          index = data[0].a;
+        else
+          index = -1;
+      }
+      
+      void advance() override
+      {
+        if (index < data[pair].b)
+          ++index;
+        else if (pair < data.pairCount() - 1)
+        {
+          ++pair;
+          index = data[pair].a;
+        }
+        else
+        {
+          /* TODO: not the best solution but it does work for now */
+          index = std::numeric_limits<integral_t>::max();
+          pair = std::numeric_limits<integral_t>::max();
+        }
+      }
+      
+      bool hasNext() const override
+      {
+        bool v = (index <= data[pair].b || pair < data.pairCount() -1);
+        return v;
+      }
+      
+      Value value() const override { return index; }
+    };
+    
+    return Iterator(new Behavior(data));  }
   
   const RangeVector& raw() const { return data; }
 };
@@ -442,6 +492,23 @@ public:
   
   map_t& raw() { return data; }
   const map_t& raw() const { return data; }
+};
+
+class Tuple : public managed_object, public Traits::Indexable, public Traits::Countable
+{
+  using data_t = std::vector<Value>;
+private:
+  data_t elements;
+  
+public:
+  Tuple(size_t size) : elements(size) { }
+  Tuple(Value v) : elements({v}) { }
+  Tuple(Value v1, Value v2) : elements({ v1, v2 }) { }
+  
+  Value at(integral_t index) const override { return elements[index]; }
+  integral_t size() const override { return elements.size(); }
+  
+  const data_t& raw() { return elements; }
 };
 
 class Lambda : public managed_object, public Traits::Countable

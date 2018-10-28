@@ -144,6 +144,7 @@ enum Type : u16
   TYPE_CHAR,
   TYPE_STRING,
   TYPE_RANGE,
+  TYPE_TUPLE,
   
   TYPE_LIST,
   TYPE_ARRAY,

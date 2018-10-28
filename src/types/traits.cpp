@@ -109,9 +109,16 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STRING && v2.string()->raw() == v1.string()->raw(); }
     }
   },
+  
+  { TYPE_TUPLE,
+    { TYPE_TUPLE, { TRAIT_INDEXABLE, TRAIT_COUNTABLE }, "tuple",
+      [] (const Value& v) { return ""; },
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_TUPLE && v2.tuple()->raw() == v2.tuple()->raw(); }
+    }
+  },
 
   { TYPE_RANGE,
-    { TYPE_RANGE, { TRAIT_COUNTABLE }, "range",
+    { TYPE_RANGE, { TRAIT_COUNTABLE, TRAIT_ITERABLE }, "range",
       [] (const Value& v) {
         std::stringstream ss(std::stringstream::out);
         

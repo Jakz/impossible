@@ -40,7 +40,7 @@ void Help::addOperator(Opcode opcode, const SignatureArguments& input, const Sig
 
 void Help::init()
 {
-  return;
+  //return;
   
   addOperator("+", OpHelpEntry::binary(TYPE_INT, TYPE_INT, TYPE_INT, "sum", Topic::NUMERICS, "addition between integers", "2 2 +", "4"));
   addOperator("+", OpHelpEntry::binary(TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, "sum", Topic::NUMERICS, "addition between floats", "", ""));

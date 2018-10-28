@@ -61,6 +61,11 @@ public:
   
   bool empty() const { return data.empty(); }
   
+  integral_t pairCount() const
+  {
+    return data.size();
+  }
+  
   integral_t size() const
   {
     return std::accumulate(

@@ -42,6 +42,7 @@ Lambda* Value::lambda() const { assert(type == TYPE_LAMBDA); return object<Lambd
 LazyArray* Value::lazyArray() const { assert(type == TYPE_LAZY_ARRAY); return object<LazyArray>(); }
 
 Traits::Indexable* Value::indexable() const { return object<Traits::Indexable>(); }
+Traits::Iterable* Value::iterable() const { return object<Traits::Iterable>(); }
 
 
 Value Value::INVALID = Value(TYPE_INVALID);

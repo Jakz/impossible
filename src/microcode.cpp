@@ -53,6 +53,21 @@ void registerFunctions(MicroCode& mc)
                  [] (VM* vm, const Value& v1, const Value& v2) { vm->push(v1.indexable()->at(v2.integral())); }
                  );
   
+  registerBinary(mc,
+                 Topic::COLLECTIONS, "each", "executes the lambda for each element in the iterable value",
+                 {},
+                 { OP_ITER, TRAIT_ITERABLE, TYPE_LAMBDA }, { },
+                 [] (VM* vm, const Value& v1, const Value& v2) {
+                   Iterator it = v1.object<Traits::Iterable>()->iterator();
+                   while (it)
+                   {
+                     vm->push(*it);
+                     vm->execute(v2.lambda()->code());
+                     ++it;
+                   }
+                 }
+                 );
+  
   //TODO: should return a String if input is a String
   registerBinary(mc,
                  Topic::COLLECTIONS, "extract", "retrieves all elements of range from indexable type",

@@ -129,7 +129,8 @@ public:
   LazyArray* lazyArray() const;
   
   Traits::Indexable* indexable() const;
-  
+  Traits::Iterable* iterable() const;
+
   Lambda* lambda() const;
   
   

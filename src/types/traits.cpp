@@ -6,6 +6,11 @@
 #include <sstream>
 #include <iomanip>
 
+//TODO: not inlined but requires value.h and this creates circular if in header
+Value Iterator::value() const { return behavior->value(); }
+Value Iterator::operator*() const { return value(); }
+
+
 template<typename T>
 struct CollectionPrinter
 {
@@ -127,7 +132,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
   
   { TYPE_LIST,
-    { TYPE_LIST, { TRAIT_COUNTABLE }, "list",
+    { TYPE_LIST, { TRAIT_COUNTABLE, TRAIT_ITERABLE }, "list",
       [] (const Value& v) { return ListPrinter.svalue(v.list()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_LIST && v2.list()->raw() == v1.list()->raw(); }
     }
@@ -222,6 +227,7 @@ std::string TypeTraits::nameForTrait(Trait trait)
   static const std::unordered_map<Trait, std::string, enum_hash> names = {
     { Trait::TRAIT_COUNTABLE, "countable" },
     { Trait::TRAIT_INDEXABLE, "indexable" },
+    { Trait::TRAIT_ITERABLE, "iterable" },
   };
   
   for (const auto& e : names)

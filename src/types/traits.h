@@ -82,6 +82,7 @@ public:
     
     return TYPE_INVALID;
   }
+
 };
 
 class TypeInfo
@@ -118,6 +119,31 @@ public:
   operator Type() const { return type; }
 };
 
+class Iterator
+{
+public:
+  class Behavior
+  {
+  public:
+    virtual bool hasNext() const = 0;
+    virtual void advance() = 0;
+    virtual Value value() const = 0;
+  };
+  
+private:
+  std::unique_ptr<Behavior> behavior;
+  
+public:
+  inline Iterator(Behavior* behavior) : behavior(behavior) { }
+  inline bool hasNext() const { return behavior->hasNext(); }
+  inline void advance() { behavior->advance(); }
+  inline Value value() const;
+  
+  Value operator*() const;
+  operator bool() const { return hasNext(); }
+  Iterator& operator++() { advance(); return *this; }
+};
+
 class Traits
 {
 public:
@@ -143,6 +169,12 @@ public:
   public:
     virtual Value popBack() = 0;
     virtual void pushBack(const Value& value) = 0;
+  };
+  
+  class Iterable
+  {
+  public:
+    virtual Iterator iterator() const = 0;
   };
 };
 

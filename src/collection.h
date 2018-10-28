@@ -206,7 +206,7 @@ struct std::less<Value>
   }
 };
 
-class List : public TCollection
+class List : public TCollection, public Traits::Iterable
 {
 public:
   using list_t = std::list<Value>;
@@ -245,6 +245,25 @@ public:
   
   list_t::iterator begin() { return data.begin(); }
   list_t::iterator end() { return data.end(); }
+  
+  Iterator iterator() const override
+  {
+    class Behavior : public Iterator::Behavior
+    {
+    private:
+      const utype_t& list;
+      utype_t::const_iterator it;
+      
+      
+    public:
+      Behavior(const utype_t& list) : list(list), it(list.begin()) { }
+      void advance() override { ++it; }
+      bool hasNext() const override { return it != list.end(); }
+      Value value() const override { return *it; }
+    };
+    
+    return Iterator(new Behavior(data));
+  }
 };
 
 class Stack : public List

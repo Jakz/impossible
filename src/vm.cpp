@@ -10,6 +10,12 @@
 #include "semantics.h"
 #include "instruction.h"
 
+const MicroCode& defaultCode()
+{
+  static MicroCode code;
+  return code;
+}
+
 void VM::execute(Code *code)
 {
   running = true;

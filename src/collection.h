@@ -10,7 +10,30 @@
 
 #include "value.h"
 
-class String final : public TCollection, public Traits::Indexable
+template<typename T>
+class BaseIteratorWrapper : public Iterator::Behavior
+{
+protected:
+  const T& data;
+  typename T::const_iterator it;
+  
+public:
+  BaseIteratorWrapper(const T& data) : data(data), it(std::begin(data)) { }
+  
+  void advance() override { ++it; }
+  bool hasNext() const override { return it != data.end(); }
+  Value value() const override = 0;
+};
+
+template<typename T>
+class IteratorWrapper : public BaseIteratorWrapper<T>
+{
+public:
+  IteratorWrapper(const T& data) : BaseIteratorWrapper<T>(data) { }
+  Value value() const override { return *this->it; }
+};
+
+class String final : public TCollection, public Traits::Indexable, public Traits::Iterable
 {
 public:
   using data_t = std::string;
@@ -46,6 +69,8 @@ public:
   Value at(integral_t index) const override { return value[index]; }
   
   const std::string& raw() const { return value; }
+  
+  Iterator iterator() const override { return Iterator(new IteratorWrapper<std::string>(value)); }
 };
 
 class Range : public TCollection, public Traits::Iterable
@@ -298,22 +323,30 @@ public:
   
   Iterator iterator() const override
   {
-    class Behavior : public Iterator::Behavior
-    {
-    private:
-      const utype_t& list;
-      utype_t::const_iterator it;
-      
-      
-    public:
-      Behavior(const utype_t& list) : list(list), it(list.begin()) { }
-      void advance() override { ++it; }
-      bool hasNext() const override { return it != list.end(); }
-      Value value() const override { return *it; }
-    };
-    
-    return Iterator(new Behavior(data));
+    return Iterator(new IteratorWrapper<std::list<Value>>(data));
   }
+};
+
+
+class Tuple : public managed_object, public Traits::Indexable, public Traits::Countable, public Traits::Iterable
+{
+  using data_t = std::vector<Value>;
+private:
+  data_t elements;
+  
+public:
+  Tuple(size_t size) : elements(size) { }
+  Tuple(Value v) : elements({v}) { }
+  Tuple(Value v1, Value v2) : elements({ v1, v2 }) { }
+  Tuple(const std::pair<Value, Value>& pair) : Tuple(pair.first, pair.second) { }
+  
+  Value at(integral_t index) const override { return elements[index]; }
+  integral_t size() const override { return elements.size(); }
+  Iterator iterator() const override { return Iterator(new IteratorWrapper<data_t>(elements)); }
+  
+  const data_t& raw() { return elements; }
+  
+  
 };
 
 class Stack : public List
@@ -332,7 +365,7 @@ public:
 };
 
 
-class Array : public TCollection, public Traits::Indexable
+class Array : public TCollection, public Traits::Indexable, public Traits::Iterable
 {
 public:
   using array_t = std::vector<Value>;
@@ -377,6 +410,7 @@ public:
   array_t::iterator end() { return data.end(); }
   
   Value at(integral_t index) const override { return data[index]; }
+  Iterator iterator() const override { return Iterator(new IteratorWrapper<std::vector<Value>>(data)); }
 };
 
 class LazyArray : public TCollection
@@ -417,10 +451,11 @@ public:
 
 };
 
-class Set : public TCollection
+class Set : public TCollection, public Traits::Iterable
 {
 public:
   using set_t = std::unordered_set<Value, value_hash>;
+  using data_t = set_t;
 
 private:
   set_t data;
@@ -453,12 +488,15 @@ public:
   
   const set_t& raw() const { return data; } //TODO: rotto
   
+  Iterator iterator() const override { return Iterator(new IteratorWrapper<data_t>(data)); }
 };
 
-class Map : public TCollection
+#pragma mark Map
+class Map : public TCollection, public Traits::Iterable
 {
 public:
   using map_t = std::unordered_map<Value, Value, value_hash>;
+  using data_t = map_t;
 
 private:
   map_t data;
@@ -492,23 +530,18 @@ public:
   
   map_t& raw() { return data; }
   const map_t& raw() const { return data; }
-};
-
-class Tuple : public managed_object, public Traits::Indexable, public Traits::Countable
-{
-  using data_t = std::vector<Value>;
-private:
-  data_t elements;
   
-public:
-  Tuple(size_t size) : elements(size) { }
-  Tuple(Value v) : elements({v}) { }
-  Tuple(Value v1, Value v2) : elements({ v1, v2 }) { }
-  
-  Value at(integral_t index) const override { return elements[index]; }
-  integral_t size() const override { return elements.size(); }
-  
-  const data_t& raw() { return elements; }
+  Iterator iterator() const override
+  {
+    class Behavior : public BaseIteratorWrapper<data_t>
+    {
+    public:
+      Behavior(const data_t& data) : BaseIteratorWrapper<data_t>(data) { }
+      Value value() const override { return new Tuple(*it); }
+    };
+    
+    return Iterator(new Behavior(data));
+  }
 };
 
 class Lambda : public managed_object, public Traits::Countable

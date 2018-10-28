@@ -9,6 +9,7 @@
 #pragma once
 
 #include <functional>
+#include <vector>
 #include <unordered_map>
 #include <string>
 #include <cassert>
@@ -82,7 +83,6 @@ public:
     
     return TYPE_INVALID;
   }
-
 };
 
 class TypeInfo

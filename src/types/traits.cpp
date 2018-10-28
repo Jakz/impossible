@@ -19,22 +19,22 @@ struct CollectionPrinter
   std::string separator;
   std::function<std::string(const T&)> valuePrinter;
   
-  std::string svalue(const TCollection* collection) const
+  std::string svalue(const Traits::Iterable* collection) const
   {
     std::stringstream ss(std::stringstream::out);
     bool first = true;
-    collection->iterate();
+    Iterator it = collection->iterator();
     
     ss << prefix;
     
-    while (collection->hasNext())
-    {
-      auto it = collection->next();
-      
+    while (it)
+    {      
       if (first) first = false;
       else ss << separator;
       
-      ss << valuePrinter(it);
+      ss << valuePrinter(*it);
+      
+      ++it;
     }
     
     ss << suffix;
@@ -67,6 +67,8 @@ static const CollectionPrinter<Value> StackPrinter = { "{>", "}", " ", [] (const
 static const CollectionPrinter<Value> QueuePrinter = { "{<", "}", " ", [] (const Value& v) { return v.svalue(); } };
 static const CollectionPrinter<Value> ArrayPrinter = { "(", ")", " ", [] (const Value& v) { return v.svalue(); } };
 static const CollectionPrinter<Value> SetPrinter = { "{.", "}", " ", [] (const Value& v) { return v.svalue(); } };
+static const CollectionPrinter<Value> TuplePrinter = { "[[", "]]", " ", [] (const Value& v) { return v.svalue(); } };
+
 
 const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::specs =
 {
@@ -104,7 +106,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
   
   { TYPE_STRING,
-    { TYPE_STRING, { TRAIT_COUNTABLE, TRAIT_INDEXABLE }, "string",
+    { TYPE_STRING, { TRAIT_COUNTABLE, TRAIT_INDEXABLE, TRAIT_ITERABLE }, "string",
       [] (const Value& v) { return v.string()->raw(); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STRING && v2.string()->raw() == v1.string()->raw(); }
     }
@@ -112,7 +114,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   
   { TYPE_TUPLE,
     { TYPE_TUPLE, { TRAIT_INDEXABLE, TRAIT_COUNTABLE }, "tuple",
-      [] (const Value& v) { return ""; },
+      [] (const Value& v) { return TuplePrinter.svalue(v.tuple()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_TUPLE && v2.tuple()->raw() == v2.tuple()->raw(); }
     }
   },
@@ -152,18 +154,18 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
 
   { TYPE_SET,
-    { TYPE_SET, { TRAIT_COUNTABLE }, "set",
+    { TYPE_SET, { TRAIT_COUNTABLE, TRAIT_ITERABLE }, "set",
       [] (const Value& v) { return SetPrinter.svalue(v.set()); }
     }
   },
   { TYPE_STACK,
-    { TYPE_STACK, { TRAIT_COUNTABLE }, "stack",
+    { TYPE_STACK, { TRAIT_COUNTABLE, TRAIT_ITERABLE }, "stack",
       [] (const Value& v) { return StackPrinter.svalue(v.stack()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STACK && v2.list()->raw() == v1.list()->raw(); }
     }  },
   { TYPE_QUEUE,
-    { TYPE_QUEUE, { TRAIT_COUNTABLE }, "queue",
-      [] (const Value& v) { return QueuePrinter.svalue(v.stack()); },
+    { TYPE_QUEUE, { TRAIT_COUNTABLE, TRAIT_ITERABLE }, "queue",
+      [] (const Value& v) { return QueuePrinter.svalue(v.queue()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_QUEUE && v2.list()->raw() == v1.list()->raw(); }
     }
   },
@@ -179,7 +181,11 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     }
   },
   
-  { TYPE_MAP, { TYPE_MAP, { TRAIT_COUNTABLE }, "map" } },
+  { TYPE_MAP,
+    { TYPE_MAP, { TRAIT_COUNTABLE, TRAIT_ITERABLE }, "map",
+  
+    }
+  },
   
   { TYPE_LAMBDA,
     { TYPE_LAMBDA, { TRAIT_COUNTABLE }, "lambda",

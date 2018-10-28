@@ -34,6 +34,14 @@ template<typename... Args> void verifyStack(VM& vm)
   REQUIRE(vm.stackSize() == 0);
 }
 
+template<typename... Args> void verifyStack(VM& vm, integral_t v, Args... args)
+{
+  REQUIRE(vm.stackSize() > 0);
+  Value value = vm.pop();
+  REQUIRE(value.type == TYPE_INT);
+  REQUIRE(value.integral() == v);
+}
+
 template<typename... Args> void verifyStack(VM& vm, int v, Args... args)
 {
   REQUIRE(vm.stackSize() > 0);
@@ -66,7 +74,7 @@ template<typename... Args> void verifyStack(VM& vm, const std::vector<Value>& v,
   REQUIRE(verifyArray(value.array(), v));
 }
 
-template<typename... Args> void executeAndVerifyStack(std::string code, Args... args)
+template<typename... Args> void executeAndVerifyStack(const std::string& code, Args... args)
 {
   Code* program = Compiler().compile(code.c_str());
   REQUIRE(program != nullptr);
@@ -77,14 +85,34 @@ template<typename... Args> void executeAndVerifyStack(std::string code, Args... 
   verifyStack(vm, args...);
 }
 
+template<typename... Args> void executeAndVerifyStack(const std::vector<Instruction>& code, Args... args)
+{
+  Code* program = new CodeStandard(code);
+  REQUIRE(program != nullptr);
+  
+  VM vm(mc);
+  vm.execute(program);
+  
+  verifyStack(vm, args...);
+}
+
+template<typename T> Value dummyData(size_t = 0, size_t = 0) { static_assert(sizeof(T) != sizeof(T), "Must specialize"); }
+
+template<> Value dummyData<String>(size_t min, size_t max)
+{
+  std::string data = std::string(min + rand()%(max-min+1), ' ');
+  for (auto& c : data) { c = 'a' + rand()%26; }
+  return new String(data);
+}
+
 TEST_CASE("support types")
 {
   SECTION("Arguments")
   {
-    REQUIRE(Arguments().count() == 0);
-    REQUIRE(Arguments(TYPE_INT).count() == 1);
-    REQUIRE(Arguments(TYPE_INT, TYPE_INT).count() == 2);
-    REQUIRE(Arguments(TYPE_INT, TYPE_INT, TYPE_INT).count() == 3);
+    REQUIRE(SignatureArguments().count() == 0);
+    REQUIRE(SignatureArguments(TYPE_INT).count() == 1);
+    REQUIRE(SignatureArguments(TYPE_INT, TYPE_INT).count() == 2);
+    REQUIRE(SignatureArguments(TYPE_INT, TYPE_INT, TYPE_INT).count() == 3);
   }
 }
 
@@ -124,12 +152,22 @@ TEST_CASE("collection constructors")
   }
 }
 
+static constexpr size_t REPETITIONS = 100;
+#define BATCH(x) for (size_t i = 0; i < (x); ++i)
+
 TEST_CASE("collections size")
 {
   /* string */
   executeAndVerifyStack("\"\"_", 0);
   executeAndVerifyStack("\"h\"_", 1);
   executeAndVerifyStack("\"he\"_", 2);
+  
+  BATCH(REPETITIONS)
+  {
+    Value value = dummyData<String>(1, 20);
+    REQUIRE(value.string()->size() == value.string()->raw().size());
+    executeAndVerifyStack({value, OP_NEG}, value.string()->size());
+  }
   
   /* array */
   executeAndVerifyStack("()_", 0);

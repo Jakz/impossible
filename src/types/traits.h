@@ -19,6 +19,32 @@
 enum Type : u16;
 class Value;
 class SignatureType;
+class Iterator;
+
+class Traits
+{
+public:
+  class Countable
+  {
+  public: virtual integral_t size() const = 0;
+  };
+  
+  class Indexable
+  {
+  public: virtual Value at(integral_t index) const = 0;
+  };
+  
+  class Appendable
+  {
+  public: virtual void put(Value value) = 0;
+  };
+  
+  class Iterable
+  {
+  public:
+    virtual Iterator iterator() const = 0;
+  };
+};
 
 class VirtualTable
 {
@@ -58,6 +84,8 @@ public:
     std::function<bool(const Value& v1, const Value& v2)> equal_to;
     
     std::function<bool(const Value&)> to_bool = [] (const Value& ) { return false; };
+    
+    std::function<Traits::Appendable*(size_t)> to_collector = [] (size_t) { return nullptr; };
   };
   
 private:
@@ -144,37 +172,4 @@ public:
   Iterator& operator++() { advance(); return *this; }
 };
 
-class Traits
-{
-public:
-  class Countable
-  {
-  public: virtual integral_t size() const = 0;
-  };
-  
-  class Indexable
-  {
-  public: virtual Value at(integral_t index) const = 0;
-  };
-  
-  class FrontAccessible
-  {
-  public:
-    virtual Value popFront() = 0;
-    virtual void pushFront(const Value& value) = 0;
-  };
-  
-  class BackAccessible
-  {
-  public:
-    virtual Value popBack() = 0;
-    virtual void pushBack(const Value& value) = 0;
-  };
-  
-  class Iterable
-  {
-  public:
-    virtual Iterator iterator() const = 0;
-  };
-};
 

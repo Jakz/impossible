@@ -69,13 +69,16 @@ static const CollectionPrinter<Value> ArrayPrinter = { "(", ")", " ", [] (const 
 static const CollectionPrinter<Value> SetPrinter = { "{.", "}", " ", [] (const Value& v) { return v.svalue(); } };
 static const CollectionPrinter<Value> TuplePrinter = { "[[", "]]", " ", [] (const Value& v) { return v.svalue(); } };
 
+static const auto unary_false = [](const Value&) { return false; };
+static const auto binary_false = [](const Value&, const Value&) { return false; };
 
 const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::specs =
 {
   { TYPE_INT,
     { TYPE_INT, {}, "int",
       [] (const Value& v) { return std::to_string(v.data.i); },
-      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_INT && v2.data.i == v1.data.i; }
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_INT && v2.data.i == v1.data.i; },
+      unary_false
     }
   },
   { TYPE_FLOAT,
@@ -85,7 +88,8 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
         ss << std::setiosflags(std::ios::fixed) << std::setprecision(4) << v.data.f;
         return ss.str();
       },
-      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_FLOAT && v2.data.f == v1.data.f; }
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_FLOAT && v2.data.f == v1.data.f; },
+      unary_false
     }
   },
   { TYPE_BOOL,
@@ -101,14 +105,17 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     {
       TYPE_CHAR, {}, "char",
       [] (const Value& v) { return std::string(1, v.data.c); },
-      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_CHAR && v2.data.c == v1.data.c; }
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_CHAR && v2.data.c == v1.data.c; },
+      unary_false
     }
   },
   
   { TYPE_STRING,
     { TYPE_STRING, { TRAIT_COUNTABLE, TRAIT_INDEXABLE, TRAIT_ITERABLE }, "string",
       [] (const Value& v) { return v.string()->raw(); },
-      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STRING && v2.string()->raw() == v1.string()->raw(); }
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STRING && v2.string()->raw() == v1.string()->raw(); },
+      unary_false,
+      [] (size_t hint) { return new String(); }
     }
   },
   
@@ -136,37 +143,53 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
         }
         
         return ss.str();
-      }
+      },
+      binary_false,
+      unary_false,
+      [] (size_t hint) { return new Array(hint); }
     }
   },
   
   { TYPE_LIST,
     { TYPE_LIST, { TRAIT_COUNTABLE, TRAIT_ITERABLE }, "list",
       [] (const Value& v) { return ListPrinter.svalue(v.list()); },
-      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_LIST && v2.list()->raw() == v1.list()->raw(); }
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_LIST && v2.list()->raw() == v1.list()->raw(); },
+      unary_false,
+      [] (size_t hint) { return new List(); }
     }
   },
   
   { TYPE_ARRAY,
     { TYPE_ARRAY, { TRAIT_COUNTABLE, TRAIT_INDEXABLE }, "array",
-      [] (const Value& v) { return ArrayPrinter.svalue(v.array()); }
+      [] (const Value& v) { return ArrayPrinter.svalue(v.array()); },
+      binary_false,
+      unary_false,
+      [] (size_t hint) { return new Array(hint); }
     }
   },
 
   { TYPE_SET,
     { TYPE_SET, { TRAIT_COUNTABLE, TRAIT_ITERABLE }, "set",
-      [] (const Value& v) { return SetPrinter.svalue(v.set()); }
+      [] (const Value& v) { return SetPrinter.svalue(v.set()); },
+      binary_false,
+      unary_false,
+      [] (size_t hint) { return new Array(hint); }
     }
   },
   { TYPE_STACK,
     { TYPE_STACK, { TRAIT_COUNTABLE, TRAIT_ITERABLE }, "stack",
       [] (const Value& v) { return StackPrinter.svalue(v.stack()); },
-      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STACK && v2.list()->raw() == v1.list()->raw(); }
-    }  },
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STACK && v2.list()->raw() == v1.list()->raw(); },
+      unary_false,
+      [] (size_t hint) { return new List(); }
+    }
+  },
   { TYPE_QUEUE,
     { TYPE_QUEUE, { TRAIT_COUNTABLE, TRAIT_ITERABLE }, "queue",
       [] (const Value& v) { return QueuePrinter.svalue(v.queue()); },
-      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_QUEUE && v2.list()->raw() == v1.list()->raw(); }
+      [] (const Value& v1, const Value& v2) { return v2.type == TYPE_QUEUE && v2.list()->raw() == v1.list()->raw(); },
+      unary_false,
+      [] (size_t hint) { return new List(); }
     }
   },
 
@@ -178,6 +201,9 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
         s += " )";
         return s;
       },
+      binary_false,
+      unary_false,
+      [] (size_t hint) { return new Array(hint); }
     }
   },
   

@@ -178,8 +178,7 @@ enum Trait : u32
   TRAIT_COUNTABLE               = 0x00000001,
   TRAIT_INDEXABLE               = 0x00000002,
   TRAIT_ITERABLE                = 0x00000004,
-  TRAIT_FRONT_ACCESSIBLE        = 0x00000008,
-  TRAIT_BACK_ACCESSIBLE         = 0x00000010,
+  TRAIT_APPENDABLE              = 0x00000008,
   
   
 };

@@ -33,7 +33,7 @@ public:
   Value value() const override { return *this->it; }
 };
 
-class String final : public TCollection, public Traits::Indexable, public Traits::Iterable
+class String final : public TCollection, public Traits::Indexable, public Traits::Iterable, public Traits::Appendable
 {
 public:
   using data_t = std::string;
@@ -58,22 +58,17 @@ public:
   
   virtual const Value& next() const override;
   
-  virtual void put(Value value) override
-  {
-    this->value.append(value.svalue());
-  }
-  
   virtual bool empty() const override { return this->value.empty(); }
   
   integral_t size() const override { return value.length(); }
   Value at(integral_t index) const override { return value[index]; }
+  void put(Value v) override { value.append(v.svalue()); }
+  Iterator iterator() const override { return Iterator(new IteratorWrapper<std::string>(value)); }
   
   const std::string& raw() const { return value; }
-  
-  Iterator iterator() const override { return Iterator(new IteratorWrapper<std::string>(value)); }
 };
 
-class Range : public TCollection, public Traits::Iterable
+class Range : public TCollection, public Traits::Iterable, public Traits::Appendable
 {
 public:
 
@@ -145,6 +140,7 @@ public:
       data.merge(value.integral());
     else if (value.type == TYPE_RANGE)
       data.rangeUnion(value.range()->raw());
+    /* TODO: throw exception? */
   }
   
   Iterator iterator() const override
@@ -281,7 +277,7 @@ struct std::less<Value>
   }
 };
 
-class List : public TCollection, public Traits::Iterable
+class List : public TCollection, public Traits::Iterable, public Traits::Appendable
 {
 public:
   using list_t = std::list<Value>;
@@ -306,25 +302,17 @@ public:
       return *it++;
     }
   }
-  
-  virtual void put(Value value) override
-  {
-    data.push_back(value);
-  }
-  
+
   virtual integral_t size() const override { return data.size(); }
   virtual bool empty() const override { return data.empty(); }
+  void put(Value value) override { data.push_back(value); }
+  Iterator iterator() const override { return Iterator(new IteratorWrapper<std::list<Value>>(data)); }
   
   const list_t& raw() const { return data; }
   list_t& raw() { return data; }
   
   list_t::iterator begin() { return data.begin(); }
   list_t::iterator end() { return data.end(); }
-  
-  Iterator iterator() const override
-  {
-    return Iterator(new IteratorWrapper<std::list<Value>>(data));
-  }
 };
 
 
@@ -365,7 +353,7 @@ public:
 };
 
 
-class Array : public TCollection, public Traits::Indexable, public Traits::Iterable
+class Array : public TCollection, public Traits::Indexable, public Traits::Iterable, public Traits::Appendable
 {
 public:
   using array_t = std::vector<Value>;
@@ -394,14 +382,12 @@ public:
     }
   }
   
-  
-  virtual void put(Value value) override
-  {
-    this->data.push_back(value);
-  }
-  
   virtual integral_t size() const override { return data.size(); }
   virtual bool empty() const override { return this->data.empty(); }
+  
+  void put(Value v) override { this->data.push_back(v); }
+  Value at(integral_t index) const override { return data[index]; }
+  Iterator iterator() const override { return Iterator(new IteratorWrapper<std::vector<Value>>(data)); }
 
   array_t& raw() { return data; }
   const array_t& raw() const { return data; }
@@ -409,8 +395,7 @@ public:
   array_t::iterator begin() { return data.begin(); }
   array_t::iterator end() { return data.end(); }
   
-  Value at(integral_t index) const override { return data[index]; }
-  Iterator iterator() const override { return Iterator(new IteratorWrapper<std::vector<Value>>(data)); }
+
 };
 
 class LazyArray : public TCollection

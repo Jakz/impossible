@@ -1029,20 +1029,7 @@ void Instruction::execute(VM *vm) const
       }
       break;
     }
-      
-    case OP_ITER:
-    {
-      if (vm->popTwo(v1, v2))
-      {  
-        //TODO: fix
-        //if (v1.type.isCollection() && v2.type == TYPE_LAMBDA)
-        {
-          iter(v1.collection(), v2.lambda()->code(), vm);
-        }
-      }
-      break;
-    }
-      
+            
     case OP_ITERI:
     {
       if (vm->popTwo(v1, v2))

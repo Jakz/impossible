@@ -352,7 +352,7 @@ public:
   Queue(const std::list<Value>& data) : List(data) { }
 };
 
-
+#pragma mark Array
 class Array : public TCollection, public Traits::Indexable, public Traits::Iterable, public Traits::Appendable
 {
 public:
@@ -436,7 +436,7 @@ public:
 
 };
 
-class Set : public TCollection, public Traits::Iterable
+class Set : public TCollection, public Traits::Iterable, public Traits::Appendable
 {
 public:
   using set_t = std::unordered_set<Value, value_hash>;
@@ -463,17 +463,14 @@ public:
     }
   }
   
-  virtual void put(Value value) override
-  {
-    this->data.insert(value);
-  }
-  
   virtual integral_t size() const override { return data.size(); }
   virtual bool empty() const override { return this->data.empty(); }
   
-  const set_t& raw() const { return data; } //TODO: rotto
-  
   Iterator iterator() const override { return Iterator(new IteratorWrapper<data_t>(data)); }
+  void put(Value value) override { data.insert(value); }
+  
+  const set_t& raw() const { return data; } //TODO: rotto
+
 };
 
 #pragma mark Map

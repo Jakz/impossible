@@ -8,6 +8,8 @@
 #include "value.h"
 #include "instruction.h"
 
+#include "error.h"
+
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -23,6 +25,7 @@ Value::Value(Map* map) : type(TYPE_MAP), data(map) { }
 Value::Value(Range* range) : type(TYPE_RANGE), data(range) { }
 Value::Value(Lambda* map) : type(TYPE_LAMBDA), data(map) { }
 Value::Value(LazyArray* map) : type(TYPE_LAZY_ARRAY), data(map) { }
+Value::Value(Error* error) : type(TYPE_ERROR), data(error) { }
 
 
 
@@ -42,6 +45,8 @@ Map* Value::map() const { assert(type == TYPE_MAP); return object<Map>(); }
 Range* Value::range() const { assert(type == TYPE_RANGE); return object<Range>(); }
 Lambda* Value::lambda() const { assert(type == TYPE_LAMBDA); return object<Lambda>(); }
 LazyArray* Value::lazyArray() const { assert(type == TYPE_LAZY_ARRAY); return object<LazyArray>(); }
+Error* Value::error() const { assert(type == TYPE_ERROR); return object<Error>(); }
+
 
 Traits::Indexable* Value::indexable() const { return object<Traits::Indexable>(); }
 Traits::Iterable* Value::iterable() const { return object<Traits::Iterable>(); }

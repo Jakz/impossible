@@ -151,6 +151,8 @@ enum Type : u16
   
   TYPE_LAMBDA,
   
+  TYPE_ERROR,
+  
   TYPE_COLLECTION,
 
   TYPE_GENERIC = 256,

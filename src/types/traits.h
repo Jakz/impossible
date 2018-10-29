@@ -85,7 +85,7 @@ public:
     
     std::function<bool(const Value&)> to_bool = [] (const Value& ) { return false; };
     
-    std::function<Traits::Appendable*(size_t)> to_collector = [] (size_t) { return nullptr; };
+    std::function<std::pair<Type, Traits::Appendable*>(size_t)> to_collector = [] (size_t) { return std::make_pair(TYPE_NONE, nullptr); };
   };
   
 private:

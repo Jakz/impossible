@@ -39,6 +39,7 @@ class Map;
 class Range;
 class LazyArray;
 class Code;
+class Error;
 
 union value_data
 {
@@ -96,6 +97,8 @@ public:
   Value(Range* range);
   Value(LazyArray* lazyArray);
   
+  Value(Error* error);
+  
   Value& operator=(const Value& other) { this->data = other.data; this->type = other.type; return *this; }
   bool valid() const { return type != TYPE_INVALID; }
   
@@ -132,6 +135,7 @@ public:
   Array* array() const;
   Range* range() const;
   LazyArray* lazyArray() const;
+  Error* error() const;
   
   Traits::Indexable* indexable() const;
   Traits::Iterable* iterable() const;

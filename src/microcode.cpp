@@ -1,6 +1,8 @@
 #include "semantics.h"
 #include "help.h"
 
+#include "types/error.h"
+
 SignatureArguments normalize(const SignatureArguments& args)
 {
   SignatureArguments args2 = args;
@@ -70,29 +72,35 @@ void registerFunctions(MicroCode& mc)
                  );
   
   registerBinary(mc,
-                 Topic::COLLECTIONS, "maps", "maps each value of input into a new value and store it into related appendable",
+                 Topic::COLLECTIONS, "maps", "maps each value of input into a new value and store it into compatible appendable",
                  {},
                  { OP_MAP, TRAIT_ITERABLE, TYPE_LAMBDA }, { TRAIT_APPENDABLE },
                  [] (VM* vm, const Value& v1, const Value& v2) {
                    Iterator it = v1.object<Traits::Iterable>()->iterator();
                    Traits::Countable* asCountable = v1.object<Traits::Countable>();
-                   Traits::Appendable* destination = v1.type.traits().to_collector(asCountable ? asCountable->size() : 0);
+                   auto destination = v1.type.traits().to_collector(asCountable ? asCountable->size() : 0);
 
                    //TODO: we're assuming that an appendable type has a to_collector function
-                   if (destination)
+                   if (destination.first != TYPE_NONE)
                    {
                      while (it)
                      {
                        vm->push(*it);
                        vm->execute(v2.lambda()->code());
-                       /* TODO: check that stack contains a value */
-                       destination->put(vm->pop());
+                       
+                       if (vm->stackSize() < 1)
+                       {
+                         vm->push(new Error(ErrorCode::OPERAND_REQUIRED_ON_STACK, "lambda supplied to map must produce a value"));
+                         return;
+                       }
+                       
+                       destination.second->put(vm->pop());
                        ++it;
                      }
                      
                      //TODO: doesn't work because we need the actual type of the object, a trait is not enough for RTTI
                      //eg Value(TYPE_STRING, destination)
-                     vm->push(destination);
+                     vm->push(Value(destination.first, dynamic_cast<managed_object*>(destination.second)));
                    }
                  }
                  );

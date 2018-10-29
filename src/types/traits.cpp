@@ -1,7 +1,9 @@
 #include "traits.h"
 #include "value.h"
+#include "error.h"
 #include "collection.h"
 #include "instruction.h"
+
 
 #include <sstream>
 #include <iomanip>
@@ -67,7 +69,10 @@ static const CollectionPrinter<Value> StackPrinter = { "{>", "}", " ", [] (const
 static const CollectionPrinter<Value> QueuePrinter = { "{<", "}", " ", [] (const Value& v) { return v.svalue(); } };
 static const CollectionPrinter<Value> ArrayPrinter = { "(", ")", " ", [] (const Value& v) { return v.svalue(); } };
 static const CollectionPrinter<Value> SetPrinter = { "{.", "}", " ", [] (const Value& v) { return v.svalue(); } };
+static const CollectionPrinter<Value> MapPrinter = { "{", "}", " ", [] (const Value& v) { return v.tuple()->at(0).svalue() + ':' + v.tuple()->at(1).svalue();; } };
+
 static const CollectionPrinter<Value> TuplePrinter = { "[[", "]]", " ", [] (const Value& v) { return v.svalue(); } };
+
 
 static const auto unary_false = [](const Value&) { return false; };
 static const auto binary_false = [](const Value&, const Value&) { return false; };
@@ -111,11 +116,11 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
   
   { TYPE_STRING,
-    { TYPE_STRING, { TRAIT_COUNTABLE, TRAIT_INDEXABLE, TRAIT_ITERABLE }, "string",
+    { TYPE_STRING, { TRAIT_COUNTABLE, TRAIT_INDEXABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "string",
       [] (const Value& v) { return v.string()->raw(); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STRING && v2.string()->raw() == v1.string()->raw(); },
       unary_false,
-      [] (size_t hint) { return new String(); }
+      [] (size_t hint) { return std::make_pair(TYPE_STRING, new String()); }
     }
   },
   
@@ -127,7 +132,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
 
   { TYPE_RANGE,
-    { TYPE_RANGE, { TRAIT_COUNTABLE, TRAIT_ITERABLE }, "range",
+    { TYPE_RANGE, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "range",
       [] (const Value& v) {
         std::stringstream ss(std::stringstream::out);
         
@@ -146,50 +151,50 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       },
       binary_false,
       unary_false,
-      [] (size_t hint) { return new Array(hint); }
+      [] (size_t hint) { return std::make_pair(TYPE_ARRAY, new Array()); }
     }
   },
   
   { TYPE_LIST,
-    { TYPE_LIST, { TRAIT_COUNTABLE, TRAIT_ITERABLE }, "list",
+    { TYPE_LIST, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "list",
       [] (const Value& v) { return ListPrinter.svalue(v.list()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_LIST && v2.list()->raw() == v1.list()->raw(); },
       unary_false,
-      [] (size_t hint) { return new List(); }
+      [] (size_t hint) { return std::make_pair(TYPE_LIST, new List()); }
     }
   },
   
   { TYPE_ARRAY,
-    { TYPE_ARRAY, { TRAIT_COUNTABLE, TRAIT_INDEXABLE }, "array",
+    { TYPE_ARRAY, { TRAIT_COUNTABLE, TRAIT_INDEXABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "array",
       [] (const Value& v) { return ArrayPrinter.svalue(v.array()); },
       binary_false,
       unary_false,
-      [] (size_t hint) { return new Array(hint); }
+      [] (size_t hint) { return std::make_pair(TYPE_ARRAY, new Array()); }
     }
   },
 
   { TYPE_SET,
-    { TYPE_SET, { TRAIT_COUNTABLE, TRAIT_ITERABLE }, "set",
+    { TYPE_SET, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "set",
       [] (const Value& v) { return SetPrinter.svalue(v.set()); },
       binary_false,
       unary_false,
-      [] (size_t hint) { return new Array(hint); }
+      [] (size_t hint) { return std::make_pair(TYPE_SET, new Set()); }
     }
   },
   { TYPE_STACK,
-    { TYPE_STACK, { TRAIT_COUNTABLE, TRAIT_ITERABLE }, "stack",
+    { TYPE_STACK, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "stack",
       [] (const Value& v) { return StackPrinter.svalue(v.stack()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STACK && v2.list()->raw() == v1.list()->raw(); },
       unary_false,
-      [] (size_t hint) { return new List(); }
+      [] (size_t hint) { return std::make_pair(TYPE_LIST, new List()); }
     }
   },
   { TYPE_QUEUE,
-    { TYPE_QUEUE, { TRAIT_COUNTABLE, TRAIT_ITERABLE }, "queue",
+    { TYPE_QUEUE, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "queue",
       [] (const Value& v) { return QueuePrinter.svalue(v.queue()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_QUEUE && v2.list()->raw() == v1.list()->raw(); },
       unary_false,
-      [] (size_t hint) { return new List(); }
+      [] (size_t hint) { return std::make_pair(TYPE_LIST, new List()); }
     }
   },
 
@@ -203,13 +208,14 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       },
       binary_false,
       unary_false,
-      [] (size_t hint) { return new Array(hint); }
+      [] (size_t hint) { return std::make_pair(TYPE_ARRAY, new Array()); }
     }
   },
   
   { TYPE_MAP,
-    { TYPE_MAP, { TRAIT_COUNTABLE, TRAIT_ITERABLE }, "map",
-  
+    { TYPE_MAP, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "map",
+      [] (const Value& v) { return MapPrinter.svalue(v.map()); },
+
     }
   },
   
@@ -234,6 +240,14 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
 
     }
   },
+  
+  { TYPE_ERROR,
+    { TYPE_ERROR, {}, "error",
+      [] (const Value& v) { return "error(" + v.error()->message() + ")"; }
+    }
+    
+  },
+  
   { TYPE_NIL,
     { TYPE_NIL, {}, "nil",
       [] (const Value& v) { return "nil"; }
@@ -267,6 +281,7 @@ std::string TypeTraits::nameForTrait(Trait trait)
     { Trait::TRAIT_COUNTABLE, "countable" },
     { Trait::TRAIT_INDEXABLE, "indexable" },
     { Trait::TRAIT_ITERABLE, "iterable" },
+    { Trait::TRAIT_APPENDABLE, "appendable" },
   };
   
   for (const auto& e : names)

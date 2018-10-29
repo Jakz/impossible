@@ -1073,72 +1073,6 @@ void Instruction::execute(VM *vm) const
       break;
     }
       
-    case OP_MAP:
-    {
-      if (vm->popTwo(v1, v2))
-      {  
-        switch (TYPES(v1.type, v2.type))
-        {
-          case TYPES(TYPE_LIST, TYPE_LAMBDA):
-          {
-            Lambda *lambda = v2.lambda();
-            List *values = v1.list();
-            List *nvalues = new List();
-
-            map(values,nvalues,lambda->code(),vm);
-            
-            vm->push(nvalues);
-            break;
-          }
-          case TYPES(TYPE_ARRAY, TYPE_LAMBDA):
-          {
-            Lambda *lambda = v2.lambda();
-            Array* values = v1.array();
-            Array* nvalues = new Array();
-            
-            map(values,nvalues,lambda->code(),vm);
-            
-            vm->push(nvalues);
-            break;
-          }
-          case TYPES(TYPE_RANGE, TYPE_LAMBDA):
-          {
-            Lambda *lambda = v2.lambda();
-            Range* values = v1.range();
-            Array* nvalues = new Array();
-            
-            map(values,nvalues,lambda->code(),vm);
-            
-            vm->push(nvalues);
-            break;
-          }
-          case TYPES(TYPE_SET, TYPE_LAMBDA):
-          {
-            Lambda *lambda = v2.lambda();
-            Set* values = v1.set();
-            Set* nvalues = new Set();
-            
-            map(values,nvalues,lambda->code(),vm);
-            
-            vm->push(nvalues);
-            break;
-          }
-          case TYPES(TYPE_STRING, TYPE_LAMBDA):
-          {
-            Lambda *lambda = v2.lambda();
-            String* values = v1.string();
-            String* nvalues = new String();
-            
-            map(values,nvalues,lambda->code(),vm);
-            
-            vm->push(new Value(nvalues));
-            break;
-          }
-        }
-      }
-      
-      break;
-    }
 
     case OP_FOLD:
     {
@@ -1623,6 +1557,5 @@ void Instruction::execute(VM *vm) const
         vm->push(new Value(new String(v1.svalue())));
       }
     }
-
   }
 }

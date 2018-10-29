@@ -64,6 +64,7 @@
 		046E4F2C217EA22300DB959C /* Tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Tests; sourceTree = BUILT_PRODUCTS_DIR; };
 		048035F121869A9200C744DD /* heap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = heap.cpp; sourceTree = "<group>"; };
 		048035F221869A9200C744DD /* heap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = heap.h; sourceTree = "<group>"; };
+		048035F52186ABCE00C744DD /* error.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = error.h; sourceTree = "<group>"; };
 		0480650F217EA1880063ACD5 /* catch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = catch.h; sourceTree = "<group>"; };
 		04806510217EA1880063ACD5 /* tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = tests.cpp; sourceTree = "<group>"; };
 		04A637EA217F92E600436B0F /* compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compiler.h; sourceTree = "<group>"; };
@@ -199,6 +200,7 @@
 		04FE2F332180C1EF00871297 /* types */ = {
 			isa = PBXGroup;
 			children = (
+				048035F52186ABCE00C744DD /* error.h */,
 				04FE2F352180C1EF00871297 /* lazy.h */,
 				04FE2F342180C1EF00871297 /* lazy.cpp */,
 				04FE2F362180C1EF00871297 /* range.h */,

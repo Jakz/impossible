@@ -9,10 +9,12 @@
 #define _VALUE_H_
 
 #include "defines.h"
-#include "range.h"
-#include "lazy.h"
+#include "vm/heap.h"
 
-#include "traits.h"
+#include "types/traits.h"
+
+#include "types/range.h"
+#include "types/lazy.h"
 
 #include <cmath>
 
@@ -165,32 +167,5 @@ public:
     return false;
   }
 };
-
-class Heap
-{
-private:
-  using refcount_t = u16;
-  
-  struct heap_object
-  {
-    managed_object* value;
-    mutable refcount_t refs;
-    
-    heap_object(managed_object* value ) : value(value), refs(0) { }
-    void retain() const { ++refs; }
-    bool release() const { return --refs == 0; }
-  };
-
-private:
-  std::vector<heap_object> heap;
-  
-public:
-  
-  void insert(managed_object* value)
-  {
-    heap.emplace_back(value);
-  }
-};
-
 
 #endif

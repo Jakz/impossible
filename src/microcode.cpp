@@ -8,6 +8,7 @@ using V = const Value&;
 
 void registerStackFunctions(MicroCode& mc);
 void registerNumericFunctions(MicroCode& mc);
+void registerStringFunctions(MicroCode& mc);
 
 SignatureArguments normalize(const SignatureArguments& args)
 {
@@ -53,7 +54,7 @@ void registerTernary(MicroCode& mc, Topic topic, const std::string& name, const 
 void registerFunctions(MicroCode& mc)
 {
   registerUnary(mc,
-                Topic::COLLECTIONS, "size", "returns size/length of the value on stack",
+                Topic::COLLECTIONS, "size", "return size/length of the value on stack",
                 {{"(1 2 3)_", "3"}, {"{}_", "0"}},
                 { OP_NEG, TRAIT_COUNTABLE }, { TYPE_INT },
                 [] (VM* vm, const Value& v1) {
@@ -70,7 +71,7 @@ void registerFunctions(MicroCode& mc)
   
   /* Functional applications on collections */
   registerBinary(mc,
-                 Topic::COLLECTIONS, "each", "executes the lambda for each element in the iterable value",
+                 Topic::COLLECTIONS, "each", "execute the lambda for each element in the iterable value",
                  {},
                  { OP_ITER, TRAIT_ITERABLE, TYPE_LAMBDA }, { },
                  [] (VM* vm, const Value& v1, const Value& v2) {
@@ -85,7 +86,7 @@ void registerFunctions(MicroCode& mc)
                  );
   
   registerBinary(mc,
-                 Topic::COLLECTIONS, "map", "maps each value of input into a new value and store it into compatible appendable",
+                 Topic::COLLECTIONS, "map", "map each value of input into a new value and store it into compatible appendable",
                  {},
                  { OP_MAP, TRAIT_ITERABLE, TYPE_LAMBDA }, { TRAIT_APPENDABLE },
                  [] (VM* vm, const Value& v1, const Value& v2) {
@@ -148,7 +149,7 @@ void registerFunctions(MicroCode& mc)
   
   //TODO: should return a String if input is a String
   registerBinary(mc,
-                 Topic::COLLECTIONS, "extract", "retrieves all elements of range from indexable type",
+                 Topic::COLLECTIONS, "extract", "retrieve all elements of range from indexable type",
                  {},
                  { OP_AT, TRAIT_INDEXABLE | TRAIT_COUNTABLE, TYPE_RANGE }, { TYPE_ARRAY },
                  [] (VM* vm, const Value& v1, const Value& v2) {
@@ -174,6 +175,7 @@ void registerFunctions(MicroCode& mc)
 
   registerStackFunctions(mc);
   registerNumericFunctions(mc);
+  registerStringFunctions(mc);
 }
 
 namespace math
@@ -204,7 +206,7 @@ void registerNumericFunctions(MicroCode& mc)
 void registerStackFunctions(MicroCode& mc)
 {
   registerUnary(mc,
-                Topic::STACK, "dupe", "duplicates topmost stack value",
+                Topic::STACK, "dupe", "duplicate topmost stack value",
                 {{"(1 2)$", "(1 2)(1 2)"}, {"tf$", "tff"}},
                 { OP_DUPE, TRAIT_ANY_TYPE }, { TRAIT_ANY_TYPE, TRAIT_ANY_TYPE },
                 [] (VM* vm, const Value& v1) { vm->push(v1); vm->push(v1); }
@@ -218,7 +220,7 @@ void registerStackFunctions(MicroCode& mc)
                  );
   
   registerBinary(mc,
-                 Topic::STACK, "pick", "copies i-th value from stack to top",
+                 Topic::STACK, "pick", "copy i-th value from stack to top",
                  {},
                  { OP_PICK, TRAIT_ANY_TYPE, TYPE_INT }, { TRAIT_ANY_TYPE },
                  [] (VM* vm, const Value& v1, const Value& v2) {
@@ -227,7 +229,7 @@ void registerStackFunctions(MicroCode& mc)
                  });
   
   registerUnary(mc,
-                Topic::STACK, "drop", "drops topmost stack value",
+                Topic::STACK, "drop", "drop topmost stack value",
                 {},
                 { OP_DROP, TRAIT_ANY_TYPE }, { },
                 [] (VM* vm, const Value& v) { }
@@ -253,5 +255,26 @@ void registerStackFunctions(MicroCode& mc)
                     vm->push(v1);
                     vm->push(v2);
                   });
+}
+
+void registerStringFunctions(MicroCode& mc)
+{
+  registerUnary(mc,
+                 Topic::STACK, "compile-regex", "compile a regex from a string",
+                 {},
+                 { OP_DIVIDE, TYPE_STRING }, { TYPE_REGEX },
+                 [] (VM* vm, const Value& v)
+                 {
+                   Regex* regex = nullptr;
+                   try
+                   {
+                     regex = new Regex(v.string()->raw());
+                     vm->push(regex);
+                   }
+                   catch (std::regex_error e)
+                   {
+                     vm->push(new Error(ErrorCode::INVALID_REGEX, e.what()));
+                   }
+                 });
 }
 

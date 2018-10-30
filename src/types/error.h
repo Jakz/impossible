@@ -6,7 +6,8 @@
 
 enum class ErrorCode
 {
-  OPERAND_REQUIRED_ON_STACK
+  OPERAND_REQUIRED_ON_STACK,
+  INVALID_REGEX
 };
 
 class Error : public managed_object

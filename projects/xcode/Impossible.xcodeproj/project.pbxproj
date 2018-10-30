@@ -67,6 +67,7 @@
 		048035F52186ABCE00C744DD /* error.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = error.h; sourceTree = "<group>"; };
 		0480650F217EA1880063ACD5 /* catch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = catch.h; sourceTree = "<group>"; };
 		04806510217EA1880063ACD5 /* tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = tests.cpp; sourceTree = "<group>"; };
+		049A653D218875750080E362 /* regexpr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = regexpr.h; sourceTree = "<group>"; };
 		04A637EA217F92E600436B0F /* compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compiler.h; sourceTree = "<group>"; };
 		04A637EB217F92E600436B0F /* impossible.l */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.lex; path = impossible.l; sourceTree = "<group>"; };
 		04A637EC217F92E600436B0F /* impossible.ypp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.yacc; path = impossible.ypp; sourceTree = "<group>"; };
@@ -204,6 +205,7 @@
 				04FE2F352180C1EF00871297 /* lazy.h */,
 				04FE2F342180C1EF00871297 /* lazy.cpp */,
 				04FE2F362180C1EF00871297 /* range.h */,
+				049A653D218875750080E362 /* regexpr.h */,
 				04CE0A39218225DA0073AE98 /* traits.h */,
 				04CE0A38218225DA0073AE98 /* traits.cpp */,
 			);

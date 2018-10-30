@@ -129,31 +129,6 @@ static void cartesian(TCollection *values1, TCollection* values2, TCollection* n
   }
 }
 
-template<typename T>
-void filter(VM* vm, const T* collection, Code* predicate)
-{
-  Value v3;
-  const typename T::utype_t& v = collection->raw();
-  
-  typename T::utype_t::const_iterator it;
-  
-  typename T::utype_t ot;
-  
-  for (const auto& value : v)
-  {
-    vm->push(value);
-    vm->execute(predicate);
-    
-    if (vm->popOne(v3))
-    {
-      if (v3.type.traits().to_bool(v3))
-        ot.push_back(value);
-    }
-  }
-  
-  vm->push(new T(ot));
-}
-
 std::string Instruction::svalue() const
 {
   if (_value.type != TYPE_OPCODE)
@@ -486,17 +461,6 @@ void Instruction::execute(VM *vm) const
         switch (TYPES(v1.type, v2.type))
         {
           case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() >> v2.integral()); break;
-          case TYPES(TYPE_LIST, TYPE_LAMBDA):
-          {
-            filter(vm, v1.list(), v2.lambda()->code());
-            break;
-          }
-          case TYPES(TYPE_ARRAY, TYPE_LAMBDA):
-          {
-            filter(vm, v1.array(), v2.lambda()->code());
-            break;
-            break;
-          }
         }
       }
       break;

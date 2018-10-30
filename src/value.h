@@ -29,6 +29,7 @@
 using opcode_t = Opcode;
 class TCollection;
 class String;
+class Regex;
 class Tuple;
 class Array;
 class List;
@@ -86,6 +87,7 @@ public:
   Value(opcode_t value) : type(TYPE_OPCODE), data(value) { }
   
   Value(String* string);
+  Value(Regex* string);
   Value(Tuple* tuple);
   Value(List* list);
   Value(Stack* list);
@@ -126,6 +128,7 @@ public:
   TCollection* collection() const; //TODO: temporarily virtual to override in collections
   
   String* string() const;
+  Regex* regex() const;
   Tuple* tuple() const;
   List* list() const;
   Stack* stack() const;

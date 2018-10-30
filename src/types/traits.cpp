@@ -1,8 +1,10 @@
 #include "traits.h"
 #include "value.h"
-#include "error.h"
-#include "collection.h"
 #include "instruction.h"
+
+#include "collection.h"
+#include "error.h"
+#include "regexpr.h"
 
 
 #include <sstream>
@@ -102,7 +104,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       TYPE_BOOL, {}, "bool",
       [] (const Value& v) { return v.data.b ? "true" : "false"; },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_BOOL && v2.data.b == v1.data.b; },
-      [] (const Value& v) { return v == TYPE_BOOL && v.data.b; }
+      [] (const Value& v) { return v.type == TYPE_BOOL && v.data.b; }
     }
   
   },
@@ -123,6 +125,17 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       [] (size_t hint) { return std::make_pair(TYPE_STRING, new String()); }
     }
   },
+  
+  
+  { TYPE_REGEX,
+    { TYPE_REGEX, { }, "regex",
+      [] (const Value& v) { return v.regex()->svalue(); },
+      binary_false,
+      unary_false,
+      
+    }
+  },
+
   
   { TYPE_TUPLE,
     { TYPE_TUPLE, { TRAIT_INDEXABLE, TRAIT_COUNTABLE }, "tuple",

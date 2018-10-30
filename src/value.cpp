@@ -8,6 +8,7 @@
 #include "value.h"
 #include "instruction.h"
 
+#include "regexpr.h"
 #include "error.h"
 
 #include <iostream>
@@ -15,6 +16,7 @@
 #include <sstream>
 
 Value::Value(String* string) : type(TYPE_STRING), data(string) { }
+Value::Value(Regex* regex) : type(TYPE_REGEX), data(regex) { }
 Value::Value(Tuple* tuple) : type(TYPE_TUPLE), data(tuple) { }
 Value::Value(List* list) : type(TYPE_LIST), data(list) { }
 Value::Value(Stack* stack) : type(TYPE_STACK), data(stack) { }
@@ -35,6 +37,7 @@ TCollection* Value::collection() const
   return static_cast<TCollection*>(data.ptr);
 }
 String* Value::string() const { assert(type == TYPE_STRING); return object<String>(); }
+Regex* Value::regex() const { assert(type == TYPE_REGEX); return object<Regex>(); }
 Tuple* Value::tuple() const { assert(type == TYPE_TUPLE); return object<Tuple>(); }
 List* Value::list() const { assert(type == TYPE_LIST); return object<List>(); }
 Stack* Value::stack() const { assert(type == TYPE_STACK); return object<Stack>(); }

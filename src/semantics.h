@@ -351,6 +351,5 @@ public:
   
   bool execute(VM* vm, Opcode opcode) const;
   
-  void registerDefault();
   const MicroCode& defaultCode();
 };

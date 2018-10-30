@@ -138,6 +138,7 @@ enum Type : u16
   TYPE_BOOL,
   TYPE_CHAR,
   TYPE_STRING,
+  TYPE_REGEX,
   TYPE_RANGE,
   TYPE_TUPLE,
   

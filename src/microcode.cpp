@@ -2,6 +2,12 @@
 #include "help.h"
 
 #include "types/error.h"
+#include "types/regexpr.h"
+
+using V = const Value&;
+
+void registerStackFunctions(MicroCode& mc);
+void registerNumericFunctions(MicroCode& mc);
 
 SignatureArguments normalize(const SignatureArguments& args)
 {
@@ -46,10 +52,6 @@ void registerTernary(MicroCode& mc, Topic topic, const std::string& name, const 
 
 void registerFunctions(MicroCode& mc)
 {
-  using V = const Value&;
-  
-  mc.registerDefault();
-  
   registerUnary(mc,
                 Topic::COLLECTIONS, "size", "returns size/length of the value on stack",
                 {{"(1 2 3)_", "3"}, {"{}_", "0"}},
@@ -114,6 +116,36 @@ void registerFunctions(MicroCode& mc)
                  }
                  );
   
+  registerBinary(mc,
+                 Topic::COLLECTIONS, "filter", "filter all values which match a predicate into a new collection",
+                 {},
+                 { OP_RSHIFT, TRAIT_ITERABLE, TYPE_LAMBDA }, { TRAIT_APPENDABLE },
+                 [] (VM* vm, const Value& v1, const Value& v2) {
+                   Iterator it = v1.object<Traits::Iterable>()->iterator();
+                   
+                   auto destination = v1.type.traits().to_collector(0);
+                   
+                   //TODO: we're assuming that an appendable type has a to_collector function
+                   if (destination.first != TYPE_NONE)
+                   {
+                     while (it)
+                     {
+                       vm->push(*it);
+                       vm->execute(v2.lambda()->code());
+
+                       Value v = vm->pop();
+                       if (v.type.traits().to_bool(v))
+                       {
+                         destination.second->put(*it);
+                       }
+                       ++it;
+                     }
+                     
+                     vm->push(Value(destination.first, dynamic_cast<managed_object*>(destination.second)));
+                   }
+                   
+                 });
+  
   //TODO: should return a String if input is a String
   registerBinary(mc,
                  Topic::COLLECTIONS, "extract", "retrieves all elements of range from indexable type",
@@ -139,8 +171,38 @@ void registerFunctions(MicroCode& mc)
                    vm->push(new Array(nv));
                  });
   
+
+  registerStackFunctions(mc);
+  registerNumericFunctions(mc);
+}
+
+namespace math
+{
+  template<typename T, typename U, typename R> struct plus { public: R operator()(T t, U u) { return t + u;} };
+  template<typename T, typename U, typename R> struct minus { public: R operator()(T t, U u) { return t - u;} };
+  template<typename T, typename U, typename R> struct times { public: R operator()(T t, U u) { return t * u;} };
+  template<typename T, typename U, typename R> struct divide { public: R operator()(T t, U u) { return t / u;} };
+  
+  template<typename T, typename U, typename R> struct lesser { public: R operator()(T t, U u) { return t < u;} };
+  template<typename T, typename U, typename R> struct greater { public: R operator()(T t, U u) { return t > u;} };
+}
+
+#pragma mark Numeric Functions
+void registerNumericFunctions(MicroCode& mc)
+{
+  mc.registerNumeric<false, math::plus>(OP_PLUS);
+  mc.registerNumeric<false, math::minus>(OP_MINUS);
+  mc.registerNumeric<false, math::times>(OP_TIMES);
+  mc.registerNumeric<false, math::divide>(OP_DIVIDE);
+  
+  mc.registerNumeric<true, math::lesser>(OP_LESSER);
+  mc.registerNumeric<true, math::greater>(OP_GREATER);
+}
+
+
 #pragma mark Stack Functions
-  /** STACK FUNCTIONS **/
+void registerStackFunctions(MicroCode& mc)
+{
   registerUnary(mc,
                 Topic::STACK, "dupe", "duplicates topmost stack value",
                 {{"(1 2)$", "(1 2)(1 2)"}, {"tf$", "tff"}},
@@ -149,27 +211,27 @@ void registerFunctions(MicroCode& mc)
                 );
   
   registerBinary(mc,
-                Topic::STACK, "swap", "swap two topmost stack values",
-                {{"1 2%", "2 1"}},
-                { OP_SWAP, TRAIT_ANY_TYPE, TRAIT_ANY_TYPE2 }, { TRAIT_ANY_TYPE2, TRAIT_ANY_TYPE },
-                [] (VM* vm, const Value& v1, const Value& v2) { vm->push(v2); vm->push(v1); }
-                );
+                 Topic::STACK, "swap", "swap two topmost stack values",
+                 {{"1 2%", "2 1"}},
+                 { OP_SWAP, TRAIT_ANY_TYPE, TRAIT_ANY_TYPE2 }, { TRAIT_ANY_TYPE2, TRAIT_ANY_TYPE },
+                 [] (VM* vm, const Value& v1, const Value& v2) { vm->push(v2); vm->push(v1); }
+                 );
   
   registerBinary(mc,
-                Topic::STACK, "pick", "copies i-th value from stack to top",
-                {},
-                { OP_PICK, TRAIT_ANY_TYPE, TYPE_INT }, { TRAIT_ANY_TYPE },
-                [] (VM* vm, const Value& v1, const Value& v2) {
-                  integral_t i = v1.integral();
-                  vm->push(vm->pick(i));
-                });
+                 Topic::STACK, "pick", "copies i-th value from stack to top",
+                 {},
+                 { OP_PICK, TRAIT_ANY_TYPE, TYPE_INT }, { TRAIT_ANY_TYPE },
+                 [] (VM* vm, const Value& v1, const Value& v2) {
+                   integral_t i = v1.integral();
+                   vm->push(vm->pick(i));
+                 });
   
   registerUnary(mc,
-                 Topic::STACK, "drop", "drops topmost stack value",
-                 {},
-                 { OP_DROP, TRAIT_ANY_TYPE }, { },
-                 [] (VM* vm, const Value& v) { }
-                 );
+                Topic::STACK, "drop", "drops topmost stack value",
+                {},
+                { OP_DROP, TRAIT_ANY_TYPE }, { },
+                [] (VM* vm, const Value& v) { }
+                );
   
   //TODO: check return signature for rise and sink
   registerTernary(mc,

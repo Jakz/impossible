@@ -306,6 +306,13 @@ public:
   
   const Vocabulary& vocabulary() { return _vocabulary; }
   
+  void registerNullary(Signature signature, SignatureArguments retn, const decltype(VariantFunction::nullary)&& function)
+  {
+    emplace(signature, VariantFunction(function));
+    _vocabulary.add(signature,retn);
+    opcodeData[signature.opcode].hasNullary = true;
+  }
+  
   void registerUnary(Signature signature, SignatureArguments retn, const decltype(VariantFunction::unary)&& function)
   {
     emplace(signature, VariantFunction(function));
@@ -320,11 +327,11 @@ public:
     opcodeData[signature.opcode].hasBinary = true;
   }
   
-  void registerNullary(Signature signature, SignatureArguments retn, const decltype(VariantFunction::nullary)&& function)
+  void registerTernary(Signature signature, SignatureArguments retn, const decltype(VariantFunction::ternary)&& function)
   {
     emplace(signature, VariantFunction(function));
     _vocabulary.add(signature,retn);
-    opcodeData[signature.opcode].hasNullary = true;
+    opcodeData[signature.opcode].hasTernary = true;
   }
   
   template<typename T, typename U, typename R, template<typename TT, typename UU, typename RR> class F> void registerNumericTemplate(Opcode opcode)

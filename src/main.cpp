@@ -52,8 +52,7 @@ int main (int argc, const char * argv[])
       finished = true;
     else if (input == "stack")
     {
-      cout << ">>  ";
-      vm.printStack();
+      cout << " " << vm.stackAsString() << "  <<" << endl;
     }
     else if (input == "wipe")
       vm.wipe();

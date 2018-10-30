@@ -10,6 +10,8 @@
 #include "semantics.h"
 #include "instruction.h"
 
+#include "error.h"
+
 const MicroCode& defaultCode()
 {
   static MicroCode code;
@@ -53,4 +55,19 @@ void VM::run()
     
     ++exec.pc;
   }
+}
+
+Value VM::pick(integral_t nth)
+{
+  if (nth + 1 > valueStack->size())
+    return new Error(ErrorCode::OPERAND_REQUIRED_ON_STACK, "pick index request out of bounds");
+  //nth = std::min(nth, (integral_t)valueStack->size() - 1);
+  else
+    return *(valueStack->end() - (nth + 1));
+}
+
+std::string VM::stackAsString() const
+{
+  string_joiner<Value> joiner("", "", ", ", [] (const Value& value) { return value.svalue(); });
+  return joiner.join(*valueStack);
 }

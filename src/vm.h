@@ -110,17 +110,7 @@ public:
     return v;
   }
   
-  Value pick(integral_t nth)
-  {
-    //TODO: rotto
-    
-    if (valueStack->size() == 0)
-      return Value::INVALID;
-    
-    nth = nth >= valueStack->size() ? valueStack->size() - 1 : nth;
-    
-    return valueStack->at(valueStack->size() - nth);
-  }
+  Value pick(integral_t nth);
   
   Value peek()
   {
@@ -193,24 +183,7 @@ public:
     running = false;
   }
   
-  void printStack() const
-  {
-    bool first = true;
-    for (auto it = valueStack->rbegin(); it != valueStack->rend(); ++it)
-    {
-      const Value& value = *it;
-      
-      if (first)
-        first = false;
-      else
-        std::cout << " ";
-        
-      std::cout << value.svalue();
-      
-    }
-    
-    std::cout << std::endl;
-  }
+  std::string stackAsString() const;
   
   void printTopStack() const
   {

@@ -239,45 +239,6 @@ void Instruction::execute(VM *vm) const
 
   switch (_value.opcode())
   {
-    case OP_DROP:
-    {
-      if (vm->popOne(v1))
-      {
-        
-      }
-      break;
-    }
-    case OP_PICK:
-    {
-      if (vm->popOne(v1) && v1.type == TYPE_INT)
-      {
-        integral_t i = v1.integral();
-        vm->push(vm->pick(i));
-      }
-      break;
-    }
-    case OP_RISE:
-    {
-      if (vm->popThree(v1, v2, v3))
-      {
-        vm->push(v2);
-        vm->push(v3);
-        vm->push(v1);
-      }
-      break;
-    }
-    case OP_SINK:
-    {
-      if (vm->popThree(v1, v2, v3))
-      {
-        vm->push(v3);
-        vm->push(v1);
-        vm->push(v2);
-      }
-      break;
-    }
-    
-    
     case OP_PLUS:
     {
       if (vm->popTwo(v1, v2))

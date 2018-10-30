@@ -131,10 +131,7 @@ void Help::init()
   
   addOperator("^", OpHelpEntry::unary(TYPE_GENERIC, "peek", Topic::UTILITY, "prints stack topmost value", "", ""));
   
-  addOperator(";", OpHelpEntry::unary(TYPE_GENERIC, "drop", Topic::STACK, "discard topmost stack element", "", ""));
-  addOperator(",", OpHelpEntry::unary(TYPE_INT, TYPE_GENERIC, "pick", Topic::STACK, "pick nth element from stack, the index is calculated after popping the integer value", "", ""));
-  addOperator("(>", OpHelpEntry::ternaryO2(TYPE_GENERIC, TYPE_GENERIC2, TYPE_GENERIC3, TYPE_GENERIC2, TYPE_GENERIC3, TYPE_GENERIC, "rise", Topic::STACK, "rise third value on the top of the stack", "", ""));
-  addOperator("s", OpHelpEntry::unary(TYPE_GENERIC, TYPE_STRING, "string cast", Topic::TEXT, "convert the value to string", "", ""));
+   addOperator("s", OpHelpEntry::unary(TYPE_GENERIC, TYPE_STRING, "string cast", Topic::TEXT, "convert the value to string", "", ""));
   
   addOperator("?", OpHelpEntry::binary(TYPE_BOOL, TYPE_LAMBDA, TYPE_UNKNOWN, "if", Topic::LOGIC, "executes lambda if boolean value is true", "", ""));
   addOperator("?", OpHelpEntry::binaryO(TYPE_LIST, TYPE_GENERIC, TYPE_LIST, TYPE_BOOL, "contains", Topic::COLLECTIONS, "pushes true if value is contained in list", "", ""));

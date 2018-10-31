@@ -154,26 +154,6 @@ struct OpHelpEntry
   }
 };
 
-/*template<>
-class tr1::hash<OpHelp>
-{
-  public:
-  size_t operator()(const OpHelp & x) const
-  {
-    return tr1::hash<string>()(x.name);
-  }
-};
-
-template<>
-class equal_to<OpHelp>
-{
-  public:
-  bool operator() (const OpHelp& x, const OpHelp& y) const
-  {
-    return equal_to<string>()(x.name,y.name);
-  }
-};*/
-
 class Help
 {
 public:

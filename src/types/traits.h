@@ -147,7 +147,7 @@ public:
   operator Type() const { return type; }
 };
 
-class Iterator
+class Iterator /*: public std::iterator<std::input_iterator_tag, Value, ptrdiff_t, Value*, Value&>*/
 {
 public:
   class Behavior

@@ -117,6 +117,10 @@ public:
   template<typename T> auto number() const -> typename std::enable_if<std::is_same<T, integral_t>::value, T>::type { return data.i; }
   template<typename T> auto number() const -> typename std::enable_if<std::is_same<T, real_t>::value, T>::type { return data.f; }
 
+  template<typename T, typename R> R traitOrElse(const std::function<R(T*)>& t, R f) const {
+    auto* ptr = dynamic_cast<T*>(data.ptr);
+    return ptr ? t(ptr) : f;
+  }
   
   template<typename T> T* object() const
   {

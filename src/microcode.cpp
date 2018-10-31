@@ -147,6 +147,42 @@ void registerFunctions(MicroCode& mc)
                    
                  });
   
+  registerTernary(mc,
+                 Topic::COLLECTIONS, "cartesian", "apply lambda to each possible pair of two iterable values",
+                 {},
+                 { OP_CARTESIAN, TRAIT_ITERABLE, TRAIT_ITERABLE, TYPE_LAMBDA }, { TRAIT_APPENDABLE },
+                 [] (VM* vm, V v1, V v2, V v3) {
+                   Code* code = v3.lambda()->code();
+                   
+                   std::function<integral_t(Traits::Countable*)> counter = [] (Traits::Countable* ctb) { return ctb->size(); };
+                   integral_t sizeHint1 = v1.traitOrElse<>(counter, 0LL);
+                   integral_t sizeHint2 = v1.traitOrElse<>(counter, 0LL);
+                   
+                   auto dest = v1.type.traits().to_collector(sizeHint1 + sizeHint2);
+                   
+                   Iterator it1 = v1.iterable()->iterator();
+                   while (it1)
+                   {
+                     Iterator it2 = v2.iterable()->iterator();
+
+                     while (it2)
+                     {
+                       vm->push(*it1);
+                       vm->push(*it2);
+                       vm->execute(code);
+                       //TODO: check value is present
+                       dest.second->put(vm->pop());
+                       
+                       ++it2;
+                     }
+                     
+                     ++it1;
+                   }
+                   
+                   vm->push(Value(dest.first, dynamic_cast<managed_object*>(dest.second)));
+                   
+                 });
+  
   //TODO: should return a String if input is a String
   registerBinary(mc,
                  Topic::COLLECTIONS, "extract", "retrieve all elements of range from indexable type",
@@ -199,14 +235,24 @@ void registerNumericFunctions(MicroCode& mc)
   
   mc.registerNumeric<true, math::lesser>(OP_LESSER);
   mc.registerNumeric<true, math::greater>(OP_GREATER);
+
+  mc.registerUnary({OP_NEG, TYPE_INT }, { TYPE_INT }, [](VM* vm, V v) { vm->push(-v.integral()); });
+  mc.registerUnary({OP_NEG, TYPE_FLOAT }, { TYPE_FLOAT }, [](VM* vm, V v) { vm->push(-v.real()); });
+
+  mc.registerUnary({OP_NOT, TYPE_FLOAT }, { TYPE_FLOAT }, [](VM* vm, V v) { vm->push(1.0 / v.real()); });
+
   
   /* bitwise */
   mc.registerBinary({OP_AND, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(std::bit_and<>()(v1.integral(), v2.integral())); });
   mc.registerBinary({OP_OR, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(std::bit_or<>()(v1.integral(), v2.integral())); });
+  mc.registerBinary({OP_LSHIFT, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(v1.integral() << v2.integral()); });
+  mc.registerBinary({OP_RSHIFT, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(v1.integral() >> v2.integral()); });
+  mc.registerUnary({OP_NOT, TYPE_INT }, { TYPE_INT }, [](VM* vm, V v) { vm->push(~v.integral()); });
   
   /* logical */
   mc.registerBinary({OP_AND, TYPE_BOOL, TYPE_BOOL}, { TYPE_BOOL }, [](VM* vm, V v1, V v2) { vm->push(std::logical_and<>()(v1.boolean(), v2.boolean())); });
   mc.registerBinary({OP_OR, TYPE_BOOL, TYPE_BOOL}, { TYPE_BOOL }, [](VM* vm, V v1, V v2) { vm->push(std::logical_or<>()(v1.boolean(), v2.boolean())); });
+  mc.registerUnary({OP_NOT, TYPE_BOOL }, { TYPE_BOOL }, [](VM* vm, V v) { vm->push(std::logical_not<>()(v.boolean())); });
 
 }
 

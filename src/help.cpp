@@ -181,10 +181,6 @@ void Help::init()
   
   addOperator(":>:", OpHelpEntry::ternary(TYPE_LIST, TYPE_LIST, TYPE_LAMBDA, TYPE_LIST, "dmap", Topic::COLLECTIONS, "applies lambda to each pair of elements from both lists to build a new one", "", ""));
   addOperator(":>:", OpHelpEntry::ternary(TYPE_ARRAY, TYPE_ARRAY, TYPE_LAMBDA, TYPE_ARRAY, "dmap", Topic::COLLECTIONS, "applies lambda to each pair of elements from both arrays to build a new one", "", ""));
-  
-  addOperator(":*.", OpHelpEntry::ternary(TYPE_ARRAY, TYPE_ARRAY, TYPE_LAMBDA, TYPE_ARRAY, "cartesian", Topic::COLLECTIONS, "applies lambda to each possible pair of elements from both arrays to build a new one", "", ""));
-  addOperator(":*.", OpHelpEntry::ternary(TYPE_RANGE, TYPE_RANGE, TYPE_LAMBDA, TYPE_ARRAY, "cartesian", Topic::COLLECTIONS, "applies lambda to each possible pair of elements from both ranges to build a new one", "", ""));
-
 
   addOperator(":>.", OpHelpEntry::ternary(TYPE_ARRAY, TYPE_LAMBDA, TYPE_GENERIC, TYPE_GENERIC, "fold", Topic::COLLECTIONS, "folds an array by taking accumulator value and passing it through each element", "", ""));
   addOperator(":>.", OpHelpEntry::ternary(TYPE_LIST, TYPE_LAMBDA, TYPE_GENERIC, TYPE_GENERIC, "fold", Topic::COLLECTIONS, "folds a list by taking accumulator value and passing it through each element", "", ""));

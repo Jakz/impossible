@@ -12,35 +12,6 @@
 #include <cassert>
 #include <array>
 
-static void iter(TCollection *values, Code *code, VM *vm)
-{
-  values->iterate();
-  
-  Value v;
-  
-  while (values->hasNext())
-  {
-    vm->push(values->next());
-    vm->execute(code);
-  }
-}
-
-static void map(TCollection* values, TCollection* nvalues, Code *code, VM *vm)
-{
-  values->iterate();
-  
-  Value o;
-  
-  while (values->hasNext())
-  {
-    vm->push(values->next());
-    vm->execute(code);
-    
-    if (vm->popOne(o))
-      nvalues->put(o);
-  }
-}
-
 static void fold(TCollection* values, Value& o, Code *code, VM *vm)
 {
   vm->push(o);
@@ -102,30 +73,6 @@ static void doublemap(TCollection* values1, TCollection* values2, TCollection* n
       nvalues->put(values2->next());
     
     running = values1->hasNext() || values2->hasNext();
-  }
-}
-
-static void cartesian(TCollection *values1, TCollection* values2, TCollection* nvalues, Code *code, VM *vm)
-{
-  Value v1, v2;
-  Value o;
-  
-  values1->iterate();
-  values2->iterate();
-
-  while (values1->hasNext())
-  {
-    while (values2->hasNext())
-    {
-      vm->push(v1);
-      vm->push(v2);
-      vm->execute(code);
-      
-      if (vm->popOne(o))
-        nvalues->put(o);
-    }
-    
-    values2->iterate();
   }
 }
 
@@ -244,10 +191,6 @@ void Instruction::execute(VM *vm) const
       }
       break;
     }
-    case OP_TIMES:
-    {
-      break;
-    }
     case OP_DIVIDE:
     {
       if (vm->popTwo(v1, v2))
@@ -274,21 +217,7 @@ void Instruction::execute(VM *vm) const
       
       break;
     }
-    case OP_NEG:
-    {
-      if (vm->popOne(v1))
-      {
-        switch (v1.type)  
-        {
-          case TYPE_INT: vm->push(-v1.integral()); break;
-          case TYPE_FLOAT: vm->push(-v1.real()); break;
-          default: break;
-        }
-      }
-      break;
-    }
-      
-      
+
     case OP_MOD:
     {
       if (vm->popOne(v2))
@@ -396,9 +325,6 @@ void Instruction::execute(VM *vm) const
       {
         switch (v1.type)
         {
-          case TYPE_BOOL: vm->push(!v1.boolean()); break;
-          case TYPE_INT: vm->push(~v1.integral()); break;
-          case TYPE_FLOAT: vm->push(1.0 / v1.real()); break;
           case TYPE_LIST:
           {
             const List::list_t& data = v1.list()->raw();
@@ -450,17 +376,6 @@ void Instruction::execute(VM *vm) const
       }
       break;
     }
-    case OP_RSHIFT:
-    {
-      if (vm->popTwo(v1, v2))
-      {  
-        switch (TYPES(v1.type, v2.type))
-        {
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() >> v2.integral()); break;
-        }
-      }
-      break;
-    }
     case OP_LSHIFT:
     {
       if (vm->popTwo(v1, v2))
@@ -472,13 +387,6 @@ void Instruction::execute(VM *vm) const
           vs->assign(vs->size(), v2.clone());
           vm->push(v1);
           */
-        }
-        else
-        {
-          switch (TYPES(v1.type, v2.type))
-          {
-            case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() << v2.integral()); break;
-          }
         }
       }
       break;
@@ -1054,35 +962,6 @@ void Instruction::execute(VM *vm) const
         }
         
       }
-      break;
-    }
-      
-    case OP_CARTESIAN:
-    {
-      if (vm->popThree(v1, v2, v3))
-      {
-        if (v3.type == TYPE_LAMBDA)
-        {
-          switch (TYPES(v1.type, v2.type))
-          {
-            case TYPES(TYPE_ARRAY, TYPE_ARRAY):
-            {
-              Array *list = new Array();
-              cartesian(v1.array(), v2.array(), list, v3.lambda()->code(), vm);
-              vm->push(list);
-              break;
-            }
-            case TYPES(TYPE_RANGE, TYPE_RANGE):
-            {
-              Array *list = new Array();
-              cartesian(v1.range(), v2.range(), list, v3.lambda()->code(), vm);
-              vm->push(list);
-              break;
-            }
-          }
-        }
-      }
-        
       break;
     }
       

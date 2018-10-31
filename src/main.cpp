@@ -8,6 +8,8 @@
 
 #include "parser/compiler.h"
 
+#include "vm/analysis.h"
+
 #include "vm.h"
 #include "instruction.h"
 #include "semantics.h"

@@ -34,6 +34,9 @@
 "(?" { return Parser::make_LARRAY_OPEN(loc); }
 "{>" { return Parser::make_STACK_OPEN(loc); }
 
+"[[" { return Parser::make_TUPLE_OPEN(loc); }
+"]]" { return Parser::make_TUPLE_CLOSE(loc); }
+
 "{#}" { return Parser::make_OPCODE(OP_RECURV, loc); }
 
 "(>" { return Parser::make_OPCODE(OP_RISE, loc); }

@@ -66,6 +66,9 @@
 
   LARRAY_OPEN "(?"
   STACK_OPEN "{>"
+
+  TUPLE_OPEN "[["
+  TUPLE_CLOSE "]]"
 ;
 
 %define api.token.prefix {T_}
@@ -251,6 +254,7 @@ value:
   | LBRACE value_pairs RBRACE { $$ = new Map(Map::map_t($2.begin(), $2.end())); }
   | LBRACE COLON RBRACE { $$ = new Map(); }
 
+  | TUPLE_OPEN values TUPLE_CLOSE { $$ = new Tuple($2.begin(), $2.end()); }
 
   | LPAREN values RPAREN { $$ = new Array(Array::array_t($2.begin(), $2.end())); }
   | LPAREN COLON INTEGER opt_value RPAREN { $$ = $4.first ? new Array($3.integral(), $4.second) : new Array($3.integral()); }

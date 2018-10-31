@@ -315,7 +315,7 @@ public:
   list_t::iterator end() { return data.end(); }
 };
 
-
+#pragma mark Tuple
 class Tuple : public managed_object, public Traits::Indexable, public Traits::Countable, public Traits::Iterable
 {
   using data_t = std::vector<Value>;
@@ -327,6 +327,7 @@ public:
   Tuple(Value v) : elements({v}) { }
   Tuple(Value v1, Value v2) : elements({ v1, v2 }) { }
   Tuple(const std::pair<Value, Value>& pair) : Tuple(pair.first, pair.second) { }
+  template<typename T> Tuple(T begin, T end) : elements(begin, end) { }
   
   Value at(integral_t index) const override { return elements[index]; }
   integral_t size() const override { return elements.size(); }

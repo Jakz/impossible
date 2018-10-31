@@ -280,7 +280,10 @@ void Help::printHelpMain()
 
 void Help::printHelpSummary()
 {
-  cout << "  - documented instructions: " << operators.size() << endl;
+  size_t documented = std::count_if(operators.begin(), operators.end(), [] (const auto& entry) { return !entry.second.ident.empty(); });
+  
+  cout << "  - documented instructions: " << documented << endl;
+  cout << "  - undocumented instructions: " << (operators.size() - documented) << endl;
   printOperators();
   printTypes();
   cout << "  - type 'help' to get additional informations" << endl;
@@ -298,7 +301,9 @@ void Help::addOperator(string op, OpHelpEntry entry)
 
 void Help::printOperator(string op, const OpHelpEntry& o)
 {
-  cout << "  " << op << " (" << o.ident << ") : ";
+  cout << "  " << op << " ";
+  if (!o.ident.empty())
+    cout << "(" << o.ident << ") : ";
   
   const size_t oc = o.o.count(), ic = o.i.count();
   
@@ -323,7 +328,10 @@ void Help::printOperator(string op, const OpHelpEntry& o)
       cout << ", ";
   }
   
-  cout << endl << "    " << o.desc << endl;
+  if (!o.desc.empty())
+    cout << endl << "    " << o.desc;
+  
+  cout << endl;
 }
 
 bool Help::printHelpForSearch(string search)

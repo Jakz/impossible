@@ -21,6 +21,8 @@ SignatureArguments normalize(const SignatureArguments& args)
   return args2;
 }
 
+
+
 void registerUnary(MicroCode& mc, Topic topic, const std::string& name, const std::string& desc,
                    const std::vector<std::pair<std::string,std::string>>& examples,
                    Signature signature, SignatureArguments retn,
@@ -31,6 +33,11 @@ void registerUnary(MicroCode& mc, Topic topic, const std::string& name, const st
   Help::addOperator(signature.opcode, signature.args, retn, topic, name, desc, examples);
 }
 
+void registerUnary(MicroCode& mc, Signature args, SignatureArguments retn, const decltype(VariantFunction::unary)&& functor)
+{
+  registerUnary(mc, Topic::UTILITY, "", "", {}, args, retn, std::move(functor));
+}
+
 void registerBinary(MicroCode& mc, Topic topic, const std::string& name, const std::string& desc,
                    const std::vector<std::pair<std::string,std::string>>& examples,
                    Signature signature, SignatureArguments retn,
@@ -39,6 +46,11 @@ void registerBinary(MicroCode& mc, Topic topic, const std::string& name, const s
   
   mc.registerBinary({ signature.opcode, normalize(signature.args) }, retn, std::move(functor));
   Help::addOperator(signature.opcode, signature.args, retn, topic, name, desc, examples);
+}
+
+void registerBinary(MicroCode& mc, Signature args, SignatureArguments retn, const decltype(VariantFunction::binary)&& functor)
+{
+  registerBinary(mc, Topic::UTILITY, "", "", {}, args, retn, std::move(functor));
 }
 
 void registerTernary(MicroCode& mc, Topic topic, const std::string& name, const std::string& desc,
@@ -208,6 +220,11 @@ void registerFunctions(MicroCode& mc)
                    vm->push(new Array(nv));
                  });
   
+  /* fetch from tuple */
+  registerUnary(mc, {OP_ANY, TYPE_TUPLE}, { TRAIT_ANY_TYPE }, [](VM* vm, V v1) { vm->push(v1.tuple()->at(0)); });
+  registerUnary(mc, {OP_EVERY, TYPE_TUPLE}, { TRAIT_ANY_TYPE }, [](VM* vm, V v1) { vm->push(v1.tuple()->at(1)); });
+
+  
 
   registerStackFunctions(mc);
   registerNumericFunctions(mc);
@@ -236,23 +253,23 @@ void registerNumericFunctions(MicroCode& mc)
   mc.registerNumeric<true, math::lesser>(OP_LESSER);
   mc.registerNumeric<true, math::greater>(OP_GREATER);
 
-  mc.registerUnary({OP_NEG, TYPE_INT }, { TYPE_INT }, [](VM* vm, V v) { vm->push(-v.integral()); });
-  mc.registerUnary({OP_NEG, TYPE_FLOAT }, { TYPE_FLOAT }, [](VM* vm, V v) { vm->push(-v.real()); });
+  registerUnary(mc, {OP_NEG, TYPE_INT }, { TYPE_INT }, [](VM* vm, V v) { vm->push(-v.integral()); });
+  registerUnary(mc, {OP_NEG, TYPE_FLOAT }, { TYPE_FLOAT }, [](VM* vm, V v) { vm->push(-v.real()); });
 
-  mc.registerUnary({OP_NOT, TYPE_FLOAT }, { TYPE_FLOAT }, [](VM* vm, V v) { vm->push(1.0 / v.real()); });
+  registerUnary(mc, {OP_NOT, TYPE_FLOAT }, { TYPE_FLOAT }, [](VM* vm, V v) { vm->push(1.0 / v.real()); });
 
   
   /* bitwise */
-  mc.registerBinary({OP_AND, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(std::bit_and<>()(v1.integral(), v2.integral())); });
-  mc.registerBinary({OP_OR, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(std::bit_or<>()(v1.integral(), v2.integral())); });
-  mc.registerBinary({OP_LSHIFT, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(v1.integral() << v2.integral()); });
-  mc.registerBinary({OP_RSHIFT, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(v1.integral() >> v2.integral()); });
-  mc.registerUnary({OP_NOT, TYPE_INT }, { TYPE_INT }, [](VM* vm, V v) { vm->push(~v.integral()); });
+  registerBinary(mc, {OP_AND, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(std::bit_and<>()(v1.integral(), v2.integral())); });
+  registerBinary(mc, {OP_OR, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(std::bit_or<>()(v1.integral(), v2.integral())); });
+  registerBinary(mc, {OP_LSHIFT, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(v1.integral() << v2.integral()); });
+  registerBinary(mc, {OP_RSHIFT, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(v1.integral() >> v2.integral()); });
+  registerUnary(mc, {OP_NOT, TYPE_INT }, { TYPE_INT }, [](VM* vm, V v) { vm->push(~v.integral()); });
   
   /* logical */
-  mc.registerBinary({OP_AND, TYPE_BOOL, TYPE_BOOL}, { TYPE_BOOL }, [](VM* vm, V v1, V v2) { vm->push(std::logical_and<>()(v1.boolean(), v2.boolean())); });
-  mc.registerBinary({OP_OR, TYPE_BOOL, TYPE_BOOL}, { TYPE_BOOL }, [](VM* vm, V v1, V v2) { vm->push(std::logical_or<>()(v1.boolean(), v2.boolean())); });
-  mc.registerUnary({OP_NOT, TYPE_BOOL }, { TYPE_BOOL }, [](VM* vm, V v) { vm->push(std::logical_not<>()(v.boolean())); });
+  registerBinary(mc, {OP_AND, TYPE_BOOL, TYPE_BOOL}, { TYPE_BOOL }, [](VM* vm, V v1, V v2) { vm->push(std::logical_and<>()(v1.boolean(), v2.boolean())); });
+  registerBinary(mc, {OP_OR, TYPE_BOOL, TYPE_BOOL}, { TYPE_BOOL }, [](VM* vm, V v1, V v2) { vm->push(std::logical_or<>()(v1.boolean(), v2.boolean())); });
+  registerUnary(mc, {OP_NOT, TYPE_BOOL }, { TYPE_BOOL }, [](VM* vm, V v) { vm->push(std::logical_not<>()(v.boolean())); });
 
 }
 

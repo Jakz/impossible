@@ -199,6 +199,15 @@ void registerNumericFunctions(MicroCode& mc)
   
   mc.registerNumeric<true, math::lesser>(OP_LESSER);
   mc.registerNumeric<true, math::greater>(OP_GREATER);
+  
+  /* bitwise */
+  mc.registerBinary({OP_AND, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(std::bit_and<>()(v1.integral(), v2.integral())); });
+  mc.registerBinary({OP_OR, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(std::bit_or<>()(v1.integral(), v2.integral())); });
+  
+  /* logical */
+  mc.registerBinary({OP_AND, TYPE_BOOL, TYPE_BOOL}, { TYPE_BOOL }, [](VM* vm, V v1, V v2) { vm->push(std::logical_and<>()(v1.boolean(), v2.boolean())); });
+  mc.registerBinary({OP_OR, TYPE_BOOL, TYPE_BOOL}, { TYPE_BOOL }, [](VM* vm, V v1, V v2) { vm->push(std::logical_or<>()(v1.boolean(), v2.boolean())); });
+
 }
 
 
@@ -260,7 +269,7 @@ void registerStackFunctions(MicroCode& mc)
 void registerStringFunctions(MicroCode& mc)
 {
   registerUnary(mc,
-                 Topic::STACK, "compile-regex", "compile a regex from a string",
+                 Topic::TEXT, "compile-regex", "compile a regex from a string",
                  {},
                  { OP_DIVIDE, TYPE_STRING }, { TYPE_REGEX },
                  [] (VM* vm, const Value& v)

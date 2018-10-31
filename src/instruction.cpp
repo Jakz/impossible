@@ -330,8 +330,6 @@ void Instruction::execute(VM *vm) const
       {  
         switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_BOOL, TYPE_BOOL): vm->push(v1.boolean() && v2.boolean()); break;
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() & v2.integral()); break;
           case TYPES(TYPE_SET, TYPE_SET):
           {
             Set *s1 = v1.set(), *s2 = v2.set();
@@ -358,8 +356,6 @@ void Instruction::execute(VM *vm) const
       {  
         switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_BOOL, TYPE_BOOL): vm->push(v1.boolean() || v2.boolean()); break;
-          case TYPES(TYPE_INT, TYPE_INT): vm->push(v1.integral() | v2.integral()); break;
           case TYPES(TYPE_RANGE, TYPE_RANGE):
           {
             vm->push(new Range(v1.range()->raw().rangeUnion(v2.range()->raw())));

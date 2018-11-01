@@ -334,6 +334,17 @@ void Help::printOperator(string op, const OpHelpEntry& o)
   cout << endl;
 }
 
+void Help::printUndocumented()
+{
+  for (const auto& entry : operators)
+  {
+    if (entry.second.ident.empty())
+    {
+      printOperator(entry.first, entry.second);
+    }
+  }
+}
+
 bool Help::printHelpForSearch(string search)
 {
   multimap<string, OpHelpEntry>::iterator it = operators.begin();

@@ -176,6 +176,8 @@ public:
   static bool printHelpForSearch(std::string search);
   static void printOperators();
   static void printTypes();
+  
+  static void printUndocumented();
 
   static void printHelpMain();
   static void printHelpSummary();

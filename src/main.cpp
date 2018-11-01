@@ -72,6 +72,8 @@ int main (int argc, const char * argv[])
           Help::printOperators();
         else if (params == "types")
           Help::printTypes();
+        else if (params == "undocumented")
+          Help::printUndocumented();
         else if (Help::printHelpForOperator(params))
         {
           

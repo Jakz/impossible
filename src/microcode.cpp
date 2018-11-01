@@ -240,6 +240,10 @@ namespace math
   
   template<typename T, typename U, typename R> struct lesser { public: R operator()(T t, U u) { return t < u;} };
   template<typename T, typename U, typename R> struct greater { public: R operator()(T t, U u) { return t > u;} };
+  
+  template<typename T, typename U, typename R> struct min { public: R operator()(T t, U u) { return t < u ? t : u; } };
+  template<typename T, typename U, typename R> struct max { public: R operator()(T t, U u) { return t > u ? t : u; } };
+
 }
 
 #pragma mark Numeric Functions
@@ -252,6 +256,9 @@ void registerNumericFunctions(MicroCode& mc)
   
   mc.registerNumeric<true, math::lesser>(OP_LESSER);
   mc.registerNumeric<true, math::greater>(OP_GREATER);
+  
+  mc.registerNumeric<false, math::min>(OP_ANY);
+  mc.registerNumeric<false, math::max>(OP_EVERY);
 
   registerUnary(mc, {OP_NEG, TYPE_INT }, { TYPE_INT }, [](VM* vm, V v) { vm->push(-v.integral()); });
   registerUnary(mc, {OP_NEG, TYPE_FLOAT }, { TYPE_FLOAT }, [](VM* vm, V v) { vm->push(-v.real()); });

@@ -339,7 +339,12 @@ public:
     registerBinary({ opcode, type_of<T>::value, type_of<U>::value }, { type_of<R>::value }, [] (VM* vm, const Value& v1, const Value& v2) { vm->push(F<T, U, R>()(v1.number<T>(), v2.number<U>())); });
   }
   
-  template<typename T1, bool IS_COMPARISON> using return_type = typename std::conditional<IS_COMPARISON, bool, T1>::type;
+  template<typename T1, bool IS_COMPARISON> using return_type =
+    typename std::conditional<
+      IS_COMPARISON,
+      bool,
+      T1
+    >::type;
   
   template<bool IS_COMPARISON, template<typename TT, typename UU, typename RR> class OP> void registerNumeric(Opcode opcode)
   {

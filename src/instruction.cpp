@@ -971,16 +971,6 @@ void Instruction::execute(VM *vm) const
       {
         switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_INT, TYPE_INT):
-          case TYPES(TYPE_FLOAT, TYPE_FLOAT):
-          case TYPES(TYPE_INT, TYPE_FLOAT):
-          case TYPES(TYPE_FLOAT, TYPE_INT):
-          {
-            double x = v1.type == TYPE_INT ? v1.integral() : v1.real();
-            double y = v2.type == TYPE_INT ? v2.integral() : v2.real();            
-            vm->push(x < y ? v1 : v2);
-            break;
-          }
           case TYPES(TYPE_LIST, TYPE_LAMBDA):
           case TYPES(TYPE_ARRAY, TYPE_LAMBDA):
           case TYPES(TYPE_SET, TYPE_LAMBDA):
@@ -1003,16 +993,6 @@ void Instruction::execute(VM *vm) const
       {
         switch (TYPES(v1.type, v2.type))
         {
-          case TYPES(TYPE_INT, TYPE_INT):
-          case TYPES(TYPE_FLOAT, TYPE_FLOAT):
-          case TYPES(TYPE_INT, TYPE_FLOAT):
-          case TYPES(TYPE_FLOAT, TYPE_INT):
-          {
-            double x = v1.type == TYPE_INT ? v1.integral() : v1.real();
-            double y = v2.type == TYPE_INT ? v2.integral() : v2.real();            
-            vm->push(x > y ? v1 : v2);
-            break;
-          }
           case TYPES(TYPE_LIST, TYPE_LAMBDA):
           case TYPES(TYPE_ARRAY, TYPE_LAMBDA):
           case TYPES(TYPE_SET, TYPE_LAMBDA):

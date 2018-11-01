@@ -114,6 +114,9 @@ public:
   bool boolean() const { return data.b; }
   opcode_t opcode() const { return data.op; }
   
+  //TODO: we should find a variant way to handle this
+  numeric_t number() const { return type == TYPE_INT ? data.i : data.f; }
+  
   template<typename T> auto number() const -> typename std::enable_if<std::is_same<T, integral_t>::value, T>::type { return data.i; }
   template<typename T> auto number() const -> typename std::enable_if<std::is_same<T, real_t>::value, T>::type { return data.f; }
 

@@ -27,6 +27,8 @@ using u64 = uint64_t;
 using integral_t = s64;
 using real_t = double;
 
+using numeric_t = double;
+
 struct enum_hash
 {
   template <typename T>

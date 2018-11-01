@@ -265,6 +265,18 @@ void registerNumericFunctions(MicroCode& mc)
 
   registerUnary(mc, {OP_NOT, TYPE_FLOAT }, { TYPE_FLOAT }, [](VM* vm, V v) { vm->push(1.0 / v.real()); });
   
+  auto numberIsInRange = [](VM* vm, V v1, V v2) {
+    const RangeVector& range = v2.range()->raw();
+    numeric_t v = v1.number();
+
+    bool r = std::any_of(range.begin(), range.end(), [&v] (const auto& pair) { return v >= pair.a && v <= pair.b; });
+    vm->push(r);
+  };
+  
+  registerBinary(mc, {OP_LESSER, TYPE_INT, TYPE_RANGE}, { TYPE_BOOL }, numberIsInRange);
+  registerBinary(mc, {OP_LESSER, TYPE_FLOAT, TYPE_RANGE}, { TYPE_BOOL }, numberIsInRange);
+
+  
   /* bitwise */
   registerBinary(mc, {OP_AND, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(std::bit_and<>()(v1.integral(), v2.integral())); });
   registerBinary(mc, {OP_OR, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(std::bit_or<>()(v1.integral(), v2.integral())); });

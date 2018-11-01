@@ -185,7 +185,9 @@ enum Trait : u32
   TRAIT_INDEXABLE               = 0x00000002,
   TRAIT_ITERABLE                = 0x00000004,
   TRAIT_APPENDABLE              = 0x00000008,
+  TRAIT_LOOKUPABLE              = 0x00000010,
   
+  TRAIT_SENTINEL,
   
 };
 

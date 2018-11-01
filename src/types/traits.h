@@ -44,6 +44,12 @@ public:
   public:
     virtual Iterator iterator() const = 0;
   };
+  
+  class Lookupable
+  {
+  public:
+    virtual std::pair<bool, Value> find(const Value& value) const = 0;
+  };
 };
 
 class VirtualTable
@@ -111,6 +117,8 @@ public:
     
     return TYPE_INVALID;
   }
+  
+  static void verifySoundness();
 };
 
 class TypeInfo

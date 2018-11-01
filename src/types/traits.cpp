@@ -187,7 +187,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
 
   { TYPE_SET,
-    { TYPE_SET, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "set",
+    { TYPE_SET, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE, TRAIT_LOOKUPABLE }, "set",
       [] (const Value& v) { return SetPrinter.svalue(v.set()); },
       binary_false,
       unary_false,
@@ -226,7 +226,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
   
   { TYPE_MAP,
-    { TYPE_MAP, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "map",
+    { TYPE_MAP, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE, TRAIT_LOOKUPABLE }, "map",
       [] (const Value& v) { return MapPrinter.svalue(v.map()); },
 
     }
@@ -295,6 +295,8 @@ std::string TypeTraits::nameForTrait(Trait trait)
     { Trait::TRAIT_INDEXABLE, "indexable" },
     { Trait::TRAIT_ITERABLE, "iterable" },
     { Trait::TRAIT_APPENDABLE, "appendable" },
+    { Trait::TRAIT_LOOKUPABLE, "lookupable" },
+
   };
   
   for (const auto& e : names)
@@ -332,5 +334,19 @@ std::string TypeTraits::nameForSignatureType(SignatureType type)
     
     assert(!name.empty());
     return name;
+  }
+}
+
+void TypeTraits::verifySoundness()
+{
+  for (const auto& type : specs)
+  {
+    Trait trait = static_cast<Trait>(TRAIT_SENTINEL - 1);
+    
+    while (trait > 0)
+    {
+      bool hasTrait = type.second.traits && trait;
+      //TODO: finish
+    }
   }
 }

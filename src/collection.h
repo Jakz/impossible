@@ -277,7 +277,7 @@ struct std::less<Value>
   }
 };
 
-class List : public TCollection, public Traits::Iterable, public Traits::Appendable
+class List : public TCollection, public Traits::Iterable, public Traits::Appendable, public Traits::Lookupable
 {
 public:
   using list_t = std::list<Value>;
@@ -307,6 +307,7 @@ public:
   virtual bool empty() const override { return data.empty(); }
   void put(Value value) override { data.push_back(value); }
   Iterator iterator() const override { return Iterator(new IteratorWrapper<std::list<Value>>(data)); }
+  std::pair<bool, Value> find(const Value& v) const override { return std::make_pair(std::find(data.begin(), data.end(), v) != data.end(), v); }
   
   const list_t& raw() const { return data; }
   list_t& raw() { return data; }
@@ -389,7 +390,7 @@ public:
   void put(Value v) override { this->data.push_back(v); }
   Value at(integral_t index) const override { return data[index]; }
   Iterator iterator() const override { return Iterator(new IteratorWrapper<std::vector<Value>>(data)); }
-
+  
   array_t& raw() { return data; }
   const array_t& raw() const { return data; }
   
@@ -437,7 +438,7 @@ public:
 
 };
 
-class Set : public TCollection, public Traits::Iterable, public Traits::Appendable
+class Set : public TCollection, public Traits::Iterable, public Traits::Appendable, public Traits::Lookupable
 {
 public:
   using set_t = std::unordered_set<Value, value_hash>;
@@ -469,13 +470,17 @@ public:
   
   Iterator iterator() const override { return Iterator(new IteratorWrapper<data_t>(data)); }
   void put(Value value) override { data.insert(value); }
+  std::pair<bool, Value> find(const Value& key) const override {
+    auto it = data.find(key);
+    return std::make_pair<>(it != data.end(), key);
+  }
   
   const set_t& raw() const { return data; } //TODO: rotto
 
 };
 
 #pragma mark Map
-class Map : public TCollection, public Traits::Iterable
+class Map : public TCollection, public Traits::Iterable, public Traits::Lookupable
 {
 public:
   using map_t = std::unordered_map<Value, Value, value_hash>;
@@ -510,6 +515,13 @@ public:
   
   virtual integral_t size() const override { return data.size(); }
   virtual bool empty() const override { return this->data.empty(); }
+  std::pair<bool, Value> find(const Value& key) const override {
+    auto it = data.find(key);
+    if (it != data.end())
+      return std::make_pair(true, it->second);
+    else
+      return std::make_pair(false, Value());
+  }
   
   map_t& raw() { return data; }
   const map_t& raw() const { return data; }

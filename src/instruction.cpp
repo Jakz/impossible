@@ -488,14 +488,6 @@ void Instruction::execute(VM *vm) const
     {
       if (vm->popTwo(v1, v2))
       {
-        //TODO: fix
-        if (false /*v1.type.isCollection()*/)
-        {
-          TCollection* collection = v1.collection();
-          vm->push(v1);
-          vm->push(collection->contains(v2));
-        }
-        else
         {
           switch (TYPES(v1.type, v2.type))
           {

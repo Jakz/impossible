@@ -81,6 +81,16 @@ void registerFunctions(MicroCode& mc)
                  [] (VM* vm, const Value& v1, const Value& v2) { vm->push(v1.indexable()->at(v2.integral())); }
                  );
   
+  registerBinary(mc,
+                 Topic::COLLECTIONS, "contains", "return true if value is contained in lookupable value",
+                 {},
+                 { OP_QUESTION, TRAIT_LOOKUPABLE, TRAIT_ANY_TYPE }, { TYPE_BOOL },
+                 [] (VM* vm, const Value& v1, const Value& v2) {
+                   Traits::Lookupable* lookupable = v1.object<Traits::Lookupable>();
+                   vm->push(lookupable->find(v2).first);
+                 });
+  
+  
   /* Functional applications on collections */
   registerBinary(mc,
                  Topic::COLLECTIONS, "each", "execute the lambda for each element in the iterable value",

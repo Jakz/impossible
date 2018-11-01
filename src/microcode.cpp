@@ -264,7 +264,6 @@ void registerNumericFunctions(MicroCode& mc)
   registerUnary(mc, {OP_NEG, TYPE_FLOAT }, { TYPE_FLOAT }, [](VM* vm, V v) { vm->push(-v.real()); });
 
   registerUnary(mc, {OP_NOT, TYPE_FLOAT }, { TYPE_FLOAT }, [](VM* vm, V v) { vm->push(1.0 / v.real()); });
-
   
   /* bitwise */
   registerBinary(mc, {OP_AND, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(std::bit_and<>()(v1.integral(), v2.integral())); });

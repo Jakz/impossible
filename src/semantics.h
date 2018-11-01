@@ -291,8 +291,21 @@ private:
       return nullptr;
   }
   
+  bool isAlreadyMapped(const Signature& signature)
+  {
+    auto oit = table.find(signature.opcode);
+    if (oit != table.end())
+    {
+      auto it = std::find_if(oit->second.begin(), oit->second.end(), [&signature] (const auto& entry) { return entry.first == signature; });
+      return it != oit->second.end();
+    }
+    
+    return false;
+  }
+  
   void emplace(const Signature& signature, VariantFunction&& function)
   {
+    assert(!isAlreadyMapped(signature));
     table[signature.opcode].push_back(std::make_pair(signature, function));
   }
   

@@ -55,9 +55,9 @@ public:
 class VirtualTable
 {
 public:
-  virtual std::string to_string(const Value& value) { return ""; }
+  /*virtual std::string to_string(const Value& value) { return ""; }
   virtual bool to_bool(const Value&) { return false; }
-  virtual bool equal_to(const Value& self, const Value& other) { return false; }
+  virtual bool equal_to(const Value& self, const Value& other) { return false; }*/
 };
 
 class TraitMask
@@ -88,10 +88,12 @@ public:
     
     std::function<std::string(const Value& v)> to_string;
     std::function<bool(const Value& v1, const Value& v2)> equal_to;
+    std::function<size_t(const Value&)> hasher;
     
     std::function<bool(const Value&)> to_bool = [] (const Value& ) { return false; };
     
     std::function<std::pair<Type, Traits::Appendable*>(size_t)> to_collector = [] (size_t) { return std::make_pair(TYPE_NONE, nullptr); };
+    
   };
   
 private:

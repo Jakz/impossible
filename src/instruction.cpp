@@ -392,15 +392,6 @@ void Instruction::execute(VM *vm) const
       break;
     }
       
-      
-    case OP_EQUAL:
-    {
-      if (vm->popTwo(v1, v2))
-      {  
-        vm->push(v1.equals(v2));
-      }
-      break;
-    }
     case OP_LESSER:
     {
       if (vm->popOne(v2))

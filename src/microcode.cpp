@@ -65,6 +65,13 @@ void registerTernary(MicroCode& mc, Topic topic, const std::string& name, const 
 
 void registerFunctions(MicroCode& mc)
 {
+  registerBinary(mc,
+                 Topic::LOGIC, "equal", "returns true if two values are equal",
+                 {},
+                 { OP_EQUAL, TRAIT_ANY_TYPE, TRAIT_ANY_TYPE }, { },
+                 [] (VM* vm, V v1, V v2) { vm->push(v1 == v2); }
+                 );
+  
   registerUnary(mc,
                 Topic::COLLECTIONS, "size", "return size/length of the value on stack",
                 {{"(1 2 3)_", "3"}, {"{}_", "0"}},

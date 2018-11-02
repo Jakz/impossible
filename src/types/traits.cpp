@@ -59,7 +59,7 @@ bool collectionEquals(const Value& v1, const Value& v2)
     if (!c2->hasNext())
       return false;
   
-    if (!c1->next().equals(c2->next()))
+    if (c1->next() != c2->next())
       return false;
   }
   
@@ -78,6 +78,9 @@ static const CollectionPrinter<Value> TuplePrinter = { "[[", "]]", " ", [] (cons
 
 static const auto unary_false = [](const Value&) { return false; };
 static const auto binary_false = [](const Value&, const Value&) { return false; };
+static const auto null_hasher = [](const Value&) { return 0UL; };
+static const auto default_collector = [](size_t hint) { return std::make_pair(TYPE_NONE, nullptr); };
+
 
 const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::specs =
 {
@@ -85,7 +88,9 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     { TYPE_INT, {}, "int",
       [] (const Value& v) { return std::to_string(v.data.i); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_INT && v2.data.i == v1.data.i; },
-      unary_false
+      [] (const Value& v) { return std::hash<integral_t>()(v.integral()); },
+      unary_false,
+      default_collector,
     }
   },
   { TYPE_FLOAT,
@@ -96,6 +101,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
         return ss.str();
       },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_FLOAT && v2.data.f == v1.data.f; },
+      [] (const Value& v) { return std::hash<real_t>()(v.real()); },
       unary_false
     }
   },
@@ -104,6 +110,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       TYPE_BOOL, {}, "bool",
       [] (const Value& v) { return v.data.b ? "true" : "false"; },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_BOOL && v2.data.b == v1.data.b; },
+      [] (const Value& v) { return std::hash<bool>()(v.boolean()); },
       [] (const Value& v) { return v.type == TYPE_BOOL && v.data.b; }
     }
   
@@ -113,6 +120,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       TYPE_CHAR, {}, "char",
       [] (const Value& v) { return std::string(1, v.data.c); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_CHAR && v2.data.c == v1.data.c; },
+      [] (const Value& v) { return std::hash<char>()(v.character()); },
       unary_false
     }
   },
@@ -121,6 +129,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     { TYPE_STRING, { TRAIT_COUNTABLE, TRAIT_INDEXABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "string",
       [] (const Value& v) { return v.string()->raw(); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STRING && v2.string()->raw() == v1.string()->raw(); },
+      [] (const Value& v) { return std::hash<std::string>()(v.string()->raw()); },
       unary_false,
       [] (size_t hint) { return std::make_pair(TYPE_STRING, new String()); }
     }
@@ -131,6 +140,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     { TYPE_REGEX, { }, "regex",
       [] (const Value& v) { return v.regex()->svalue(); },
       binary_false,
+      [] (const Value& v) { return std::hash<std::string>()(v.regex()->svalue()); },
       unary_false,
       
     }
@@ -163,6 +173,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
         return ss.str();
       },
       binary_false,
+      null_hasher,
       unary_false,
       [] (size_t hint) { return std::make_pair(TYPE_ARRAY, new Array()); }
     }
@@ -172,6 +183,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     { TYPE_LIST, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "list",
       [] (const Value& v) { return ListPrinter.svalue(v.list()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_LIST && v2.list()->raw() == v1.list()->raw(); },
+      null_hasher,
       unary_false,
       [] (size_t hint) { return std::make_pair(TYPE_LIST, new List()); }
     }
@@ -181,6 +193,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     { TYPE_ARRAY, { TRAIT_COUNTABLE, TRAIT_INDEXABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "array",
       [] (const Value& v) { return ArrayPrinter.svalue(v.array()); },
       binary_false,
+      null_hasher,
       unary_false,
       [] (size_t hint) { return std::make_pair(TYPE_ARRAY, new Array()); }
     }
@@ -190,6 +203,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     { TYPE_SET, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE, TRAIT_LOOKUPABLE }, "set",
       [] (const Value& v) { return SetPrinter.svalue(v.set()); },
       binary_false,
+      null_hasher,
       unary_false,
       [] (size_t hint) { return std::make_pair(TYPE_SET, new Set()); }
     }
@@ -198,6 +212,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     { TYPE_STACK, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "stack",
       [] (const Value& v) { return StackPrinter.svalue(v.stack()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STACK && v2.list()->raw() == v1.list()->raw(); },
+      null_hasher,
       unary_false,
       [] (size_t hint) { return std::make_pair(TYPE_LIST, new List()); }
     }
@@ -206,6 +221,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     { TYPE_QUEUE, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "queue",
       [] (const Value& v) { return QueuePrinter.svalue(v.queue()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_QUEUE && v2.list()->raw() == v1.list()->raw(); },
+      null_hasher,
       unary_false,
       [] (size_t hint) { return std::make_pair(TYPE_LIST, new List()); }
     }
@@ -220,6 +236,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
         return s;
       },
       binary_false,
+      null_hasher,
       unary_false,
       [] (size_t hint) { return std::make_pair(TYPE_ARRAY, new Array()); }
     }
@@ -228,7 +245,8 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   { TYPE_MAP,
     { TYPE_MAP, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE, TRAIT_LOOKUPABLE }, "map",
       [] (const Value& v) { return MapPrinter.svalue(v.map()); },
-
+      binary_false,
+      null_hasher,
     }
   },
   

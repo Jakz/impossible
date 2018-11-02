@@ -104,9 +104,12 @@ public:
   Value& operator=(const Value& other) { this->data = other.data; this->type = other.type; return *this; }
   bool valid() const { return type != TYPE_INVALID; }
   
+  bool operator<(const Value& other) const;
   bool operator==(const Value& value) const { return type.traits().equal_to(*this, value); }
+  
   std::string svalue() const { return type.traits().to_string(*this); }
-  bool equals(const Value& value) const { return this->operator==(value); }
+  
+  bool operator!=(const Value& value) const { return !this->operator==(value); }
 
   integral_t integral() const { return data.i; }
   real_t real() const { return data.f; }
@@ -152,8 +155,9 @@ public:
 
   Lambda* lambda() const;
   
-  
   static Value INVALID;
+  
+  struct hash { size_t operator()(const Value&) const; };
 };
 
 class TCollection : public managed_object, public Traits::Countable

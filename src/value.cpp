@@ -56,3 +56,53 @@ Traits::Iterable* Value::iterable() const { return object<Traits::Iterable>(); }
 
 
 Value Value::INVALID = Value(TYPE_INVALID);
+
+size_t Value::hash::operator()(const Value& v) const
+{
+  return v.type.traits().hasher(v);
+};
+
+bool Value::operator<(const Value& y) const
+{
+  auto& x = *this;
+  
+  if (x.type != y.type)
+    return x.type < y.type;
+  else
+  {
+    switch (x.type)
+    {
+      case TYPE_INT:
+      {
+        std::less<integral_t> i;
+        const integral_t v1 = x.integral(), v2 = x.integral();
+        return i(v1, v2);
+      }
+      case TYPE_FLOAT:
+      {
+        std::less<real_t> i;
+        const real_t v1 = x.real(), v2 = x.real();
+        return i(v1, v2);
+      }
+      case TYPE_CHAR:
+      {
+        std::less<char> i;
+        const char v1 = x.character(), v2 = y.character();
+        return i(v1, v2);
+      }
+      case TYPE_STRING:
+      {
+        std::less<std::string> i;
+        const std::string& v1 = x.string()->raw(), &v2 = y.string()->raw();
+        return i(v1, v2);
+      }
+      case TYPE_BOOL:
+      {
+        const bool v1 = x.boolean(), v2 = x.boolean();
+        return std::less<bool>()(v1, v2);
+      }
+        // TODO: collezioni
+      default: return false;
+    }
+  }
+}

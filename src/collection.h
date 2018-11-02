@@ -193,90 +193,6 @@ public:
   const RangeVector& raw() const { return data; }
 };
 
-
-struct value_hash
-{
-  size_t operator() (const Value& v) const {
-    switch (v.type)
-    {
-      case TYPE_INT:  {
-        std::hash<integral_t> i;
-        return i(v.integral());
-      }
-      case TYPE_FLOAT: {
-        std::hash<real_t> i;
-        return i(v.real());
-      }
-      case TYPE_CHAR: {
-        std::hash<char> i;
-        return i(v.character());
-      }
-      case TYPE_STRING: {
-        std::hash<std::string> i;
-        return i(v.string()->raw());
-      }
-      case TYPE_BOOL: {
-        std::hash<bool> i;
-        return i(v.boolean());
-      }
-      case TYPE_RANGE: {
-        // TODO
-        return 0;
-      }
-        // TODO: collezioni
-        
-      default: return 0;
-    }
-  }
-};
-
-template<>
-struct std::less<Value>
-{
-  bool operator() (const Value& x, const Value& y) const
-  {
-    if (x.type != y.type)
-      return x.type < y.type;
-    else
-    {
-      switch (x.type)
-      {
-        case TYPE_INT:
-        {
-          less<integral_t> i;
-          const integral_t v1 = x.integral(), v2 = x.integral();
-          return i(v1, v2);
-        }
-        case TYPE_FLOAT:
-        {
-          less<real_t> i;
-          const real_t v1 = x.real(), v2 = x.real();
-          return i(v1, v2);
-        }
-        case TYPE_CHAR:
-        {
-          less<char> i;
-          const char v1 = x.character(), v2 = y.character();
-          return i(v1, v2);
-        }
-        case TYPE_STRING:
-        {
-          less<string> i;
-          const string& v1 = x.string()->raw(), &v2 = y.string()->raw();
-          return i(v1, v2);
-        }
-        case TYPE_BOOL:
-        {
-          const bool v1 = x.boolean(), v2 = x.boolean();
-          return less<bool>()(v1, v2);
-        }
-          // TODO: collezioni
-        default: return false;
-      }
-    }
-  }
-};
-
 class List : public TCollection, public Traits::Iterable, public Traits::Appendable, public Traits::Lookupable
 {
 public:
@@ -441,7 +357,7 @@ public:
 class Set : public TCollection, public Traits::Iterable, public Traits::Appendable, public Traits::Lookupable
 {
 public:
-  using set_t = std::unordered_set<Value, value_hash>;
+  using set_t = std::unordered_set<Value, Value::hash>;
   using data_t = set_t;
 
 private:
@@ -483,7 +399,7 @@ public:
 class Map : public TCollection, public Traits::Iterable, public Traits::Lookupable
 {
 public:
-  using map_t = std::unordered_map<Value, Value, value_hash>;
+  using map_t = std::unordered_map<Value, Value, Value::hash>;
   using data_t = map_t;
 
 private:

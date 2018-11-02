@@ -243,8 +243,8 @@ public:
   Tuple(size_t size) : elements(size) { }
   Tuple(Value v) : elements({v}) { }
   Tuple(Value v1, Value v2) : elements({ v1, v2 }) { }
-  Tuple(const std::pair<Value, Value>& pair) : Tuple(pair.first, pair.second) { }
-  template<typename T> Tuple(T begin, T end) : elements(begin, end) { }
+  Tuple(const std::pair<const Value, Value>& pair) : Tuple(pair.first, pair.second) { }
+  template<typename T> Tuple(const T& data) : elements(data.begin(), data.end()) { }
   
   Value at(integral_t index) const override { return elements[index]; }
   integral_t size() const override { return elements.size(); }

@@ -237,6 +237,21 @@ void registerFunctions(MicroCode& mc)
                    vm->push(new Array(nv));
                  });
   
+  /* set related */
+  registerBinary(mc,
+                 Topic::COLLECTIONS, "intersection", "computes intersection between two sets",
+                 {},
+                 { OP_AND, TYPE_SET, TYPE_SET }, { TYPE_SET },
+                 [] (VM* vm, V v1, V v2) {
+                   Set::data_t result;
+                   for (const auto& v : v1.set()->raw())
+                     if (v2.set()->raw().find(v) != v2.set()->raw().end())
+                       result.insert(v);
+                   
+                   vm->push(new Set(result));
+                 
+                 });
+  
   /* fetch from tuple */
   registerUnary(mc, {OP_ANY, TYPE_TUPLE}, { TRAIT_ANY_TYPE }, [](VM* vm, V v1) { vm->push(v1.tuple()->at(0)); });
   registerUnary(mc, {OP_EVERY, TYPE_TUPLE}, { TRAIT_ANY_TYPE }, [](VM* vm, V v1) { vm->push(v1.tuple()->at(1)); });
@@ -281,6 +296,14 @@ void registerNumericFunctions(MicroCode& mc)
   registerUnary(mc, {OP_NEG, TYPE_FLOAT }, { TYPE_FLOAT }, [](VM* vm, V v) { vm->push(-v.real()); });
 
   registerUnary(mc, {OP_NOT, TYPE_FLOAT }, { TYPE_FLOAT }, [](VM* vm, V v) { vm->push(1.0 / v.real()); });
+  
+  registerBinary(mc, {OP_MOD, TYPE_INT, TYPE_INT }, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(v1.integral() % v2.integral()); });
+  registerUnary(mc, {OP_MOD, TYPE_FLOAT }, { TYPE_TUPLE }, [](VM* vm, V v) {
+    real_t i, f;
+    f = modf(v.real(), &i);
+    vm->push(new Tuple(i, f));
+  });
+
   
   auto numberIsInRange = [](VM* vm, V v1, V v2) {
     const RangeVector& range = v2.range()->raw();

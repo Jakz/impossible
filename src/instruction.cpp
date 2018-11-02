@@ -218,67 +218,6 @@ void Instruction::execute(VM *vm) const
       break;
     }
 
-    case OP_MOD:
-    {
-      if (vm->popOne(v2))
-      {
-        switch (v2.type)
-        {
-          case TYPE_FLOAT:
-          {
-            double f, i;
-            f = modf(v2.real(), &i);
-            vm->push(i);
-            vm->push(f);
-            break;
-          }
-          default:
-          {
-            
-            if (vm->popOne(v1))
-            {
-              switch (TYPES(v1.type, v2.type))
-              {
-                case TYPES(TYPE_INT, TYPE_INT):
-                {
-                  vm->push(v1.integral() % v2.integral());
-                  break;
-                }
-              }
-            }
-            break;
-          }
-        }
-      }
-      break;
-    }
-      
-    case OP_AND:
-    {
-      if (vm->popTwo(v1, v2))
-      {  
-        switch (TYPES(v1.type, v2.type))
-        {
-          case TYPES(TYPE_SET, TYPE_SET):
-          {
-            Set *s1 = v1.set(), *s2 = v2.set();
-            const auto& d1 = s1->raw();
-            const auto& d2 = s2->raw();
-            Set::set_t result;
-            
-            for (const auto& it : d1)
-              if (d2.find(it) != d2.end())
-                result.insert(it);
-            
-            vm->push(new Value(new Set(result)));
-
-            break;
-          }
-        }
-      }
-      break;
-    }
-      
     case OP_OR:
     {
       if (vm->popTwo(v1, v2))
@@ -404,7 +343,7 @@ void Instruction::execute(VM *vm) const
           
           if (!v.empty())
           {
-            List::list_t::const_iterator it = min_element(v.begin(), v.end(), std::less<Value>());
+            List::list_t::const_iterator it = min_element(v.begin(), v.end());
             vm->push(*it);
           }
         }
@@ -416,7 +355,7 @@ void Instruction::execute(VM *vm) const
           
           if (!v.empty())
           {
-            Array::array_t::const_iterator it = min_element(v.begin(), v.end(), std::less<Value>());
+            Array::array_t::const_iterator it = min_element(v.begin(), v.end());
             vm->push(*it);
           }
         }
@@ -435,7 +374,7 @@ void Instruction::execute(VM *vm) const
           
           if (!v.empty())
           {
-            auto it = max_element(v.begin(), v.end(), std::less<Value>());
+            auto it = max_element(v.begin(), v.end());
             vm->push(*it);
           }
         }
@@ -446,7 +385,7 @@ void Instruction::execute(VM *vm) const
           
           if (!v.empty())
           {
-            auto it = max_element(v.begin(), v.end(), std::less<Value>());
+            auto it = max_element(v.begin(), v.end());
             vm->push(*it);
           }
         }
@@ -589,7 +528,7 @@ void Instruction::execute(VM *vm) const
           }
           case TYPE_ARRAY:
           {
-            std::sort(v1.array()->begin(), v1.array()->end(), std::less<Value>());
+            std::sort(v1.array()->begin(), v1.array()->end());
             vm->push(v1);
             break;
           }

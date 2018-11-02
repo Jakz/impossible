@@ -24,6 +24,9 @@ int main(int argc, char* argv[])
 #include "vm.h"
 
 #include <vector>
+#include <random>
+
+#define BATCH(x) for (size_t i__ = 0; i__ < (x); ++i__)
 
 using namespace compiler;
 
@@ -116,6 +119,41 @@ TEST_CASE("support types")
   }
 }
 
+TEST_CASE("operator< semantics")
+{
+  SECTION("integral")
+  {
+    std::mt19937_64 rnd;
+    BATCH(1000)
+    {
+      integral_t i = rnd();
+      integral_t j = rnd();
+      
+      const Value vi = Value(i);
+      const Value vj = Value(j);
+            
+      if (i < j)
+      {
+        REQUIRE(vi < vj);
+        REQUIRE(vi != vj);
+        REQUIRE_FALSE(vi > vj);
+      }
+      else if (i > j)
+      {
+        REQUIRE(vi > vj);
+        REQUIRE(vi != vj);
+        REQUIRE_FALSE(vi < vj);
+      }
+      else
+      {
+        REQUIRE_FALSE(vi > vj);
+        REQUIRE(vi == vj);
+        REQUIRE_FALSE(vi < vj);
+      }
+    }
+  }
+}
+
 TEST_CASE("primitive literals")
 {
   SECTION("int")
@@ -132,7 +170,6 @@ TEST_CASE("primitive literals")
   SECTION("float")
   {
     executeAndVerifyStack("4.0", 4.0);
-
   }
 }
 
@@ -153,7 +190,6 @@ TEST_CASE("collection constructors")
 }
 
 static constexpr size_t REPETITIONS = 100;
-#define BATCH(x) for (size_t i = 0; i < (x); ++i)
 
 TEST_CASE("collections size")
 {

@@ -63,7 +63,7 @@ size_t Value::hash::operator()(const Value& v) const
 };
 
 bool Value::operator<(const Value& y) const
-{
+{  
   auto& x = *this;
   
   if (x.type != y.type)
@@ -74,14 +74,13 @@ bool Value::operator<(const Value& y) const
     {
       case TYPE_INT:
       {
-        std::less<integral_t> i;
-        const integral_t v1 = x.integral(), v2 = x.integral();
-        return i(v1, v2);
+        const integral_t v1 = x.integral(), v2 = y.integral();
+        return std::less<>()(v1, v2);
       }
       case TYPE_FLOAT:
       {
         std::less<real_t> i;
-        const real_t v1 = x.real(), v2 = x.real();
+        const real_t v1 = x.real(), v2 = y.real();
         return i(v1, v2);
       }
       case TYPE_CHAR:

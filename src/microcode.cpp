@@ -237,6 +237,46 @@ void registerFunctions(MicroCode& mc)
                    vm->push(new Array(nv));
                  });
   
+  registerUnary(mc, Topic::COLLECTIONS, "min", "find minimum vale in iterable", {},
+                {OP_LESSER, TRAIT_ITERABLE }, { TRAIT_ANY_TYPE }, [] (VM* vm, V v1) {
+                  Traits::Iterable* iterable = v1.iterable();
+                  Iterator it = iterable->iterator();
+                  
+                  if (!it)
+                    vm->push(Value());
+                  else
+                  {
+                    Value v = *it;
+                    ++it;
+                    while (it)
+                    {
+                      v = std::min(v, *it);
+                      ++it;
+                    }
+                    vm->push(v);
+                  }
+                });
+  
+  registerUnary(mc, Topic::COLLECTIONS, "max", "find maximum vale in iterable", {},
+                {OP_GREATER, TRAIT_ITERABLE }, { TRAIT_ANY_TYPE }, [] (VM* vm, V v1) {
+                  Traits::Iterable* iterable = v1.iterable();
+                  Iterator it = iterable->iterator();
+                  
+                  if (!it)
+                    vm->push(Value());
+                  else
+                  {
+                    Value v = *it;
+                    ++it;
+                    while (it)
+                    {
+                      v = std::max(v, *it);
+                      ++it;
+                    }
+                    vm->push(v);
+                  }
+                });
+  
   /* set related */
   registerBinary(mc,
                  Topic::COLLECTIONS, "intersection", "computes intersection between two sets",

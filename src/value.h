@@ -109,6 +109,7 @@ public:
   
   std::string svalue() const { return type.traits().to_string(*this); }
   
+  bool operator>(const Value& other) const { return !operator==(other) && !operator<(other); }
   bool operator!=(const Value& value) const { return !this->operator==(value); }
 
   integral_t integral() const { return data.i; }

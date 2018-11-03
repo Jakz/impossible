@@ -54,4 +54,29 @@ public:
   virtual size_t size() const { return code.size(); }
 };
 
+class FragmentedCode : public Code
+{
+private:
+  std::vector<Code*> fragments;
+  
+public:
+  FragmentedCode(Code* c1, Code* c2) : fragments({c1, c2}) { }
+  
+  size_t size() const override { return fragments[0]->size() + fragments[1]->size(); }
+  
+  const Instruction& at(size_t i) const override
+  {
+    if (i >= fragments[0]->size()) return fragments[1]->at(i - fragments[0]->size());
+    else return fragments[0]->at(i);
+  }
+  
+  std::string svalue(size_t pc) override
+  {
+    if (pc >= fragments[0]->size()) return fragments[1]->svalue(pc - fragments[0]->size());
+    else return fragments[0]->svalue(pc);
+  }
+  
+  
+};
+
 #endif

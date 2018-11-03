@@ -47,19 +47,7 @@ void Help::init()
   addOperator("+", OpHelpEntry::binary(TYPE_CHAR, TYPE_INT, TYPE_CHAR, "shift", Topic::TEXT, "shift a char by adding an integer value to its value", "", ""));
   addOperator("+", OpHelpEntry::binary(TYPE_CHAR, TYPE_CHAR, TYPE_STRING, "concatenate", Topic::TEXT, "concatenate two strings", "", ""));
   addOperator("+", OpHelpEntry::binary(TYPE_STRING, TYPE_GENERIC, TYPE_STRING, "append", Topic::TEXT, "append string representation of value to string", "", ""));
-  
-  addOperator("+.", OpHelpEntry::unary(TYPE_LIST, TYPE_GENERIC, "monadic sum", Topic::COLLECTIONS, "applies + operation between each pair of elements in the list", "", ""));
-  addOperator("+.", OpHelpEntry::unary(TYPE_ARRAY, TYPE_GENERIC, "monadic sum", Topic::COLLECTIONS, "applies + operation between each pair of elements in the array", "", ""));
-  
-  addOperator("-.", OpHelpEntry::unary(TYPE_LIST, TYPE_GENERIC, "monadic sub", Topic::COLLECTIONS, "applies - operation between each pair of elements in the list", "", ""));
-  addOperator("-.", OpHelpEntry::unary(TYPE_ARRAY, TYPE_GENERIC, "monadic sub", Topic::COLLECTIONS, "applies - operation between each pair of elements in the array", "", ""));
-  
-  addOperator("*.", OpHelpEntry::unary(TYPE_LIST, TYPE_GENERIC, "monadic times", Topic::COLLECTIONS, "applies * operation between each pair of elements in the list", "", ""));
-  addOperator("*.", OpHelpEntry::unary(TYPE_ARRAY, TYPE_GENERIC, "monadic times", Topic::COLLECTIONS, "applies * operation between each pair of elements in the array", "", ""));
-  
-  addOperator("/.", OpHelpEntry::unary(TYPE_LIST, TYPE_GENERIC, "monadic div", Topic::COLLECTIONS, "applies / operation between each pair of elements in the list", "", ""));
-  addOperator("/.", OpHelpEntry::unary(TYPE_ARRAY, TYPE_GENERIC, "monadic div", Topic::COLLECTIONS, "applies / operation between each pair of elements in the array", "", ""));
-  
+    
   addOperator("-", OpHelpEntry::binary(TYPE_INT, TYPE_INT, TYPE_INT, "sub", Topic::NUMERICS, "subtraction between integers", "", ""));
   addOperator("-", OpHelpEntry::binary(TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, "sub", Topic::NUMERICS, "subtraction between floats", "", ""));
   addOperator("-", OpHelpEntry::binary(TYPE_CHAR, TYPE_INT, TYPE_CHAR, "shift", Topic::TEXT, "shift a char by subtracting an integer value to its value", "", ""));
@@ -150,43 +138,9 @@ void Help::init()
   addOperator("<@", OpHelpEntry::unaryO(TYPE_LIST, TYPE_LIST, TYPE_GENERIC, "pop front", Topic::COLLECTIONS, "pop value from top of the list", "", ""));
   addOperator(">@", OpHelpEntry::unaryO(TYPE_LIST, TYPE_LIST, TYPE_GENERIC, "pop back", Topic::COLLECTIONS, "pop value from back of the list", "", ""));
 
-  addOperator(".>", OpHelpEntry::binary(TYPE_LIST, TYPE_LAMBDA, TYPE_UNKNOWN, "each", Topic::COLLECTIONS, "executes the lambda for each element of the list", "", ""));
-  addOperator(".>", OpHelpEntry::binary(TYPE_ARRAY, TYPE_LAMBDA, TYPE_UNKNOWN, "each", Topic::COLLECTIONS, "executes the lambda for each element of the array", "", ""));
-  addOperator(".>", OpHelpEntry::binary(TYPE_SET, TYPE_LAMBDA, TYPE_UNKNOWN, "each", Topic::COLLECTIONS, "executes the lambda for each element of the set", "", ""));
-  addOperator(".>", OpHelpEntry::binary(TYPE_STRING, TYPE_LAMBDA, TYPE_UNKNOWN, "each", Topic::COLLECTIONS, "executes the lambda for each character of the string", "", ""));
-  addOperator(".>", OpHelpEntry::binary(TYPE_MAP, TYPE_LAMBDA, TYPE_UNKNOWN, "each", Topic::COLLECTIONS, "executes the lambda for each value of the map (keys are not pushed)", "", ""));
-  addOperator(".>", OpHelpEntry::binary(TYPE_RANGE, TYPE_LAMBDA, TYPE_UNKNOWN, "each", Topic::COLLECTIONS, "executes the lambda for each integer contained in range", "", ""));
-  
   addOperator(".>:", OpHelpEntry::binary(TYPE_ARRAY, TYPE_LAMBDA, TYPE_UNKNOWN, "each with index", Topic::COLLECTIONS, "executes the lambda for each element of the array by pushing also the index", "", ""));
   addOperator(".>:", OpHelpEntry::binary(TYPE_MAP, TYPE_LAMBDA, TYPE_UNKNOWN, "each with key", Topic::COLLECTIONS, "executes the lambda for each pair of the map by pushing both key and value", "", ""));
 
-  addOperator(".>.", OpHelpEntry::binary(TYPE_LIST, TYPE_LAMBDA, TYPE_LIST, "map", Topic::COLLECTIONS, "applies lambda to each element of the list to build a new one", "", ""));
-  addOperator(".>.", OpHelpEntry::binary(TYPE_ARRAY, TYPE_LAMBDA, TYPE_ARRAY, "map", Topic::COLLECTIONS, "applies lambda to each element of the array to build a new one", "", ""));
-  addOperator(".>.", OpHelpEntry::binary(TYPE_RANGE, TYPE_LAMBDA, TYPE_ARRAY, "map", Topic::COLLECTIONS, "applies lambda to each element of the range to build an array", "", ""));
-  addOperator(".>.", OpHelpEntry::binary(TYPE_STRING, TYPE_LAMBDA, TYPE_STRING, "map", Topic::COLLECTIONS, "applies lambda to each character of the string to build a new one", "", ""));
-  addOperator(".>.", OpHelpEntry::binary(TYPE_SET, TYPE_LAMBDA, TYPE_SET, "map", Topic::COLLECTIONS, "applies lambda to each element of the set to build a new one", "", ""));
-
-  
-  addOperator(":>:", OpHelpEntry::ternary(TYPE_LIST, TYPE_LIST, TYPE_LAMBDA, TYPE_LIST, "dmap", Topic::COLLECTIONS, "applies lambda to each pair of elements from both lists to build a new one", "", ""));
-  addOperator(":>:", OpHelpEntry::ternary(TYPE_ARRAY, TYPE_ARRAY, TYPE_LAMBDA, TYPE_ARRAY, "dmap", Topic::COLLECTIONS, "applies lambda to each pair of elements from both arrays to build a new one", "", ""));
-
-  addOperator(":>.", OpHelpEntry::ternary(TYPE_ARRAY, TYPE_LAMBDA, TYPE_GENERIC, TYPE_GENERIC, "fold", Topic::COLLECTIONS, "folds an array by taking accumulator value and passing it through each element", "", ""));
-  addOperator(":>.", OpHelpEntry::ternary(TYPE_LIST, TYPE_LAMBDA, TYPE_GENERIC, TYPE_GENERIC, "fold", Topic::COLLECTIONS, "folds a list by taking accumulator value and passing it through each element", "", ""));
-  addOperator(":>.", OpHelpEntry::ternary(TYPE_SET, TYPE_LAMBDA, TYPE_GENERIC, TYPE_GENERIC, "fold", Topic::COLLECTIONS, "folds a set by taking accumulator value and passing it through each element", "", ""));
-
-  
-  addOperator(".?", OpHelpEntry::binary(TYPE_INT, TYPE_INT, TYPE_INT, "min", Topic::NUMERICS, "pushes the minimum of two integer numbers", "", ""));
-  addOperator(".?", OpHelpEntry::binary(TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, "min", Topic::NUMERICS, "pushes the minimum of two float numbers", "", ""));
-  addOperator(".?", OpHelpEntry::binary(TYPE_LIST, TYPE_LAMBDA, TYPE_BOOL, "any", Topic::COLLECTIONS, "pushes true on stack if at least one element in the list satisfies the lambda", "", ""));
-  addOperator(".?", OpHelpEntry::binary(TYPE_ARRAY, TYPE_LAMBDA, TYPE_BOOL, "any", Topic::COLLECTIONS, "pushes true on stack if at least one element in the array satisfies the lambda", "", ""));
-  addOperator(".?", OpHelpEntry::binary(TYPE_SET, TYPE_LAMBDA, TYPE_BOOL, "any", Topic::COLLECTIONS, "pushes true on stack if at least one element in the set satisfies the lambda", "", ""));
-
-  addOperator(":?", OpHelpEntry::binary(TYPE_INT, TYPE_INT, TYPE_INT, "max", Topic::NUMERICS, "pushes the maximum of two integer numbers", "", ""));
-  addOperator(":?", OpHelpEntry::binary(TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, "max", Topic::NUMERICS, "pushes the maximum of two float numbers", "", ""));
-  addOperator(":?", OpHelpEntry::binary(TYPE_LIST, TYPE_LAMBDA, TYPE_BOOL, "every", Topic::COLLECTIONS, "pushes true on stack if all the elements in the list satisfies the lambda", "", ""));
-  addOperator(":?", OpHelpEntry::binary(TYPE_ARRAY, TYPE_LAMBDA, TYPE_BOOL, "every", Topic::COLLECTIONS, "pushes true on stack if all the elements in the array satisfies the lambda", "", ""));
-  addOperator(":?", OpHelpEntry::binary(TYPE_SET, TYPE_LAMBDA, TYPE_BOOL, "every", Topic::COLLECTIONS, "pushes true on stack if all the elements in the set satisfies the lambda", "", ""));
-  
   addOperator("@>", OpHelpEntry::binary(TYPE_INT, TYPE_INT, TYPE_INT, "rand", Topic::NUMERICS, "generate a random value between two pushed values (not inclusive of upper bound)", "", ""));
   addOperator("@>", OpHelpEntry::unary(TYPE_RANGE, TYPE_INT, "rand", Topic::NUMERICS, "extracts a random integer from a range (with uniform probability between all values)", "", ""));
   addOperator("@>", OpHelpEntry::unary(TYPE_BOOL, TYPE_BOOL, "rand flag", Topic::LOGIC, "generate a random truth value (true or false)", "", ""));

@@ -212,6 +212,89 @@ void registerFunctions(MicroCode& mc)
                    
                  });
   
+  auto fold = [] (VM* vm, V v1, Code* code, bool hasInit)
+  {
+    Iterator it = v1.iterable()->iterator();
+    
+    //TODO: v1 requires at lease 1/2 elements according to hasInit
+    
+    if (!hasInit)
+    {
+      vm->push(*it);
+      ++it;
+    }
+    
+    while (it)
+    {
+      vm->push(*it);
+      vm->execute(code);
+      /* next element should be already on stack */
+      ++it;
+    }
+  };
+  
+  registerTernary(mc, Topic::COLLECTIONS, "fold", "folds an iterable", {},
+                  { OP_FOLD, TRAIT_ITERABLE, TYPE_LAMBDA, TRAIT_ANY_TYPE }, { TRAIT_ANY_TYPE },
+                  [&fold] (VM* vm, V v1, V v2, V v3) {
+                    vm->push(v3);
+                    fold(vm, v1, v2.lambda()->code(), true);
+                  });
+  
+  registerBinary(mc, Topic::COLLECTIONS, "any", "checks if any element of iterable satisfies a lambda", {},
+                  { OP_ANY, TRAIT_ITERABLE, TYPE_LAMBDA }, { TYPE_BOOL },
+                  [] (VM* vm, V v1, V v2) {
+                    Code* code = v2.lambda()->code();
+                    Traits::Iterable* iterable = v1.iterable();
+                    auto it = iterable->iterator();
+                    while (it)
+                    {
+                      vm->push(*it);
+                      vm->execute(code);
+                      //TODO: check value on stack and type?
+                      Value v = vm->pop();
+                      if (v.type.traits().to_bool(v))
+                      {
+                        vm->push(true);
+                        return;
+                      }
+                      ++it;
+                    }
+                    
+                    vm->push(false);
+                  });
+  
+  registerBinary(mc, Topic::COLLECTIONS, "every", "checks if all elements of iterable satisfy a lambda", {},
+                 { OP_EVERY, TRAIT_ITERABLE, TYPE_LAMBDA }, { TYPE_BOOL },
+                 [] (VM* vm, V v1, V v2) {
+                   Code* code = v2.lambda()->code();
+                   Traits::Iterable* iterable = v1.iterable();
+                   auto it = iterable->iterator();
+                   while (it)
+                   {
+                     vm->push(*it);
+                     vm->execute(code);
+                     //TODO: check value on stack and type?
+                     Value v = vm->pop();
+                     if (!v.type.traits().to_bool(v))
+                     {
+                       vm->push(false);
+                       return;
+                     }
+                     ++it;
+                   }
+                   
+                   vm->push(true);
+                 });
+  
+  
+  std::initializer_list<std::tuple<Opcode, Opcode, Opcode, std::string>> embedded_helpers = {
+    std::make_tuple( OP_PLUS_DIA, OP_PLUS_MON, OP_PLUS, "sum" ),
+    std::make_tuple( OP_MINUS_DIA, OP_MINUS_MON, OP_MINUS, "subtract" ),
+    std::make_tuple( OP_TIMES_DIA, OP_TIMES_MON, OP_TIMES, "multiply" ),
+    std::make_tuple( OP_DIVIDE_DIA, OP_DIVIDE_MON, OP_DIVIDE, "divide" )
+  };
+  
+  
   //TODO: add support for default values if iterable have different lengths
   auto double_map = [] (VM* vm, V v1, V v2, Code* code)
   {
@@ -244,22 +327,24 @@ void registerFunctions(MicroCode& mc)
                   { OP_DMAP, TRAIT_ITERABLE, TRAIT_ITERABLE, TYPE_LAMBDA }, { TRAIT_APPENDABLE },
                   [&double_map] (VM* vm, V v1, V v2, V v3) { double_map(vm, v1, v2, v3.lambda()->code()); });
   
-  std::initializer_list<std::tuple<Opcode, Opcode, std::string>> diadics = {
-    std::make_tuple( OP_PLUS_DIA, OP_PLUS, "sum" ),
-    std::make_tuple( OP_MINUS_DIA, OP_MINUS, "subtract" ),
-    std::make_tuple( OP_TIMES_DIA, OP_TIMES, "multiply" ),
-    std::make_tuple( OP_DIVIDE_DIA, OP_DIVIDE, "divide" )
-  };
-  
-  for (const auto& entry : diadics)
+  for (const auto& entry : embedded_helpers)
   {
     registerBinary(mc, Topic::COLLECTIONS,
-                   std::string("diadic-") + std::get<2>(entry), std::string(std::get<2>(entry)) + " each consecutive pair of two iterable values",
+                   std::string("diadic-") + std::get<3>(entry), std::string(std::get<3>(entry)) + " each consecutive pair of two iterable values",
                    {},
                    { std::get<0>(entry), TRAIT_ITERABLE, TRAIT_ITERABLE }, { TRAIT_APPENDABLE },
                    [&double_map, entry] (VM* vm, V v1, V v2) { //TODO: entry passed by value
-                     CodeStandard code = CodeStandard(Instruction(std::get<1>(entry)));
+                     CodeStandard code = CodeStandard(Instruction(std::get<2>(entry)));
                      double_map(vm, v1, v2, &code);
+                   });
+    
+    registerUnary(mc, Topic::COLLECTIONS,
+                   std::string("monadic-") + std::get<3>(entry), std::string(std::get<3>(entry)) + " each value contained inside iterable value",
+                   {},
+                   { std::get<1>(entry), TRAIT_ITERABLE }, { TRAIT_ANY_TYPE },
+                   [&fold, entry] (VM* vm, V v1) { //TODO: entry passed by value
+                     CodeStandard code = CodeStandard(Instruction(std::get<2>(entry)));
+                     fold(vm, v1, &code, false);
                    });
   }
 

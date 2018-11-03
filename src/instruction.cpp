@@ -765,48 +765,6 @@ void Instruction::execute(VM *vm) const
       break;
     }
             
-    case OP_DMAP:
-    {
-      if (vm->popThree(v1, v2, v3))
-      {
-        if (v3.type == TYPE_LAMBDA)
-        {
-          switch (TYPES(v1.type, v2.type))
-          {
-            case TYPES(TYPE_LIST, TYPE_LIST):
-            {
-              List *list = new List();
-              doublemap(v1.list(), v2.list(), list, v3.lambda()->code(), vm);
-              vm->push(list);
-              break;
-            }
-            case TYPES(TYPE_LIST, TYPE_ARRAY):
-            {
-              List *list = new List();
-              doublemap(v1.list(), v2.array(), list, v3.lambda()->code(), vm);
-              vm->push(list);
-              break;
-            }
-            case TYPES(TYPE_ARRAY, TYPE_LIST):
-            {
-              Array *list = new Array();
-              doublemap(v1.array(), v2.list(), list, v3.lambda()->code(), vm);
-              vm->push(list);
-              break;
-            }
-            case TYPES(TYPE_ARRAY, TYPE_ARRAY):
-            {
-              Array *list = new Array();
-              doublemap(v1.array(), v2.array(), list, v3.lambda()->code(), vm);
-              vm->push(list);
-              break;
-            }
-          }
-        }
-        
-      }
-      break;
-    }
       
     case OP_ANY:
     {
@@ -851,13 +809,6 @@ void Instruction::execute(VM *vm) const
       break;
     }
       
-    case OP_PLUS_DIA:
-    {
-      vm->push(new Lambda(new CodeStandard(Instruction(OP_PLUS))));
-      Instruction(OP_DMAP).execute(vm);
-      break;
-    }
-      
     case OP_PLUS_MON:
     {
       if (vm->popOne(v1))
@@ -879,13 +830,6 @@ void Instruction::execute(VM *vm) const
         }
       }
       
-      break;
-    }
-      
-    case OP_MINUS_DIA:
-    {
-      vm->push(new Lambda(new CodeStandard(Instruction(OP_MINUS))));
-      Instruction(OP_DMAP).execute(vm);
       break;
     }
       
@@ -912,13 +856,6 @@ void Instruction::execute(VM *vm) const
       break;
     }
       
-    case OP_TIMES_DIA:
-    {
-      vm->push(new Lambda(new CodeStandard(Instruction(OP_TIMES))));
-      Instruction(OP_DMAP).execute(vm);
-      break;
-    }
-      
     case OP_TIMES_MON:
     {
       if (vm->popOne(v1))
@@ -938,13 +875,6 @@ void Instruction::execute(VM *vm) const
         }
       }
       
-      break;
-    }
-      
-    case OP_DIVIDE_DIA:
-    {
-      vm->push(new Lambda(new CodeStandard(Instruction(OP_DIVIDE))));
-      Instruction(OP_DMAP).execute(vm);
       break;
     }
       

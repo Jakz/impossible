@@ -48,26 +48,14 @@ void Help::init()
   addOperator("+", OpHelpEntry::binary(TYPE_CHAR, TYPE_CHAR, TYPE_STRING, "concatenate", Topic::TEXT, "concatenate two strings", "", ""));
   addOperator("+", OpHelpEntry::binary(TYPE_STRING, TYPE_GENERIC, TYPE_STRING, "append", Topic::TEXT, "append string representation of value to string", "", ""));
   
-  addOperator("+:", OpHelpEntry::binary(TYPE_LIST, TYPE_LIST, TYPE_LIST, "diadic sum", Topic::COLLECTIONS, "applies + operation between each pair of elements in lists", "", ""));
-  addOperator("+:", OpHelpEntry::binary(TYPE_ARRAY, TYPE_ARRAY, TYPE_ARRAY, "diadic sum", Topic::COLLECTIONS, "applies + operation between each pair of elements in arrays", "", ""));
-  
   addOperator("+.", OpHelpEntry::unary(TYPE_LIST, TYPE_GENERIC, "monadic sum", Topic::COLLECTIONS, "applies + operation between each pair of elements in the list", "", ""));
   addOperator("+.", OpHelpEntry::unary(TYPE_ARRAY, TYPE_GENERIC, "monadic sum", Topic::COLLECTIONS, "applies + operation between each pair of elements in the array", "", ""));
-  
-  addOperator("-:", OpHelpEntry::binary(TYPE_LIST, TYPE_LIST, TYPE_LIST, "diadic sub", Topic::COLLECTIONS, "applies - operation between each pair of elements in lists", "", ""));
-  addOperator("-:", OpHelpEntry::binary(TYPE_ARRAY, TYPE_ARRAY, TYPE_ARRAY, "diadic sub", Topic::COLLECTIONS, "applies - operation between each pair of elements in arrays", "", ""));
   
   addOperator("-.", OpHelpEntry::unary(TYPE_LIST, TYPE_GENERIC, "monadic sub", Topic::COLLECTIONS, "applies - operation between each pair of elements in the list", "", ""));
   addOperator("-.", OpHelpEntry::unary(TYPE_ARRAY, TYPE_GENERIC, "monadic sub", Topic::COLLECTIONS, "applies - operation between each pair of elements in the array", "", ""));
   
-  addOperator("*:", OpHelpEntry::binary(TYPE_LIST, TYPE_LIST, TYPE_LIST, "diadic times", Topic::COLLECTIONS, "applies * operation between each pair of elements in lists", "", ""));
-  addOperator("*:", OpHelpEntry::binary(TYPE_ARRAY, TYPE_ARRAY, TYPE_ARRAY, "diadic times", Topic::COLLECTIONS, "applies * operation between each pair of elements in arrays", "", ""));
-  
   addOperator("*.", OpHelpEntry::unary(TYPE_LIST, TYPE_GENERIC, "monadic times", Topic::COLLECTIONS, "applies * operation between each pair of elements in the list", "", ""));
   addOperator("*.", OpHelpEntry::unary(TYPE_ARRAY, TYPE_GENERIC, "monadic times", Topic::COLLECTIONS, "applies * operation between each pair of elements in the array", "", ""));
-  
-  addOperator("/:", OpHelpEntry::binary(TYPE_LIST, TYPE_LIST, TYPE_LIST, "diadic div", Topic::COLLECTIONS, "applies / operation between each pair of elements in lists", "", ""));
-  addOperator("/:", OpHelpEntry::binary(TYPE_ARRAY, TYPE_ARRAY, TYPE_ARRAY, "diadic div", Topic::COLLECTIONS, "applies / operation between each pair of elements in arrays", "", ""));
   
   addOperator("/.", OpHelpEntry::unary(TYPE_LIST, TYPE_GENERIC, "monadic div", Topic::COLLECTIONS, "applies / operation between each pair of elements in the list", "", ""));
   addOperator("/.", OpHelpEntry::unary(TYPE_ARRAY, TYPE_GENERIC, "monadic div", Topic::COLLECTIONS, "applies / operation between each pair of elements in the array", "", ""));

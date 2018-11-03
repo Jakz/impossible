@@ -212,6 +212,57 @@ void registerFunctions(MicroCode& mc)
                    
                  });
   
+  //TODO: add support for default values if iterable have different lengths
+  auto double_map = [] (VM* vm, V v1, V v2, Code* code)
+  {
+    std::function<integral_t(Traits::Countable*)> counter = [] (Traits::Countable* ctb) { return ctb->size(); };
+    integral_t sizeHint1 = v1.traitOrElse<>(counter, 0LL);
+    integral_t sizeHint2 = v1.traitOrElse<>(counter, 0LL);
+    
+    auto dest = v1.type.traits().to_collector(std::min(sizeHint1, sizeHint2));
+    
+    Iterator it1 = v1.iterable()->iterator();
+    Iterator it2 = v2.iterable()->iterator();
+    
+    while (it1 || it2)
+    {
+      vm->push(*it1);
+      vm->push(*it2);
+      vm->execute(code);
+      dest.second->put(vm->pop());
+      
+      ++it1;
+      ++it2;
+    }
+    
+    vm->push(Value(dest.first, dynamic_cast<managed_object*>(dest.second)));
+  };
+  
+  registerTernary(mc,
+                  Topic::COLLECTIONS, "dmap", "apply lambda to each consecutive pair of two iterable values",
+                  {},
+                  { OP_DMAP, TRAIT_ITERABLE, TRAIT_ITERABLE, TYPE_LAMBDA }, { TRAIT_APPENDABLE },
+                  [&double_map] (VM* vm, V v1, V v2, V v3) { double_map(vm, v1, v2, v3.lambda()->code()); });
+  
+  std::initializer_list<std::tuple<Opcode, Opcode, std::string>> diadics = {
+    std::make_tuple( OP_PLUS_DIA, OP_PLUS, "sum" ),
+    std::make_tuple( OP_MINUS_DIA, OP_MINUS, "subtract" ),
+    std::make_tuple( OP_TIMES_DIA, OP_TIMES, "multiply" ),
+    std::make_tuple( OP_DIVIDE_DIA, OP_DIVIDE, "divide" )
+  };
+  
+  for (const auto& entry : diadics)
+  {
+    registerBinary(mc, Topic::COLLECTIONS,
+                   std::string("diadic-") + std::get<2>(entry), std::string(std::get<2>(entry)) + " each consecutive pair of two iterable values",
+                   {},
+                   { std::get<0>(entry), TRAIT_ITERABLE, TRAIT_ITERABLE }, { TRAIT_APPENDABLE },
+                   [&double_map, entry] (VM* vm, V v1, V v2) { //TODO: entry passed by value
+                     CodeStandard code = CodeStandard(Instruction(std::get<1>(entry)));
+                     double_map(vm, v1, v2, &code);
+                   });
+  }
+
   //TODO: should return a String if input is a String
   registerBinary(mc,
                  Topic::COLLECTIONS, "extract", "retrieve all elements of range from indexable type",

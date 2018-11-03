@@ -72,6 +72,11 @@ void registerFunctions(MicroCode& mc)
                  [] (VM* vm, V v1, V v2) { vm->push(v1 == v2); }
                  );
   
+  //TODO: return type should be unknown
+  registerUnary(mc, Topic::FUNCTIONAL, "apply", "execute lambda", {}, { OP_BANG, TYPE_LAMBDA }, { TRAIT_ANY_TYPE }, [] (VM* vm, V v) {
+                  vm->execute(v.lambda()->code());
+                });
+  
   registerUnary(mc,
                 Topic::COLLECTIONS, "size", "return size/length of the value on stack",
                 {{"(1 2 3)_", "3"}, {"{}_", "0"}},
@@ -478,6 +483,13 @@ void registerNumericFunctions(MicroCode& mc)
     real_t i, f;
     f = modf(v.real(), &i);
     vm->push(new Tuple(i, f));
+  });
+  
+  registerUnary(mc, {OP_BANG, TYPE_INT}, { TYPE_INT }, [](VM* vm, V vv) {
+    integral_t res = 1;
+    integral_t v = vv.integral();
+    while (v > 1) res *= v--;
+    vm->push(res);
   });
 
   

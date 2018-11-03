@@ -301,10 +301,8 @@ void Instruction::execute(VM *vm) const
             const LazyArray::data_t& array = v1.lazyArray()->raw();
             Array::array_t nv;
             nv.reserve(array.size());
-            
-            for (const auto& v : array)
-              nv.push_back(v);
-            
+            std::copy(array.begin(), array.end(), std::back_inserter(nv));
+
             vm->push(v1);
             vm->push(new Array(nv));
             break;
@@ -315,26 +313,7 @@ void Instruction::execute(VM *vm) const
       }
       break;
     }
-         
-    case OP_BANG:
-    {
-      if (vm->popOne(v1))
-      {
-        if (v1.type == TYPE_LAMBDA)
-          vm->execute(v1.lambda()->code());
-        else if (v1.type == TYPE_INT)
-        {
-          double res = 1.0;
-          double v = v1.integral();
-          
-          while (v > 1)
-            res *= v--;
-          
-          vm->push(res);
-        }
-      }
-      break;
-    }
+   
     case OP_QUESTION:
     {
       if (vm->popTwo(v1, v2))

@@ -282,7 +282,7 @@ private:
   mutable array_t::const_iterator it;
   
 public:
-  Array(array_t& data) : data(data) { }
+  Array(const array_t& data) : data(data) { }
   Array(array_t&& data) : data(data) { }
   Array() { }
   Array(integral_t size) { data.resize(size); }

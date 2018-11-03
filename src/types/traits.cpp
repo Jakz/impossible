@@ -232,6 +232,8 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       [] (const Value& v) {
         std::string s("(? ");
         s += v.lazyArray()->raw().code()->code()->svalue();
+        Array data = Array(v.lazyArray()->raw().data());
+        s += ArrayPrinter.svalue(&data);
         s += " )";
         return s;
       },

@@ -235,24 +235,6 @@ void Instruction::execute(VM *vm) const
             vm->push(new Range(v1.range()->raw().rangeUnion(rv)));
             break;
           }
-            
-          case TYPES(TYPE_SET, TYPE_SET):
-          {
-            Set *s1 = v1.set(), *s2 = v2.set();
-            const auto& d1 = s1->raw();
-            const auto& d2 = s2->raw();
-            Set::set_t result;
-            
-            for (const auto& it : d1)
-                result.insert(it);
-            
-            for (const auto& it : d2)
-              result.insert(it);
-            
-            vm->push(new Value(new Set(result)));
-            
-            break;
-          }
         }
       }
       break;

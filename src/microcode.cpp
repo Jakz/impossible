@@ -151,6 +151,25 @@ void registerFunctions(MicroCode& mc)
                  }
                  );
   
+  registerUnary(mc, Topic::COLLECTIONS, "rand-element", "get a random element from iterable", {},
+                { OP_RAND, TRAIT_ITERABLE|TRAIT_COUNTABLE }, { TRAIT_ANY_TYPE },
+                [] (VM* vm, V v) {
+                  Traits::Indexable* indexable = v.indexable();
+                  Traits::Countable* countable = v.object<Traits::Countable>();
+                  integral_t index = Util::randr<integral_t>(0, countable->size());
+                  
+                  /* optimized for random access */
+                  if (indexable)
+                    vm->push(indexable->at(index));
+                  else
+                  {
+                    auto it = v.iterable()->iterator();
+                    for (integral_t i = 0; 0 < index; ++i, ++it);
+                    vm->push(*it);
+                  }
+                });
+  
+  
   registerBinary(mc,
                  Topic::COLLECTIONS, "filter", "filter all values which match a predicate into a new collection",
                  {},
@@ -225,6 +244,12 @@ void registerFunctions(MicroCode& mc)
     
     if (!hasInit)
     {
+      if (!it)
+      {
+        vm->push(Value());
+        return;
+      }
+      
       vm->push(*it);
       ++it;
     }

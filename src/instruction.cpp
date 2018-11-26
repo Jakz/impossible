@@ -109,7 +109,7 @@ std::string Instruction::svalue() const
       case OP_NOT: return "~";
       case OP_OR: return "|";
       case OP_RSHIFT: return ">>";
-      case OP_LSHIFT: return ">>";
+      case OP_LSHIFT: return "<<";
         
       case OP_BANG: return "!";
       case OP_DBANG: return "!!";
@@ -291,7 +291,7 @@ void Instruction::execute(VM *vm) const
             auto iv = v1.range()->raw().concretize();
             
             nv.reserve(iv.size());
-            std::transform(iv.begin(), iv.end(), nv.end(), [] (integral_t v) { return Value(v); });
+            std::transform(iv.begin(), iv.end(), std::back_inserter(nv), [] (integral_t v) { return Value(v); });
 
             vm->push(new Array(nv));
             break;
@@ -370,21 +370,6 @@ void Instruction::execute(VM *vm) const
             vm->push((rand()%2 == 0) ? true : false);
             break;
           }
-          case TYPE_RANGE:
-          {
-            auto iv = v1.range()->raw().concretize();
-            integral_t c = Util::randi(0, iv.size());
-            vm->push(iv[c]);
-            break;
-          }
-          case TYPE_ARRAY:
-          case TYPE_LIST:
-          case TYPE_SET:
-          {
-            //TODO: random element
-
-            break;
-          }
           default:
           {
             if (vm->popOne(v2))
@@ -399,7 +384,7 @@ void Instruction::execute(VM *vm) const
                   if (m > M)
                     std::swap(M, M);
 
-                  vm->push((integral_t)Util::randi(m, M));
+                  vm->push(Util::randr(m, M));
                   break;
                 }
               }

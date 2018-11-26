@@ -43,11 +43,23 @@ struct enum_hash
 template <bool B, typename T, T trueval, T falseval>
 struct conditional_value : std::conditional<B, std::integral_constant<T, trueval>, std::integral_constant<T, falseval>>::type { };
 
+#include <random>
+
 class Util
 {
-  public:
-    static inline int randi(int min, int max) { if (max==min) return min; return rand()%(max-min) + min; }
+private:
+  static std::mt19937_64& rnd();
   
+public:
+  static inline int randi(int min, int max) { if (max==min) return min; return rand()%(max-min) + min; }
+  
+  template<typename T> static T randr(T min, T max)
+  {
+    if (max == min)
+      return min;
+    
+    return (rnd()() % (max - min)) + min;
+  }
 };
 
 enum Opcode : u16
@@ -245,7 +257,7 @@ public:
 };
 
 
-// EULER 1    1..1000~[$5//0=%3//0=|]>>+.
+// EULER 1    1..999~[$5//0=%3//0=|]>>+.
 // EULER 2    (?0:[1]1:[1][1<>2<>+])[4kk>~]<>~[2//0=]>>+.
 // EULER 4    1..999$[*]:*.[s$~=]>> >
 

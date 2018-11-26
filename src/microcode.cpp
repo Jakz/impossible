@@ -270,7 +270,7 @@ void registerFunctions(MicroCode& mc)
                     fold(vm, v1, v2.lambda()->code(), true);
                   });
   
-  registerBinary(mc, Topic::COLLECTIONS, "any", "checks if any element of iterable satisfies a lambda", {},
+  registerBinary(mc, Topic::COLLECTIONS, "any", "check if any element of iterable satisfies a lambda", {},
                   { OP_ANY, TRAIT_ITERABLE, TYPE_LAMBDA }, { TYPE_BOOL },
                   [] (VM* vm, V v1, V v2) {
                     Code* code = v2.lambda()->code();
@@ -293,7 +293,7 @@ void registerFunctions(MicroCode& mc)
                     vm->push(false);
                   });
   
-  registerBinary(mc, Topic::COLLECTIONS, "every", "checks if all elements of iterable satisfy a lambda", {},
+  registerBinary(mc, Topic::COLLECTIONS, "every", "check if all elements of iterable satisfy a lambda", {},
                  { OP_EVERY, TRAIT_ITERABLE, TYPE_LAMBDA }, { TYPE_BOOL },
                  [] (VM* vm, V v1, V v2) {
                    Code* code = v2.lambda()->code();
@@ -403,7 +403,7 @@ void registerFunctions(MicroCode& mc)
                    vm->push(new Array(nv));
                  });
   
-  registerUnary(mc, Topic::COLLECTIONS, "min", "find minimum vale in iterable", {},
+  registerUnary(mc, Topic::COLLECTIONS, "min", "find minimum value in iterable", {},
                 {OP_LESSER, TRAIT_ITERABLE }, { TRAIT_ANY_TYPE }, [] (VM* vm, V v1) {
                   Traits::Iterable* iterable = v1.iterable();
                   Iterator it = iterable->iterator();
@@ -423,7 +423,7 @@ void registerFunctions(MicroCode& mc)
                   }
                 });
   
-  registerUnary(mc, Topic::COLLECTIONS, "max", "find maximum vale in iterable", {},
+  registerUnary(mc, Topic::COLLECTIONS, "max", "find maximum value in iterable", {},
                 {OP_GREATER, TRAIT_ITERABLE }, { TRAIT_ANY_TYPE }, [] (VM* vm, V v1) {
                   Traits::Iterable* iterable = v1.iterable();
                   Iterator it = iterable->iterator();
@@ -456,6 +456,17 @@ void registerFunctions(MicroCode& mc)
                    
                    vm->push(new Set(result));
                  
+                 });
+  
+  registerBinary(mc,
+                 Topic::COLLECTIONS, "union", "computes union between two sets",
+                 {},
+                 { OP_OR, TYPE_SET, TYPE_SET }, { TYPE_SET },
+                 [] (VM* vm, V v1, V v2) {
+                   Set::data_t result;
+                   result.insert(v1.set()->raw().begin(), v1.set()->raw().end());
+                   result.insert(v2.set()->raw().begin(), v2.set()->raw().end());
+                   vm->push(new Set(result));                   
                  });
   
   /* fetch from tuple */
@@ -531,10 +542,18 @@ void registerNumericFunctions(MicroCode& mc)
 
   
   /* bitwise */
-  registerBinary(mc, {OP_AND, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(std::bit_and<>()(v1.integral(), v2.integral())); });
-  registerBinary(mc, {OP_OR, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(std::bit_or<>()(v1.integral(), v2.integral())); });
-  registerBinary(mc, {OP_LSHIFT, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(v1.integral() << v2.integral()); });
-  registerBinary(mc, {OP_RSHIFT, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(v1.integral() >> v2.integral()); });
+  registerBinary(mc, Topic::BITWISE, "and", "bitwise and", {}, {OP_AND, TYPE_INT, TYPE_INT}, { TYPE_INT },
+                 [](VM* vm, V v1, V v2) { vm->push(std::bit_and<>()(v1.integral(), v2.integral())); }
+                 );
+  registerBinary(mc, Topic::BITWISE, "or", "bitwise or", {}, {OP_OR, TYPE_INT, TYPE_INT}, { TYPE_INT },
+                 [](VM* vm, V v1, V v2) { vm->push(std::bit_or<>()(v1.integral(), v2.integral())); }
+                 );
+  registerBinary(mc, Topic::BITWISE, "left-shift", "bitwise left shift", {},
+                 {OP_LSHIFT, TYPE_INT, TYPE_INT}, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(v1.integral() << v2.integral()); }
+                 );
+  registerBinary(mc, Topic::BITWISE, "right-shift", "bitwise right shift", {}, {OP_RSHIFT, TYPE_INT, TYPE_INT}, { TYPE_INT },
+                 [](VM* vm, V v1, V v2) { vm->push(v1.integral() >> v2.integral()); }
+                 );
   registerUnary(mc, {OP_NOT, TYPE_INT }, { TYPE_INT }, [](VM* vm, V v) { vm->push(~v.integral()); });
   
   /* logical */
@@ -562,12 +581,12 @@ void registerStackFunctions(MicroCode& mc)
                  [] (VM* vm, const Value& v1, const Value& v2) { vm->push(v2); vm->push(v1); }
                  );
   
-  registerBinary(mc,
+  registerUnary(mc,
                  Topic::STACK, "pick", "copy i-th value from stack to top",
                  {},
-                 { OP_PICK, TRAIT_ANY_TYPE, TYPE_INT }, { TRAIT_ANY_TYPE },
-                 [] (VM* vm, const Value& v1, const Value& v2) {
-                   integral_t i = v1.integral();
+                 { OP_PICK, TYPE_INT }, { TRAIT_ANY_TYPE },
+                 [] (VM* vm, const Value& v) {
+                   integral_t i = v.integral();
                    vm->push(vm->pick(i));
                  });
   
@@ -618,6 +637,22 @@ void registerStringFunctions(MicroCode& mc)
                    {
                      vm->push(new Error(ErrorCode::INVALID_REGEX, e.what()));
                    }
+                 });
+  
+  registerBinary(mc, Topic::TEXT, "partial-match", "verify partial match between a regex and a string", {}, { OP_ANY, TYPE_REGEX, TYPE_STRING }, { TYPE_BOOL },
+                 [] (VM* vm, const Value& v1, const Value& v2)
+                 {
+                   Regex* regex = v1.regex();
+                   String* string = v2.string();
+                   vm->push(std::regex_search(string->raw(), regex->raw()));
+                 });
+  
+  registerBinary(mc, Topic::TEXT, "full-match", "verify full match between a regex and a string", {}, { OP_EVERY, TYPE_REGEX, TYPE_STRING }, { TYPE_BOOL },
+                 [] (VM* vm, const Value& v1, const Value& v2)
+                 {
+                   Regex* regex = v1.regex();
+                   String* string = v2.string();
+                   vm->push(std::regex_match(string->raw(), regex->raw()));
                  });
 }
 

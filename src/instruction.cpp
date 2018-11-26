@@ -898,7 +898,7 @@ void Instruction::execute(VM *vm) const
     {
       if (vm->popOne(v1))
       {
-        vm->push(new Value(new String(v1.svalue())));
+        vm->push(new String(v1.svalue()));
       }
     }
   }

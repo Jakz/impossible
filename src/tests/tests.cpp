@@ -216,4 +216,12 @@ TEST_CASE("collections size")
   executeAndVerifyStack("{1 2}_", 2);
 }
 
+TEST_CASE("project euler")
+{
+  SECTION("problem 1")
+  {
+    auto code = "1..999~[$5//0=%3//0=|]>>+.";
+    executeAndVerifyStack(code, 233168);
+  }
+}
 

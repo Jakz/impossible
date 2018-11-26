@@ -556,12 +556,12 @@ void registerStackFunctions(MicroCode& mc)
                  [] (VM* vm, const Value& v1, const Value& v2) { vm->push(v2); vm->push(v1); }
                  );
   
-  registerBinary(mc,
+  registerUnary(mc,
                  Topic::STACK, "pick", "copy i-th value from stack to top",
                  {},
-                 { OP_PICK, TRAIT_ANY_TYPE, TYPE_INT }, { TRAIT_ANY_TYPE },
-                 [] (VM* vm, const Value& v1, const Value& v2) {
-                   integral_t i = v1.integral();
+                 { OP_PICK, TYPE_INT }, { TRAIT_ANY_TYPE },
+                 [] (VM* vm, const Value& v) {
+                   integral_t i = v.integral();
                    vm->push(vm->pick(i));
                  });
   
@@ -620,6 +620,14 @@ void registerStringFunctions(MicroCode& mc)
                    Regex* regex = v1.regex();
                    String* string = v2.string();
                    vm->push(std::regex_search(string->raw(), regex->raw()));
+                 });
+  
+  registerBinary(mc, Topic::TEXT, "full-match", "verify full match between a regex and a string", {}, { OP_EVERY, TYPE_REGEX, TYPE_STRING }, { TYPE_BOOL },
+                 [] (VM* vm, const Value& v1, const Value& v2)
+                 {
+                   Regex* regex = v1.regex();
+                   String* string = v2.string();
+                   vm->push(std::regex_match(string->raw(), regex->raw()));
                  });
 }
 

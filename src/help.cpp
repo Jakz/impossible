@@ -360,6 +360,9 @@ bool Help::printHelpForType(const std::string& stype)
     {
       const OpHelpEntry& o = it->second;
       
+      if (!o.i[0].isType() && o.i[0].trait() >= TRAIT_ANY_TYPE && o.i[0].trait() <= TRAIT_ANY_TYPE_LAST)
+        continue;
+      
       if (o.i[0].isCompatibleWith(type))
         operations.push_back(it);
     }

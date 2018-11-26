@@ -46,10 +46,8 @@ void VM::run()
       push(i.value());
     else
     {
-      if (microcode.execute(this, i.opcode()))
-        return;
-      
-      i.execute(this);
+      if (!microcode.execute(this, i.opcode()))
+        i.execute(this);
 
     }
     

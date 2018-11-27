@@ -14,18 +14,6 @@
 #include <iomanip>
 #include <sstream>
 
-const Value& String::next() const
-{
-  if (it.it == value.end())
-    return Value::INVALID;
-  else
-  {
-    it.value = *it.it++;
-    return it.value;
-  }
-}
-
-
 void Lambda::put(size_t index, Value value)
 {
   index = std::min(index, _code->size());

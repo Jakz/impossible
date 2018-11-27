@@ -47,25 +47,6 @@ struct CollectionPrinter
   }
 };
 
-bool collectionEquals(const Value& v1, const Value& v2)
-{
-  auto c1 = v1.collection(), c2 = v2.collection();
-  
-  c1->iterate();
-  c2->iterate();
-  
-  while (c1->hasNext())
-  {
-    if (!c2->hasNext())
-      return false;
-  
-    if (c1->next() != c2->next())
-      return false;
-  }
-  
-  return !c2->hasNext();
-}
-
 static const CollectionPrinter<Value> ListPrinter = { "{", "}", " ", [] (const Value& v) { return v.svalue(); } };
 static const CollectionPrinter<Value> StackPrinter = { "{>", "}", " ", [] (const Value& v) { return v.svalue(); } };
 static const CollectionPrinter<Value> QueuePrinter = { "{<", "}", " ", [] (const Value& v) { return v.svalue(); } };

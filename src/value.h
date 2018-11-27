@@ -164,27 +164,8 @@ public:
 class TCollection : public managed_object, public Traits::Countable
 {
 public:
-  virtual void iterate() const = 0;
-  virtual bool hasNext() const = 0;
-
-  virtual const Value& next() const = 0;
-
   virtual void put(Value value) = 0;
   virtual bool empty() const = 0;
-  
-  //TODO: must override for map
-  virtual bool contains(const Value& value)
-  {
-    iterate();
-    
-    while (hasNext())
-    {
-      if (next() == value)
-        return true;
-    }
-    
-    return false;
-  }
 };
 
 #endif

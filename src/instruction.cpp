@@ -12,70 +12,6 @@
 #include <cassert>
 #include <array>
 
-static void fold(TCollection* values, Value& o, Code *code, VM *vm)
-{
-  vm->push(o);
-  
-  values->iterate();
-  while (values->hasNext())
-  {
-    vm->push(values->next());
-    vm->execute(code);
-  }
-  
-  vm->popOne(o);
-}
-
-static void sfold(TCollection* values, Value& o, Code *code, VM *vm)
-{
-  values->iterate();
-  
-  if (values->hasNext())
-  {
-    Value v = values->next();
-    vm->push(v);
-
-    while (values->hasNext())
-    {
-      vm->push(values->next());
-      vm->execute(code);
-    }
-    
-    vm->popOne(o);
-  }
-}
-
-static void doublemap(TCollection* values1, TCollection* values2, TCollection* nvalues, Code *code, VM *vm)
-{
-  Value v1, v2;
-  Value o;
-  
-  values1->iterate();
-  values2->iterate();
-  
-  bool running = values1->hasNext() || values2->hasNext();
-  
-  while (running)
-  {
-    if (values1->hasNext() && values2->hasNext())
-    {
-      vm->push(values1->next());
-      vm->push(values2->next());
-
-      vm->execute(code);
-      
-      if (vm->popOne(o))
-        nvalues->put(o);
-    }
-    else if (values1->hasNext())
-      nvalues->put(values1->next());
-    else if (values2->hasNext())
-      nvalues->put(values2->next());
-    
-    running = values1->hasNext() || values2->hasNext();
-  }
-}
-
 std::string Instruction::svalue() const
 {
   if (_value.type != TYPE_OPCODE)
@@ -264,7 +200,7 @@ void Instruction::execute(VM *vm) const
           {
             const std::string& ov = v1.string()->raw();
             std::string nv = std::string(ov.rbegin(), ov.rend());
-            vm->push(new Value(TYPE_STRING, new String(nv)));
+            vm->push(new String(nv));
             break;
           }
           case TYPE_RANGE:
@@ -659,17 +595,7 @@ void Instruction::execute(VM *vm) const
             Array* array = v1.array();
             Code *code = v2.lambda()->code();
             
-            array->iterate();
-            
-            integral_t i = 0;
-            
-            while (array->hasNext())
-            {
-              auto v = array->next();
-              vm->push(i++);
-              vm->push(v);
-              vm->execute(code);
-            }
+            //TODO: push tuple<index, value>
             break;
           }
           case TYPES(TYPE_MAP, TYPE_LAMBDA):

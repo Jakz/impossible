@@ -166,6 +166,7 @@ public:
     virtual bool hasNext() const = 0;
     virtual void advance() = 0;
     virtual Value value() const = 0;
+    virtual ~Behavior() { }
   };
   
 private:

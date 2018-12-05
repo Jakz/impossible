@@ -21,6 +21,8 @@ class Value;
 class Code
 {
 public:
+  virtual ~Code() { }
+  
   virtual size_t size() const = 0;
   virtual const Instruction& at(size_t i) const = 0;
   

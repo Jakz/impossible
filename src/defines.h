@@ -11,7 +11,8 @@
  * CONFIG
  **************************/
 
-#define USE_PACKED_VALUES false
+#define IMPOSSIBLE_USE_PACKED_VALUES false
+#define IMPOSSIBLE_USE_EXCEPTIONS true
 
 /**************************/
 

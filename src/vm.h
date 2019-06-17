@@ -18,6 +18,8 @@
 
 #include "instruction.h"
 
+#include "types/error.h"
+
 class Instruction;
 class MicroCode;
 
@@ -101,6 +103,7 @@ public:
   {
     if (valueStack->empty())
     {
+      IMPOSSIBLE_THROW(OperandRequiredOnStackException());
       stop();
       return Value::INVALID;
     }
@@ -199,7 +202,7 @@ public:
     stackPreserve = preserve;
   }
   
-  LazyArrayHolder *lazy;
+  const LazyArrayHolder *lazy;
 };
 
 #endif

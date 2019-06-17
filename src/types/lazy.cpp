@@ -49,7 +49,7 @@ void LazyArrayHolder::generateNth(VM* vm, integral_t index) const
   auto it = indices.find(index);
   
   //TODO: hack, make self-reentrant
-  vm->lazy = (LazyArrayHolder*)this;
+  vm->lazy = this;
   this->index = index;
   
   if (it != indices.end())

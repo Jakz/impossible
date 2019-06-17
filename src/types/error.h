@@ -24,3 +24,14 @@ public:
   const std::string& message() { return _message; }
 };
 
+#if IMPOSSIBLE_USE_EXCEPTIONS
+
+class OperandRequiredOnStackException : public std::exception
+{
+  
+};
+
+#define IMPOSSIBLE_THROW(x) throw x;
+#else
+#define IMPOSSIBLE_THROW(x)
+#endif

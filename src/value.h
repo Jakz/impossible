@@ -62,7 +62,7 @@ union value_data
   bool operator==(const value_data& o) const { return i == o.i; }
 };
 
-#if defined(USE_PACKED_VALUES) && USE_PACKED_VALUES
+#if IMPOSSIBLE_USE_PACKED_VALUES
 class __attribute__((packed)) Value final
 #else
 class Value final

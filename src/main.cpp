@@ -39,10 +39,16 @@ int main (int argc, const char * argv[])
   string input;
   bool finished = false;
   
-  /*Code *code = assemble("(?0:[1]1:[1][1<>2<>+])");
-  vm->execute(code);
-  vm->printTopStack();*/
-  
+  input = "(?0:[1]1:[1][1<>2<>+])2@";
+  compiler::Compiler compiler;
+  Code*code = compiler.compile(input);
+  if (code)
+  {
+    vm.execute(code);
+    vm.printTopStack();
+  }
+  return 0;
+
   while (!finished)
   {
     cout << "i>";

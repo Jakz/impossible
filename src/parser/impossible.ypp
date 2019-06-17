@@ -1,0 +1,276 @@
+%skeleton "lalr1.cc"
+%require "3.0.2"
+
+%defines
+%define api.namespace {compiler}
+%define parser_class_name {Parser}
+
+%define api.token.constructor
+%define api.value.type variant
+
+%code requires {
+  namespace compiler
+  {
+    class Compiler;
+    class Lexer;
+  }
+  
+  class Code;
+  class Instruction;
+  
+  #include "value.h"
+  #include "instruction.h"
+
+}
+
+%lex-param { compiler::Lexer &lexer }
+%lex-param { compiler::Compiler &compiler }
+%parse-param { compiler::Lexer &lexer }
+%parse-param { compiler::Compiler &compiler }
+
+%locations
+%define parse.trace
+%define parse.error verbose
+
+%code top
+{
+  #define YYDEBUG 1
+  
+  #include "lexer.h"
+  #include "compiler.h"
+  
+  
+  static compiler::Parser::symbol_type yylex(compiler::Lexer& scanner, compiler::Compiler& compiler)
+  {
+    return scanner.get_next_token();
+  }
+  
+  using namespace compiler;
+}
+
+%token
+  END 0 "end of file"
+  EOL "\n"
+
+  LPAREN "("
+  RPAREN ")"
+  LBRACE "{"
+  RBRACE "}"
+  LBRACK "["
+  RBRACK "]"
+
+  COLON ":"
+  PERIOD "."
+
+  I "i"
+
+  LARRAY_OPEN "(?"
+  STACK_OPEN "{>"
+
+  TUPLE_OPEN "[["
+  TUPLE_CLOSE "]]"
+;
+
+%define api.token.prefix {T_}
+%token <Opcode>
+  DOLLAR "$"
+  PERCENT "%"
+  SEMICOL ";"
+  COMMA ","
+  RISE "(>"
+  SINK "<)"
+
+
+
+  PLUS "+"
+  MINUS "-"
+  DIVIDE "/"
+  TIMES "*"
+  DDIVIDE "//"
+
+  AND "&"
+  OR "|"
+  NOT "~"
+  RSHIFT ">>"
+  LSHIFT "<<"
+  UNDERSCORE "_"
+
+  PLUS_MON "+."
+  PLUS_DIA "+:"
+  MINUS_MON "-."
+  MINUS_DIA "-:"
+  TIMES_MON "*."
+  TIMES_DIA "*:"
+  DIVIDE_MON "/."
+  DIVIDE_DIA "/:"
+
+  RAND "@>"
+  SORT "#>"
+  SHUFFLE "$>"
+
+  AT "@"
+  HASH "#"
+  AT_FRONT "<@"
+  AT_BACK ">@"
+  HASH_FRONT "<#"
+  HASH_BACK ">#"
+
+  MAP ".>."
+  FOLD ":>."
+  DMAP ":>:"
+  ITER ".>"
+  ITERI ".>:"
+  CARTESIAN ":*."
+
+  ANY ".?"
+  EVERY ":?"
+
+  EQUAL "="
+  LESSER "<"
+  GREATER ">"
+
+  BANG "!"
+  DBANG "!!"
+
+  QUESTION "?"
+  DQUESTION "??"
+
+  PEEK "^"
+
+  RECUR "[#]"
+  RECURV "{#}"
+  WHILE "<>"
+
+  S "s"
+;
+
+%token<Opcode> OPCODE
+
+
+%token <Value>
+  INTEGER "integer"
+  FLOAT "float"
+  BOOLEAN "bool"
+  CHARACTER "char"
+  STRING "string"
+  RANGE "range"
+;
+
+%type <Value>
+  lambda "lambda"
+  lazy_array "larray"
+;
+
+
+%type<Code*> start
+
+%type<Value> value
+%type<std::pair<bool, Value>> opt_value "optional_value"
+
+%type<Instruction> instruction
+%type<std::vector<Instruction>> instructions
+
+%type<std::list<Value>> values
+%type<std::list<std::pair<Value, Value>>> value_pairs
+%type<std::list<std::pair<integral_t, Lambda*>>> lazy_pairs
+
+%%
+
+start:
+  instructions { compiler.setCode($1); }
+;
+
+instructions:
+  { $$ = std::vector<Instruction>(); }
+  | instructions instruction { $1.push_back($2); $$ = $1; }
+;
+
+instruction:
+  value { $$ = Instruction($1); }
+  | OPCODE { $$ = Instruction($1); }
+;
+
+values:
+  value { $$ = std::list<Value>(); $$.push_front($1); }
+  | values value { $1.push_back($2); $$ = $1; }
+;
+
+value_pairs:
+  value COLON value { $$ = std::list<std::pair<Value, Value>>(); $$.push_front(std::make_pair($1, $3)); }
+  | value_pairs value COLON value { $1.push_back(std::make_pair($2, $4)); $$ = $1; }
+;
+
+lazy_pairs:
+  { $$ = std::list<std::pair<integral_t, Lambda*>>(); };
+  | lazy_pairs INTEGER COLON lambda { $1.push_back(std::make_pair($2.integral(), $4.lambda())); $$ = $1; }
+;
+
+lazy_array:
+  LARRAY_OPEN lazy_pairs lambda RPAREN {
+    LazyArrayHolder holder($3.lambda(), false);
+    
+    for (const auto& pair : $2)
+      holder.addMap(pair.first, pair.second);
+
+    $$ = new LazyArray(holder);
+  }
+
+  | LARRAY_OPEN I lazy_pairs lambda RPAREN {
+    LazyArrayHolder holder($4.lambda(), true);
+  
+    for (const auto& pair : $3)
+      holder.addMap(pair.first, pair.second);
+  
+    $$ = new LazyArray(holder);
+  }
+
+opt_value:
+  { $$ = std::make_pair(false, Value()); }
+  | value { $$ = std::make_pair(false, $1); }
+;
+
+value:
+  INTEGER { $$ = $1; }
+  | FLOAT { $$ = $1; }
+  | BOOLEAN { $$ = $1; }
+  | CHARACTER { $$ = $1; }
+  | STRING { $$ = $1; }
+  | RANGE { $$ = $1; }
+  
+  | LBRACE values RBRACE { $$ = new List($2); }
+  | LBRACE RBRACE { $$ = new List(); }
+  
+  | STACK_OPEN values RBRACE { $$ = new Stack($2); }
+  | STACK_OPEN RBRACE { $$ = new Stack(); }
+  
+  | LBRACE LESSER values RBRACE { $$ = new Queue($3); }
+  | LBRACE LESSER RBRACE { $$ = new Queue(); }
+  
+  | LBRACE PERIOD values RBRACE {
+      $$ = new Set(Set::set_t($3.begin(), $3.end()));
+    }
+  | LBRACE PERIOD RBRACE { $$ = new Set(); }
+      
+  | LBRACE value_pairs RBRACE { $$ = new Map(Map::map_t($2.begin(), $2.end())); }
+  | LBRACE COLON RBRACE { $$ = new Map(); }
+
+  | TUPLE_OPEN values TUPLE_CLOSE { $$ = new Tuple($2); }
+
+  | LPAREN values RPAREN { $$ = new Array(Array::array_t($2.begin(), $2.end())); }
+  | LPAREN COLON INTEGER opt_value RPAREN { $$ = $4.first ? new Array($3.integral(), $4.second) : new Array($3.integral()); }
+  | LPAREN RPAREN { $$ = new Array(); }
+  
+  | lazy_array { $$ = $1; }
+  | lambda { $$ = $1; }
+;
+    
+lambda:
+    LBRACK instructions RBRACK { $$ = new Lambda(new CodeStandard($2)); }
+;
+
+%%
+
+void compiler::Parser::error(const location_type& l, const std::string& m)
+{
+  compiler.error(l,m);
+}

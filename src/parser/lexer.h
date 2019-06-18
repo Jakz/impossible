@@ -10,6 +10,8 @@
 #undef YY_DECL
 #define YY_DECL compiler::Parser::symbol_type compiler::Lexer::get_next_token()
 
+#define YY_NO_UNISTD_H
+
 #include "parser.hpp"
 
 namespace compiler

@@ -8,8 +8,8 @@
 #include "value.h"
 #include "instruction.h"
 
-#include "regexpr.h"
-#include "error.h"
+#include "types/regexpr.h"
+#include "types/error.h"
 
 #include <iostream>
 #include <iomanip>

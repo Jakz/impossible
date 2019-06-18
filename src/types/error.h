@@ -2,7 +2,7 @@
 
 #include "defines.h"
 
-#include "heap.h"
+#include "vm/heap.h"
 
 enum class ErrorCode
 {

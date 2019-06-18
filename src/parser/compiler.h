@@ -1,7 +1,7 @@
 #pragma once
 
 #include "lexer.h"
-#include "location.hh"
+#include "parser/location.hh"
 #include "parser.hpp"
 
 class Code;

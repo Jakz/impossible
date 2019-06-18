@@ -10,7 +10,7 @@
 #include "semantics.h"
 #include "instruction.h"
 
-#include "error.h"
+#include "types/error.h"
 
 const MicroCode& defaultCode()
 {

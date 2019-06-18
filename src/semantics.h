@@ -1,7 +1,7 @@
 #pragma once
 
 #include "defines.h"
-#include "traits.h"
+#include "types/traits.h"
 #include "vm.h"
 
 #include <array>

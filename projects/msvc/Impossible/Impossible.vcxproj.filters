@@ -1,98 +1,117 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="src">
+      <UniqueIdentifier>{52f1e2ac-4fae-46e4-ae7d-133efb19351b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="src\vm">
+      <UniqueIdentifier>{737cd82f-90d9-420c-9003-abbdd9ab9f9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\types">
+      <UniqueIdentifier>{b6fc49df-249b-45ca-af09-e3977f792120}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\parser">
+      <UniqueIdentifier>{93cdd0da-6f9b-4c91-a407-bbeeba65db2a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\code.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\CompositeValue.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\help.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\instruction.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\lazy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\SimpleValue.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\tests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\TypeTraits.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Value.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Values.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\vm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClInclude Include="..\..\..\src\semantics.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\value.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\vm.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\code.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\collection.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\defines.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\help.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\instruction.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\vm\analysis.h">
+      <Filter>src\vm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\vm\heap.h">
+      <Filter>src\vm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\types\regexpr.h">
+      <Filter>src\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\types\traits.h">
+      <Filter>src\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\types\error.h">
+      <Filter>src\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\types\lazy.h">
+      <Filter>src\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\types\range.h">
+      <Filter>src\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\parser\compiler.h">
+      <Filter>src\parser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\parser\lexer.h">
+      <Filter>src\parser</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\code.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\CompositeValue.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\defines.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\help.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\instruction.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\lazy.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\range.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\SimpleValue.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\tests.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\TypeTraits.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Value.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Values.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\vm.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VTable.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
+    <ClCompile Include="..\..\..\src\value.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\vm.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\code.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\collection.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\help.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\instruction.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\microcode.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\semantics.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\vm\heap.cpp">
+      <Filter>src\vm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\types\traits.cpp">
+      <Filter>src\types</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\types\lazy.cpp">
+      <Filter>src\types</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\parser\compiler.cpp">
+      <Filter>src\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\parser\lexer.cpp">
+      <Filter>src\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\parser\parser.cpp">
+      <Filter>src\parser</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

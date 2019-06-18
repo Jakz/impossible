@@ -19,35 +19,40 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\code.cpp" />
-    <ClCompile Include="..\..\..\CompositeValue.cpp" />
-    <ClCompile Include="..\..\..\help.cpp" />
-    <ClCompile Include="..\..\..\instruction.cpp" />
-    <ClCompile Include="..\..\..\lazy.cpp" />
-    <ClCompile Include="..\..\..\main.cpp" />
-    <ClCompile Include="..\..\..\SimpleValue.cpp" />
-    <ClCompile Include="..\..\..\tests.cpp" />
-    <ClCompile Include="..\..\..\TypeTraits.cpp" />
-    <ClCompile Include="..\..\..\Value.cpp" />
-    <ClCompile Include="..\..\..\Values.cpp" />
-    <ClCompile Include="..\..\..\vm.cpp" />
-    <ClCompile Include="..\..\..\VTable.cpp" />
+    <ClInclude Include="..\..\..\src\code.h" />
+    <ClInclude Include="..\..\..\src\collection.h" />
+    <ClInclude Include="..\..\..\src\defines.h" />
+    <ClInclude Include="..\..\..\src\help.h" />
+    <ClInclude Include="..\..\..\src\instruction.h" />
+    <ClInclude Include="..\..\..\src\parser\compiler.h" />
+    <ClInclude Include="..\..\..\src\parser\lexer.h" />
+    <ClInclude Include="..\..\..\src\semantics.h" />
+    <ClInclude Include="..\..\..\src\types\error.h" />
+    <ClInclude Include="..\..\..\src\types\lazy.h" />
+    <ClInclude Include="..\..\..\src\types\range.h" />
+    <ClInclude Include="..\..\..\src\types\regexpr.h" />
+    <ClInclude Include="..\..\..\src\types\traits.h" />
+    <ClInclude Include="..\..\..\src\value.h" />
+    <ClInclude Include="..\..\..\src\vm.h" />
+    <ClInclude Include="..\..\..\src\vm\analysis.h" />
+    <ClInclude Include="..\..\..\src\vm\heap.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\code.h" />
-    <ClInclude Include="..\..\..\CompositeValue.h" />
-    <ClInclude Include="..\..\..\defines.h" />
-    <ClInclude Include="..\..\..\help.h" />
-    <ClInclude Include="..\..\..\instruction.h" />
-    <ClInclude Include="..\..\..\lazy.h" />
-    <ClInclude Include="..\..\..\range.h" />
-    <ClInclude Include="..\..\..\SimpleValue.h" />
-    <ClInclude Include="..\..\..\tests.h" />
-    <ClInclude Include="..\..\..\TypeTraits.h" />
-    <ClInclude Include="..\..\..\Value.h" />
-    <ClInclude Include="..\..\..\Values.h" />
-    <ClInclude Include="..\..\..\vm.h" />
-    <ClInclude Include="..\..\..\VTable.h" />
+    <ClCompile Include="..\..\..\src\code.cpp" />
+    <ClCompile Include="..\..\..\src\collection.cpp" />
+    <ClCompile Include="..\..\..\src\help.cpp" />
+    <ClCompile Include="..\..\..\src\instruction.cpp" />
+    <ClCompile Include="..\..\..\src\main.cpp" />
+    <ClCompile Include="..\..\..\src\microcode.cpp" />
+    <ClCompile Include="..\..\..\src\parser\compiler.cpp" />
+    <ClCompile Include="..\..\..\src\parser\lexer.cpp" />
+    <ClCompile Include="..\..\..\src\parser\parser.cpp" />
+    <ClCompile Include="..\..\..\src\semantics.cpp" />
+    <ClCompile Include="..\..\..\src\types\lazy.cpp" />
+    <ClCompile Include="..\..\..\src\types\traits.cpp" />
+    <ClCompile Include="..\..\..\src\value.cpp" />
+    <ClCompile Include="..\..\..\src\vm.cpp" />
+    <ClCompile Include="..\..\..\src\vm\heap.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -85,6 +90,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="..\..\..\..\..\..\..\..\Dev\win_flex_bison\custom_build_rules\win_flex_bison\win_flex_bison_custom_build.props" />
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
@@ -119,8 +125,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\src;C:\Dev\win_flex_bison;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4068</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,12 +137,14 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\src;C:\Dev\win_flex_bison;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4068</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,14 +153,16 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\src;C:\Dev\win_flex_bison;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4068</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -161,14 +173,16 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\src;C:\Dev\win_flex_bison;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4068</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -179,5 +193,6 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\..\..\..\..\..\..\..\Dev\win_flex_bison\custom_build_rules\win_flex_bison\win_flex_bison_custom_build.targets" />
   </ImportGroup>
 </Project>

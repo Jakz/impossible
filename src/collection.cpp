@@ -7,7 +7,7 @@
 //
 
 #include "collection.h"
-#include "traits.h"
+#include "types/traits.h"
 #include "instruction.h"
 
 #include <iostream>

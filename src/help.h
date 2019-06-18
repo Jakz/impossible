@@ -183,6 +183,9 @@ public:
   static void printHelpSummary();
   
   static void addOperator(Opcode opcode, const SignatureArguments& input, const SignatureArguments& output, Topic topic, const std::string& name, const std::string& description, const OpHelpEntry::examples_t& examples);
+
+  static decltype(operators)& ops() { return operators; }
+  static decltype(constructors)& constrs() { return constructors; }
 };
 
 #endif

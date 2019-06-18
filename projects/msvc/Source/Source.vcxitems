@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{06766a85-682e-4056-854b-8a23b3e0166c}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\code.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\collection.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\defines.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\help.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\instruction.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\parser\compiler.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\parser\lexer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\semantics.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\types\error.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\types\lazy.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\types\range.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\types\regexpr.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\types\traits.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\value.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\vm.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\vm\analysis.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\vm\heap.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\code.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\collection.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\help.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\instruction.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\microcode.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\parser\compiler.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\parser\lexer.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\parser\parser.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\semantics.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\types\lazy.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\types\traits.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\value.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\vm.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\vm\heap.cpp" />
+  </ItemGroup>
+</Project>

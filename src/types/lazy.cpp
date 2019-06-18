@@ -49,7 +49,8 @@ void LazyArrayHolder::generateNth(VM* vm, integral_t index) const
   auto it = indices.find(index);
   
   //TODO: hack, make self-reentrant
-  vm->lazy = this;
+  vm->pushRecord(ActivationRecord(this));
+
   this->index = index;
   
   if (it != indices.end())
@@ -59,7 +60,7 @@ void LazyArrayHolder::generateNth(VM* vm, integral_t index) const
   
   
   vm->popOne(values[index]);
-  vm->lazy = NULL;
+  vm->popRecord();
 }
 
 const Value& LazyArrayHolder::at(VM* vm, integral_t index) const
@@ -71,6 +72,11 @@ const Value& LazyArrayHolder::at(VM* vm, integral_t index) const
     values.resize(index+1, TYPE_INVALID);
     generateNth(vm, index);
   }
+
+  auto& value = values[index];
+
+  if (!value.valid())
+    generateNth(vm, index);
   
   return values[index];
 }

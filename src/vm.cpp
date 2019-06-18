@@ -18,22 +18,13 @@ const MicroCode& defaultCode()
   return code;
 }
 
-void VM::execute(Code *code)
+void VM::execute(Code* code)
 {
   running = true;
   
-  if (exec.code)
-    callStack.push(exec);
-  
-  exec = ActivationRecord(code);
-  
+  pushRecord(ActivationRecord(code));
   run();
-  
-  if (!callStack.empty())
-  {
-    exec = callStack.top();
-    callStack.pop();
-  }
+  popRecord();
 }
 
 void VM::run()
@@ -41,6 +32,8 @@ void VM::run()
   while (exec.pc < exec.code->size() && running)
   {
     const Instruction& i = exec.code->at(exec.pc);
+
+    std::cout << "Executing " << i.svalue() << std::endl;
     
     if (i.isValue())
       push(i.value());
@@ -48,10 +41,26 @@ void VM::run()
     {
       if (!microcode.execute(this, i.opcode()))
         i.execute(this);
-
     }
     
     ++exec.pc;
+  }
+}
+
+void VM::pushRecord(ActivationRecord&& record)
+{
+  if (exec.code)
+    callStack.push(exec);
+
+  exec = record;
+}
+
+void VM::popRecord()
+{
+  if (!callStack.empty())
+  {
+    exec = callStack.top();
+    callStack.pop();
   }
 }
 

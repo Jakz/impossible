@@ -6,8 +6,10 @@ bool MicroCode::execute(VM* vm, Opcode opcode) const
   const size_t stackSize = vm->stackSize();
   
   Value v1 = Value::INVALID, v2 = Value::INVALID, v3 = Value::INVALID;
+
+  const auto& data = opcodeData[opcode];
   
-  if (opcodeData[opcode].hasTernary && stackSize >= 3)
+  if (data.hasTernary && stackSize >= 3)
   {
     v3 = vm->pop();
     v2 = vm->pop();
@@ -22,7 +24,7 @@ bool MicroCode::execute(VM* vm, Opcode opcode) const
     }
   }
   
-  if (opcodeData[opcode].hasBinary && stackSize >= 2)
+  if (data.hasBinary && stackSize >= 2)
   {
     if (v3.valid())
     {
@@ -44,7 +46,7 @@ bool MicroCode::execute(VM* vm, Opcode opcode) const
     }
   }
   
-  if (opcodeData[opcode].hasUnary && stackSize >= 1)
+  if (data.hasUnary && stackSize >= 1)
   {
     if (v3.valid())
       v1 = v3;

@@ -19,10 +19,6 @@
 #include <string>
 #include <iostream>
 
-
-#define VAR_DECL1(x, z) z* v1 = (z*)x
-#define VAR_DECL2(x, z) z* v2 = (z*)x
-
 using namespace std;
 
 void registerFunctions(MicroCode& mc);

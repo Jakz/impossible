@@ -22,6 +22,15 @@ SignatureArguments normalize(const SignatureArguments& args)
 }
 
 
+void registerNullary(MicroCode& mc, Topic topic, const std::string& name, const std::string& desc,
+                     const std::vector<std::pair<std::string, std::string>>& examples,
+                     Signature signature, SignatureArguments retn,
+                     const decltype(VariantFunction::nullary) && functor)
+{
+  mc.registerNullary({ signature.opcode, normalize(signature.args) }, retn, std::move(functor));
+  Help::addOperator(signature.opcode, signature.args, retn, topic, name, desc, examples);
+}
+
 
 void registerUnary(MicroCode& mc, Topic topic, const std::string& name, const std::string& desc,
                    const std::vector<std::pair<std::string,std::string>>& examples,
@@ -617,6 +626,7 @@ void registerStackFunctions(MicroCode& mc)
                     vm->push(v1);
                     vm->push(v2);
                   });
+
 }
 
 void registerStringFunctions(MicroCode& mc)

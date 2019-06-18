@@ -22,13 +22,19 @@
 
 class Instruction;
 class MicroCode;
+class LazyArrayHolder;
 
 struct ActivationRecord
 {
-  Code *code;
+  Code* code;
+  const LazyArrayHolder* lazy;
   size_t pc;
-  
-  ActivationRecord(Code *code) : code(code), pc(0) { }
+
+  ActivationRecord() : code(nullptr), lazy(nullptr), pc(0) { }
+  ActivationRecord(Code *code) : code(code), lazy(nullptr), pc(0) { }
+  ActivationRecord(const LazyArrayHolder* lazy) : code(nullptr), lazy(lazy), pc(0) { }
+
+  operator bool() const { return lazy || code; }
   
   //void set(Code *code) { this->code = code; pc = 0; }
 };
@@ -52,7 +58,7 @@ private:
   const MicroCode& microcode;
   
 public:
-  VM(MicroCode& microcode) : valueStack(new stack_t()), exec(ActivationRecord(nullptr)), running(false), stackPreserve(false), lazy(NULL), memory(),
+  VM(MicroCode& microcode) : valueStack(new stack_t()), exec(ActivationRecord()), running(false), stackPreserve(false), memory(),
   microcode(microcode)
   {
   }
@@ -61,6 +67,11 @@ public:
   {
     return exec.code;
   }
+
+  void pushRecord(ActivationRecord&& record);
+  void popRecord();
+
+  const auto& record() const { return exec; }
   
   void push(const Value& value)
   {
@@ -201,8 +212,6 @@ public:
   {
     stackPreserve = preserve;
   }
-  
-  const LazyArrayHolder *lazy;
 };
 
 #endif

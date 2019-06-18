@@ -12,6 +12,8 @@
 
 #include "types/error.h"
 
+#define VM_LOG(x) do { std::cout << x << std::endl; } while (false)
+
 const MicroCode& defaultCode()
 {
   static MicroCode code;
@@ -33,12 +35,15 @@ void VM::run()
   {
     const Instruction& i = exec.code->at(exec.pc);
 
-    std::cout << "Executing " << i.svalue() << std::endl;
-    
     if (i.isValue())
+    {
+      VM_LOG("Pushing " << i.svalue());
       push(i.value());
+    }
     else
     {
+      VM_LOG("Executing " << i.svalue());
+      
       if (!microcode.execute(this, i.opcode()))
         i.execute(this);
     }
@@ -49,6 +54,8 @@ void VM::run()
 
 void VM::pushRecord(ActivationRecord&& record)
 {
+  VM_LOG("Pushing record " << (record.lazy ? "lazy" : "code"));
+  
   if (exec.code)
     callStack.push(exec);
 
@@ -59,6 +66,8 @@ void VM::popRecord()
 {
   if (!callStack.empty())
   {
+    VM_LOG("Popping record");
+    
     exec = callStack.top();
     callStack.pop();
   }

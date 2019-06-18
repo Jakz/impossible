@@ -34,6 +34,9 @@ int main (int argc, const char * argv[])
   
   Help::init();
 
+  Help::printVersion();
+  Help::printHelpSummary();
+
   VM vm(mc);
   
   string input;

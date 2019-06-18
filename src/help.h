@@ -179,6 +179,7 @@ public:
   
   static void printUndocumented();
 
+  static void printVersion();
   static void printHelpMain();
   static void printHelpSummary();
   

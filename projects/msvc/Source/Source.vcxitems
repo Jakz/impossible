@@ -48,4 +48,8 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\vm.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\vm\heap.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\..\..\src\parser\impossible.l" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\..\src\parser\impossible.ypp" />
+  </ItemGroup>
 </Project>

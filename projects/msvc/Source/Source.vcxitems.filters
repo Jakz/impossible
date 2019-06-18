@@ -111,4 +111,12 @@
       <Filter>src\parser</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\..\..\src\parser\impossible.l">
+      <Filter>src\parser</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\..\src\parser\impossible.ypp">
+      <Filter>src\parser</Filter>
+    </None>
+  </ItemGroup>
 </Project>

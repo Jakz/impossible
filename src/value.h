@@ -136,7 +136,7 @@ public:
     return ptr;
   }
   
-  TCollection* collection() const; //TODO: temporarily virtual to override in collections
+  TCollection* collection() const;
   
   String* string() const;
   Regex* regex() const;

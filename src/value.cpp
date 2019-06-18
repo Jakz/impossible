@@ -101,7 +101,8 @@ bool Value::operator<(const Value& y) const
         return std::less<bool>()(v1, v2);
       }
         // TODO: collezioni
-      default: return false;
+      default: 
+        return false;
     }
   }
 }

@@ -629,6 +629,30 @@ void registerStackFunctions(MicroCode& mc)
 
 }
 
+#pragma mark Flow Functions
+
+void registerFlowFunctions(MicroCode& mc)
+{
+  registerBinary(mc,
+                 Topic::LOGIC, "if", "executes lambda if value on stack is true",
+                 {},
+                 { OP_QUESTION, TYPE_BOOL, TYPE_LAMBDA }, { },
+                 [] (VM* vm, V v1, V v2) {
+                   if (v1.boolean())
+                     vm->execute(v2.lambda()->code());
+                 });
+  
+  registerTernary(mc,
+                  Topic::LOGIC, "if-else", "executes first lambdfa if value on stack is true, second lambda otherwise",
+                  {},
+                  { OP_DQUESTION, TYPE_BOOL, TYPE_LAMBDA, TYPE_LAMBDA }, { },
+                    if (v1.boolean())
+                    vm->execute(v2.lambda()->code());
+                    else
+                    vm->execute(v3.lambda()->code());
+                  });
+}
+
 void registerStringFunctions(MicroCode& mc)
 {
   registerUnary(mc,

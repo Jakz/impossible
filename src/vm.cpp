@@ -12,7 +12,11 @@
 
 #include "types/error.h"
 
+#if IMPOSSIBLE_VM_LOG
 #define VM_LOG(x) do { std::cout << x << std::endl; } while (false)
+#else
+#define VM_LOG(x) do { } while (false)
+#endif
 
 const MicroCode& defaultCode()
 {

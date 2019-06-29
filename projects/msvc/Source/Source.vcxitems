@@ -51,5 +51,6 @@
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)..\..\..\src\parser\impossible.l" />
     <None Include="$(MSBuildThisFileDirectory)..\..\..\src\parser\impossible.ypp" />
+    <None Include="$(MSBuildThisFileDirectory)PropertySheet.props" />
   </ItemGroup>
 </Project>

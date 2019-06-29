@@ -17,10 +17,15 @@ int main(int argc, char* argv[])
 {
   registerFunctions(mc);
   int result = Catch::Session().run(argc, argv);
+
+#if _WIN32
+  getchar();
+#endif
+
   return result;
 }
 
-#include "compiler.h"
+#include "parser/compiler.h"
 #include "vm.h"
 
 #include <vector>

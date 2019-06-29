@@ -118,5 +118,6 @@
     <None Include="$(MSBuildThisFileDirectory)..\..\..\src\parser\impossible.ypp">
       <Filter>src\parser</Filter>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)PropertySheet.props" />
   </ItemGroup>
 </Project>

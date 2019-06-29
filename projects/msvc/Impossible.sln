@@ -9,9 +9,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Documentation", "Documentat
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Source", "Source\Source.vcxitems", "{06766A85-682E-4056-854B-8A23B3E0166C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tests", "Tests\Tests.vcxproj", "{8364F411-6626-40F5-AC8C-F5CBE6123E63}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Source\Source.vcxitems*{06766a85-682e-4056-854b-8a23b3e0166c}*SharedItemsImports = 9
+		Source\Source.vcxitems*{8364f411-6626-40f5-ac8c-f5cbe6123e63}*SharedItemsImports = 4
 		Source\Source.vcxitems*{858f7f39-832c-4c48-bd4b-7de3e0341dcc}*SharedItemsImports = 4
 		Source\Source.vcxitems*{90b49949-a1d6-4405-a896-ee9cf6b86357}*SharedItemsImports = 4
 	EndGlobalSection
@@ -38,6 +41,14 @@ Global
 		{90B49949-A1D6-4405-A896-EE9CF6B86357}.Release|x64.Build.0 = Release|x64
 		{90B49949-A1D6-4405-A896-EE9CF6B86357}.Release|x86.ActiveCfg = Release|Win32
 		{90B49949-A1D6-4405-A896-EE9CF6B86357}.Release|x86.Build.0 = Release|Win32
+		{8364F411-6626-40F5-AC8C-F5CBE6123E63}.Debug|x64.ActiveCfg = Debug|x64
+		{8364F411-6626-40F5-AC8C-F5CBE6123E63}.Debug|x64.Build.0 = Debug|x64
+		{8364F411-6626-40F5-AC8C-F5CBE6123E63}.Debug|x86.ActiveCfg = Debug|Win32
+		{8364F411-6626-40F5-AC8C-F5CBE6123E63}.Debug|x86.Build.0 = Debug|Win32
+		{8364F411-6626-40F5-AC8C-F5CBE6123E63}.Release|x64.ActiveCfg = Release|x64
+		{8364F411-6626-40F5-AC8C-F5CBE6123E63}.Release|x64.Build.0 = Release|x64
+		{8364F411-6626-40F5-AC8C-F5CBE6123E63}.Release|x86.ActiveCfg = Release|Win32
+		{8364F411-6626-40F5-AC8C-F5CBE6123E63}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

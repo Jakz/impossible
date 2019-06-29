@@ -13,7 +13,7 @@
 
 #define IMPOSSIBLE_USE_PACKED_VALUES false
 #define IMPOSSIBLE_USE_EXCEPTIONS true
-#define IMPOSSIBLE_VM_LOG true
+#define IMPOSSIBLE_VM_LOG false
 
 /**************************/
 

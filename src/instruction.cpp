@@ -531,54 +531,6 @@ void Instruction::execute(VM *vm) const
             }
             break;
           }
-          case TYPES(TYPE_LIST, TYPE_LAMBDA):
-          {
-            const auto& values = v1.list()->raw();
-            Code *c = v2.lambda()->code();
-            std::list<Value*>::iterator it;
-            
-            List::utype_t ot, of;
-            
-            for (const auto& v : values)
-            {
-              vm->push(v);
-              vm->execute(c);
-              
-              if (vm->popOne(v3) && v3.type.traits().to_bool(v3))
-                ot.push_back(v);
-              else
-                of.push_back(v);
-            }
-            
-            vm->push(new List(of));
-            vm->push(new List(ot));
-            break;
-            
-          }
-          case TYPES(TYPE_ARRAY, TYPE_LAMBDA):
-          {
-            const auto& values = v1.array()->raw();
-            Code *c = v2.lambda()->code();
-            std::list<Value*>::iterator it;
-            
-            Array::utype_t ot, of;
-            
-            for (const auto& v : values)
-            {
-              vm->push(v);
-              vm->execute(c);
-              
-              if (vm->popOne(v3) && v3.type.traits().to_bool(v3))
-                ot.push_back(v);
-              else
-                of.push_back(v);
-            }
-            
-            vm->push(new Array(of));
-            vm->push(new Array(ot));
-            break;
-            
-          }
           case TYPES(TYPE_LAZY_ARRAY, TYPE_LAMBDA):
           {
             u32 s = 0;

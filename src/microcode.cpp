@@ -327,13 +327,48 @@ void registerFunctions(MicroCode& mc)
                  });
 
   registerBinary(mc, Topic::COLLECTIONS, "append", "add an element to an appendable collection, following semantics of the collection", {}, 
-    { OP_HASH, TRAIT_ITERABLE, TRAIT_ANY_TYPE }, { TRAIT_ITERABLE },
-    [](VM* vm, V v1, V v2) {
-      Traits::Appendable* appendable = v1.appendable();
-      appendable->put(v2);
-      vm->pushCollection(v1);
-    });
-  
+                 { OP_HASH, TRAIT_ITERABLE, TRAIT_ANY_TYPE }, { TRAIT_ITERABLE },
+                 [](VM* vm, V v1, V v2) {
+                   Traits::Appendable* appendable = v1.appendable();
+                   appendable->put(v2);
+                   vm->pushCollection(v1);
+                 });
+
+  registerBinary(mc, Topic::COLLECTIONS, "partition", "partition an iterable collection according to a predicate", {},
+                 { OP_WHILE, TRAIT_ITERABLE, TYPE_LAMBDA }, { TYPE_MAP },
+                 [](VM* vm, V v1, V v2) {
+                   Traits::Iterable* iterable = v1.iterable();
+                   Code* code = v2.lambda()->code();
+        
+                   std::unordered_map<Value, Value, Value::hash> partitions;
+        
+                   auto it = iterable->iterator();
+                   while (it)
+                   {
+                     vm->push(*it);
+                     vm->execute(code);
+        
+                     Value v = vm->pop();
+         
+                     Traits::Appendable* partition = nullptr;
+        
+                     auto pit = partitions.find(v);
+
+                     if (pit == partitions.end())
+                     {
+                       auto destination = v1.type.traits().to_collector(0);
+                       partition = destination.second;
+                       partitions.emplace(std::make_pair(v, Value(destination.first, dynamic_cast<managed_object*>(destination.second))));
+                     }
+                     else
+                       partition = pit->second.appendable();
+        
+                     partition->put(*it);
+                     ++it;
+                   }
+        
+                   vm->push(new Map(std::move(partitions)));
+                 });
   
   std::initializer_list<std::tuple<Opcode, Opcode, Opcode, std::string>> embedded_helpers = {
     std::make_tuple( OP_PLUS_DIA, OP_PLUS_MON, OP_PLUS, "sum" ),

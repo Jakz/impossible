@@ -8,7 +8,8 @@ enum class ErrorCode
 {
   OPERAND_REQUIRED_ON_STACK,
   VALUE_REQUIRED_IN_ITERABLE,
-  INVALID_REGEX
+  INVALID_REGEX,
+  INDEX_OUT_OF_BOUNDS
 };
 
 class Error : public managed_object

@@ -26,34 +26,44 @@ class Traits
 public:
   class Countable
   {
-  public: virtual integral_t size() const = 0;
+  public:
+    virtual integral_t size() const = 0;
+    virtual ~Countable() { }
   };
   
   class Indexable
   {
-  public: virtual Value at(integral_t index) const = 0;
+  public:
+    virtual Value at(integral_t index) const = 0;
+    virtual ~Indexable() { }
   };
   
   class Appendable
   {
-  public: virtual void put(Value value) = 0;
+  public:
+    virtual void put(Value value) = 0;
+    virtual ~Appendable() { }
   };
 
   class Poppable
   {
-  public: virtual Value pop() = 0;
+  public:
+    virtual Value pop() = 0;
+    virtual ~Poppable() { }
   };
   
   class Iterable
   {
   public:
     virtual Iterator iterator() const = 0;
+    virtual ~Iterable() { }
   };
   
   class Lookupable
   {
   public:
     virtual std::pair<bool, Value> find(const Value& value) const = 0;
+    virtual ~Lookupable() { }
   };
 };
 

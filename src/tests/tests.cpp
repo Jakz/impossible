@@ -226,31 +226,41 @@ TEST_CASE("trait soundness for types")
   for (const auto& type : TypeTraits::traits())
   {
     Trait trait = static_cast<Trait>(TRAIT_SENTINEL - 1);
-    auto value = type.second.to_collector(0).second;
+    Traits::Appendable* value = type.second.to_collector(0).second;
     
-    while (trait > 0)
+    while (trait > 0 && value)
     {
       bool hasTrait = type.second.traits && trait;
-      INFO("testing type " << type.second.name);
-      
-      if (hasTrait)
+      bool hasDynamicTrait = false;
+      bool shouldCheck = true;
+      INFO("testing type " << type.second.name << " for " << TypeTraits::nameForSignatureType(SignatureType(trait)));
+
+
+      switch (trait)
       {
-        switch (trait)
-        {
-          case TRAIT_COUNTABLE: REQUIRE(dynamic_cast<Traits::Countable*>(value)); break;
-          case TRAIT_INDEXABLE: REQUIRE(dynamic_cast<Traits::Indexable*>(value)); break;
-          case TRAIT_ITERABLE: REQUIRE(dynamic_cast<Traits::Iterable*>(value)); break;
-          case TRAIT_APPENDABLE: REQUIRE(dynamic_cast<Traits::Appendable*>(value)); break;
-          case TRAIT_POPPABLE: REQUIRE(dynamic_cast<Traits::Poppable*>(value)); break;
-          case TRAIT_LOOKUPABLE: REQUIRE(dynamic_cast<Traits::Lookupable*>(value)); break;
-            
-          case TRAIT_SENTINEL:
-          case TRAIT_ANY_TYPE: case TRAIT_ANY_TYPE2: case TRAIT_ANY_TYPE3:
-          case TRAIT_ANY_TYPE_LAST: case TRAIT_SPECIFIC_TYPE:
-            break;
-        }
+      case TRAIT_COUNTABLE: 
+        hasDynamicTrait = dynamic_cast<Traits::Countable*>(value); break;
+      case TRAIT_INDEXABLE: 
+        hasDynamicTrait = dynamic_cast<Traits::Indexable*>(value); break;
+      case TRAIT_ITERABLE:
+        hasDynamicTrait = dynamic_cast<Traits::Iterable*>(value); break;
+      case TRAIT_APPENDABLE:
+        hasDynamicTrait = dynamic_cast<Traits::Appendable*>(value); break;
+      case TRAIT_POPPABLE:
+        hasDynamicTrait = dynamic_cast<Traits::Poppable*>(value); break;
+      case TRAIT_LOOKUPABLE:
+        hasDynamicTrait = dynamic_cast<Traits::Lookupable*>(value); break;
+
+      case TRAIT_SENTINEL:
+      case TRAIT_ANY_TYPE: case TRAIT_ANY_TYPE2: case TRAIT_ANY_TYPE3:
+      case TRAIT_ANY_TYPE_LAST: case TRAIT_SPECIFIC_TYPE:
+        shouldCheck = false;
+        break;
       }
       
+      if (shouldCheck)
+        REQUIRE((hasTrait == hasDynamicTrait || !hasTrait));
+  
       trait = static_cast<Trait>(trait >> 1);
     }
     

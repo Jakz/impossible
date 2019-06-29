@@ -129,7 +129,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
 
   
   { TYPE_TUPLE,
-    { TYPE_TUPLE, { TRAIT_INDEXABLE, TRAIT_COUNTABLE }, "tuple",
+    { TYPE_TUPLE, { TRAIT_INDEXABLE, TRAIT_ITERABLE, TRAIT_COUNTABLE }, "tuple",
       [] (const Value& v) { return TuplePrinter.svalue(v.tuple()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_TUPLE && v2.tuple()->raw() == v2.tuple()->raw(); }
     }
@@ -376,6 +376,7 @@ std::string TypeTraits::nameForTrait(Trait trait)
     { Trait::TRAIT_INDEXABLE, "indexable" },
     { Trait::TRAIT_ITERABLE, "iterable" },
     { Trait::TRAIT_APPENDABLE, "appendable" },
+    { Trait::TRAIT_POPPABLE, "poppable" },
     { Trait::TRAIT_LOOKUPABLE, "lookupable" },
 
   };

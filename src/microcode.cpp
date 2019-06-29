@@ -9,6 +9,7 @@ using V = const Value&;
 void registerStackFunctions(MicroCode& mc);
 void registerNumericFunctions(MicroCode& mc);
 void registerStringFunctions(MicroCode& mc);
+void registerFlowFunctions(MicroCode& mc);
 
 SignatureArguments normalize(const SignatureArguments& args)
 {
@@ -324,6 +325,14 @@ void registerFunctions(MicroCode& mc)
                    
                    vm->push(true);
                  });
+
+  registerBinary(mc, Topic::COLLECTIONS, "append", "add an element to an appendable collection, following semantics of the collection", {}, 
+    { OP_HASH, TRAIT_ITERABLE, TRAIT_ANY_TYPE }, { TRAIT_ITERABLE },
+    [](VM* vm, V v1, V v2) {
+      Traits::Appendable* appendable = v1.appendable();
+      appendable->put(v2);
+      vm->pushCollection(v1);
+    });
   
   
   std::initializer_list<std::tuple<Opcode, Opcode, Opcode, std::string>> embedded_helpers = {
@@ -482,11 +491,10 @@ void registerFunctions(MicroCode& mc)
   registerUnary(mc, {OP_ANY, TYPE_TUPLE}, { TRAIT_ANY_TYPE }, [](VM* vm, V v1) { vm->push(v1.tuple()->at(0)); });
   registerUnary(mc, {OP_EVERY, TYPE_TUPLE}, { TRAIT_ANY_TYPE }, [](VM* vm, V v1) { vm->push(v1.tuple()->at(1)); });
 
-  
-
   registerStackFunctions(mc);
   registerNumericFunctions(mc);
   registerStringFunctions(mc);
+  registerFlowFunctions(mc);
 }
 
 namespace math
@@ -646,10 +654,11 @@ void registerFlowFunctions(MicroCode& mc)
                   Topic::LOGIC, "if-else", "executes first lambdfa if value on stack is true, second lambda otherwise",
                   {},
                   { OP_DQUESTION, TYPE_BOOL, TYPE_LAMBDA, TYPE_LAMBDA }, { },
+                  [] (VM* vm, V v1, V v2, V v3) {
                     if (v1.boolean())
-                    vm->execute(v2.lambda()->code());
+                      vm->execute(v2.lambda()->code());
                     else
-                    vm->execute(v3.lambda()->code());
+                      vm->execute(v3.lambda()->code());
                   });
 }
 

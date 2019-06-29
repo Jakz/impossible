@@ -53,6 +53,7 @@ Error* Value::error() const { assert(type == TYPE_ERROR); return object<Error>()
 
 Traits::Indexable* Value::indexable() const { return object<Traits::Indexable>(); }
 Traits::Iterable* Value::iterable() const { return object<Traits::Iterable>(); }
+Traits::Appendable* Value::appendable() const { return object<Traits::Appendable>(); }
 
 
 Value Value::INVALID = Value(TYPE_INVALID);

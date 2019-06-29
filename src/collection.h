@@ -147,7 +147,7 @@ class List : public TCollection, public Traits::Iterable, public Traits::Appenda
 public:
   using list_t = std::list<Value>;
   using utype_t = list_t;
-private:
+protected:
   list_t data;
   
 public:
@@ -196,6 +196,7 @@ public:
   Stack() : List() { }
   Stack(const std::list<Value>& data) : List(data) { }
 
+  void put(Value value) override { data.push_front(value); }
 };
 
 class Queue : public List
@@ -203,6 +204,8 @@ class Queue : public List
 public:
   Queue() : List() { }
   Queue(const std::list<Value>& data) : List(data) { }
+
+  void put(Value value) override { data.push_back(value); }
 };
 
 #pragma mark Array

@@ -3,7 +3,7 @@
 
 %defines
 %define api.namespace {compiler}
-%define parser_class_name {Parser}
+%define api.parser.class {Parser}
 
 %define api.token.constructor
 %define api.value.type variant
@@ -66,6 +66,7 @@
 
   LARRAY_OPEN "(?"
   STACK_OPEN "{>"
+  QUEUE_OPEN "{<"
 
   TUPLE_OPEN "[["
   TUPLE_CLOSE "]]"
@@ -243,8 +244,8 @@ value:
   | STACK_OPEN values RBRACE { $$ = new Stack($2); }
   | STACK_OPEN RBRACE { $$ = new Stack(); }
   
-  | LBRACE LESSER values RBRACE { $$ = new Queue($3); }
-  | LBRACE LESSER RBRACE { $$ = new Queue(); }
+  | QUEUE_OPEN values RBRACE { $$ = new Queue($2); }
+  | QUEUE_OPEN RBRACE { $$ = new Queue(); }
   
   | LBRACE PERIOD values RBRACE {
       $$ = new Set(Set::set_t($3.begin(), $3.end()));

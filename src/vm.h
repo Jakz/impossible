@@ -58,7 +58,7 @@ private:
   const MicroCode& microcode;
   
 public:
-  VM(MicroCode& microcode) : valueStack(new stack_t()), exec(ActivationRecord()), running(false), stackPreserve(false), memory(),
+  VM(MicroCode& microcode) : valueStack(new stack_t()), exec(ActivationRecord()), running(false), stackPreserve(true), memory(),
   microcode(microcode)
   {
   }
@@ -68,11 +68,15 @@ public:
     return exec.code;
   }
 
+  bool preserveCollectionOnStack() const { return stackPreserve; }
+
   void pushRecord(ActivationRecord&& record);
   void popRecord();
 
   const auto& record() const { return exec; }
   
+  void pushCollection(const Value& value) { if (preserveCollectionOnStack()) push(value); }
+
   void push(const Value& value)
   {
     valueStack->push_back(value);

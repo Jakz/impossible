@@ -157,41 +157,6 @@ void Instruction::execute(VM *vm) const
       }
       break;
     }
-   
-    case OP_QUESTION:
-    {
-      if (vm->popTwo(v1, v2))
-      {
-        {
-          switch (TYPES(v1.type, v2.type))
-          {
-            case TYPES(TYPE_BOOL,TYPE_LAMBDA):
-            {
-              if (v1.boolean())
-                vm->execute(v2.lambda()->code());
-              break;
-            }
-          }
-
-        }
-      }
-      break;
-    }
-    case OP_DQUESTION:
-    {
-      if (vm->popThree(v1, v2, v3))
-      {
-        if (v1.type == TYPE_BOOL && v2.type == TYPE_LAMBDA && v3.type == TYPE_LAMBDA)
-        {
-          if (v1.boolean())
-            vm->execute(v2.lambda()->code());
-          else
-            vm->execute(v3.lambda()->code());
-        }
-      }
-      break;
-    }
-      
 
     case OP_PEEK:
     {
@@ -381,54 +346,32 @@ void Instruction::execute(VM *vm) const
       
     case OP_HASH:
     {
-      if (vm->popTwo(v2, v3))
+      if (vm->popThree(v1, v2, v3))
       {
-        if (v2.type == TYPE_SET)
+        if (v1.type == TYPE_MAP)
         {
-          Set *set = v2.set();
-          set->put(v3);
-          vm->push(v2);
-        }
-        else if (v2.type == TYPE_STACK)
-        {
-          v2.stack()->raw().push_front(v3);
-          vm->push(v2);
-        }
-        else if (v2.type == TYPE_QUEUE)
-        {
-          v2.queue()->raw().push_back(v3);
-          vm->push(v2);
+          v1.map()->raw().emplace(std::make_pair(v2, v3));
+          vm->push(v1);
         }
         else
-        {
-          if (vm->popOne(v1))
+        {            
+          switch (TYPES(v1.type, v2.type))
           {
-            if (v1.type == TYPE_MAP)
+            case TYPES(TYPE_ARRAY, TYPE_INT):
             {
-              v1.map()->raw().emplace(std::make_pair(v2, v3));
+              auto& values = v1.array()->raw();
+              integral_t i = v2.integral();
+                  
+              if (i >= values.size() && i >= values.capacity())
+                values.resize(i+1, Value());
+                  
+              values[v2.integral()] = v3;
+                  
               vm->push(v1);
-            }
-            else
-            {            
-              switch (TYPES(v1.type, v2.type))
-              {
-                case TYPES(TYPE_ARRAY, TYPE_INT):
-                {
-                  auto& values = v1.array()->raw();
-                  integral_t i = v2.integral();
-                  
-                  if (i >= values.size() && i >= values.capacity())
-                    values.resize(i+1, Value());
-                  
-                  values[v2.integral()] = v3;
-                  
-                  vm->push(v1);
-                  break;
-                }
-              }
+              break;
             }
           }
-        }      
+        }  
       }
       break;
     }

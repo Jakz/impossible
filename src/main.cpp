@@ -38,7 +38,7 @@ int main (int argc, const char * argv[])
   string input;
   bool finished = false;
   
-  input = "(?0:[1]1:[1][1<>2<>+])2@";
+  /*input = "(?0:[1]1:[1][1<>2<>+])2@";
   compiler::Compiler compiler;
   Code*code = compiler.compile(input);
   if (code)
@@ -46,7 +46,7 @@ int main (int argc, const char * argv[])
     vm.execute(code);
     vm.printTopStack();
   }
-  return 0;
+  return 0;*/
 
   while (!finished)
   {

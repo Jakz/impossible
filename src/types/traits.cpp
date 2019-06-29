@@ -417,17 +417,3 @@ std::string TypeTraits::nameForSignatureType(SignatureType type)
     return name;
   }
 }
-
-void TypeTraits::verifySoundness()
-{
-  for (const auto& type : specs)
-  {
-    Trait trait = static_cast<Trait>(TRAIT_SENTINEL - 1);
-    
-    while (trait > 0)
-    {
-      bool hasTrait = type.second.traits && trait;
-      //TODO: finish
-    }
-  }
-}

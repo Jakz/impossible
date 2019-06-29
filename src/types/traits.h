@@ -113,6 +113,8 @@ public:
     return it->second;
   }
   
+  static const decltype(specs)& traits() { return specs; }
+  
   static std::string nameForTrait(Trait trait);
   static std::string nameForSignatureType(SignatureType type);
 
@@ -124,8 +126,6 @@ public:
     
     return TYPE_INVALID;
   }
-  
-  static void verifySoundness();
 };
 
 class TypeInfo

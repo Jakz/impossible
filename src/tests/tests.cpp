@@ -221,6 +221,43 @@ TEST_CASE("collections size")
   executeAndVerifyStack("{1 2}_", 2);
 }
 
+TEST_CASE("trait soundness for types")
+{
+  for (const auto& type : TypeTraits::traits())
+  {
+    Trait trait = static_cast<Trait>(TRAIT_SENTINEL - 1);
+    auto value = type.second.to_collector(0).second;
+    
+    while (trait > 0)
+    {
+      bool hasTrait = type.second.traits && trait;
+      INFO("testing type " << type.second.name);
+      
+      if (hasTrait)
+      {
+        switch (trait)
+        {
+          case TRAIT_COUNTABLE: REQUIRE(dynamic_cast<Traits::Countable*>(value)); break;
+          case TRAIT_INDEXABLE: REQUIRE(dynamic_cast<Traits::Indexable*>(value)); break;
+          case TRAIT_ITERABLE: REQUIRE(dynamic_cast<Traits::Iterable*>(value)); break;
+          case TRAIT_APPENDABLE: REQUIRE(dynamic_cast<Traits::Appendable*>(value)); break;
+          case TRAIT_POPPABLE: REQUIRE(dynamic_cast<Traits::Poppable*>(value)); break;
+          case TRAIT_LOOKUPABLE: REQUIRE(dynamic_cast<Traits::Lookupable*>(value)); break;
+            
+          case TRAIT_SENTINEL:
+          case TRAIT_ANY_TYPE: case TRAIT_ANY_TYPE2: case TRAIT_ANY_TYPE3:
+          case TRAIT_ANY_TYPE_LAST: case TRAIT_SPECIFIC_TYPE:
+            break;
+        }
+      }
+      
+      trait = static_cast<Trait>(trait >> 1);
+    }
+    
+    delete value;
+  }
+}
+
 TEST_CASE("project euler")
 {
   SECTION("problem 1")

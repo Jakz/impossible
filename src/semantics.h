@@ -33,6 +33,11 @@ public:
   {
     return (isType() && this->type() == type) || (!isType() && TypeInfo(type).operator<(trait()));
   }
+
+  struct hash
+  {
+    size_t operator()(const SignatureType& v) const { return static_cast<size_t>(v.value); }
+  };
 };
 
 using ArgumentType = Type;

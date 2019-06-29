@@ -352,6 +352,7 @@ void registerFunctions(MicroCode& mc)
          
                      Traits::Appendable* partition = nullptr;
         
+                     /* search group for value returned by lambda or generate new one */
                      auto pit = partitions.find(v);
 
                      if (pit == partitions.end())
@@ -523,8 +524,8 @@ void registerFunctions(MicroCode& mc)
                  });
   
   /* fetch from tuple */
-  registerUnary(mc, {OP_ANY, TYPE_TUPLE}, { TRAIT_ANY_TYPE }, [](VM* vm, V v1) { vm->push(v1.tuple()->at(0)); });
-  registerUnary(mc, {OP_EVERY, TYPE_TUPLE}, { TRAIT_ANY_TYPE }, [](VM* vm, V v1) { vm->push(v1.tuple()->at(1)); });
+  registerUnary(mc, Topic::COLLECTIONS, "first", "get first element from tuple", {}, { OP_ANY, TYPE_TUPLE }, { TRAIT_ANY_TYPE }, [](VM* vm, V v1) { vm->push(v1.tuple()->at(0)); });
+  registerUnary(mc, Topic::COLLECTIONS, "second", "get second element from tuple", {}, { OP_EVERY, TYPE_TUPLE }, { TRAIT_ANY_TYPE }, [](VM* vm, V v1) { vm->push(v1.tuple()->at(1)); });
 
   registerStackFunctions(mc);
   registerNumericFunctions(mc);
@@ -566,14 +567,14 @@ void registerNumericFunctions(MicroCode& mc)
 
   registerUnary(mc, {OP_NOT, TYPE_FLOAT }, { TYPE_FLOAT }, [](VM* vm, V v) { vm->push(1.0 / v.real()); });
   
-  registerBinary(mc, {OP_MOD, TYPE_INT, TYPE_INT }, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(v1.integral() % v2.integral()); });
-  registerUnary(mc, {OP_MOD, TYPE_FLOAT }, { TYPE_TUPLE }, [](VM* vm, V v) {
+  registerBinary(mc, Topic::NUMERICS, "mod", "modulus of integral division", {}, {OP_MOD, TYPE_INT, TYPE_INT }, { TYPE_INT }, [](VM* vm, V v1, V v2) { vm->push(v1.integral() % v2.integral()); });
+  registerUnary(mc, Topic::NUMERICS, "mod", "tuple containing integral and fractional part of real number", {}, {OP_MOD, TYPE_FLOAT }, { TYPE_TUPLE }, [](VM* vm, V v) {
     real_t i, f;
     f = modf(v.real(), &i);
     vm->push(new Tuple(i, f));
   });
   
-  registerUnary(mc, {OP_BANG, TYPE_INT}, { TYPE_INT }, [](VM* vm, V vv) {
+  registerUnary(mc, Topic::NUMERICS, "factorial", "factorial of integral", {}, {OP_BANG, TYPE_INT}, { TYPE_INT }, [](VM* vm, V vv) {
     integral_t res = 1;
     integral_t v = vv.integral();
     while (v > 1) res *= v--;

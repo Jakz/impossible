@@ -28,13 +28,26 @@ int main(int argc, char* argv[])
   registerFunctions(mc);
   Help::init();
 
-  /*
+
+  std::unordered_map<SignatureType, std::vector<OpHelpEntry>, SignatureType::hash> operatorsByType;
+  
   const auto& operators = Help::ops();
   for (const auto& entry : operators)
   {
-    std::cout << entry.first << std::endl;
+    if (entry.second.i.count() > 0)
+      operatorsByType[entry.second.i[0]].push_back(entry.second);
   }
-  */
+
+  for (auto& entry : operatorsByType)
+  {
+    std::sort(entry.second.begin(), entry.second.end(), [](const OpHelpEntry& e1, const OpHelpEntry& e2) { return e1.ident < e2.ident; });
+
+    std::cout << TypeTraits::nameForSignatureType(entry.first) << std::endl;
+    for (const auto& op : entry.second)
+      std::cout << "  " << op.ident << std::endl;
+    std::cout << std::endl;
+  }
+  
 
   getchar();
 

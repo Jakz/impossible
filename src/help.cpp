@@ -159,8 +159,6 @@ void Help::init()
   
   addOperator("<>", OpHelpEntry::binary(TYPE_LAMBDA, TYPE_LAMBDA, TYPE_UNKNOWN, "while", Topic::FUNCTIONAL, "executes second lambda while first lambda evaluates to true", "", ""));
   addOperator("<>", OpHelpEntry::binary(TYPE_INT, TYPE_LAMBDA, TYPE_UNKNOWN, "counter", Topic::FUNCTIONAL, "executes second lambda a number of times specified by integer", "", ""));
-  addOperator("<>", OpHelpEntry::binaryO(TYPE_LIST, TYPE_LAMBDA, TYPE_LIST, TYPE_LIST, "partition", Topic::COLLECTIONS, "partition a list according to predicate given by lambda", "", ""));
-  addOperator("<>", OpHelpEntry::binaryO(TYPE_ARRAY, TYPE_LAMBDA, TYPE_ARRAY, TYPE_ARRAY, "partition", Topic::COLLECTIONS, "partition an array according to predicate given by lambda", "", ""));
   addOperator("<>", OpHelpEntry::binary(TYPE_LAZY_ARRAY, TYPE_LAMBDA, TYPE_LAZY_ARRAY, "generate", Topic::COLLECTIONS, "generates terms from a lazy array until predicate over the value becomes false", "", ""));
   addOperator("<>", OpHelpEntry::binary(TYPE_LAZY_ARRAY, TYPE_INT, TYPE_LAZY_ARRAY, "generate", Topic::COLLECTIONS, "generates terms until size of the lazy array is equal to specified integer", "", ""));
   addOperator("<>", OpHelpEntry::unary(TYPE_INT, TYPE_GENERIC, "inner get", Topic::FUNCTIONAL, "(ONLY AVAILABLE INSIDE A LAZY LIST DECLARATION) fetches a previous element from the lazy list", "", ""));

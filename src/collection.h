@@ -33,7 +33,7 @@ public:
   Value value() const override { return *this->it; }
 };
 
-class String final : public TCollection, public Traits::Indexable, public Traits::Iterable, public Traits::Appendable
+class String final : public TCollection, public Traits::Indexable, public Traits::Iterable, public Traits::Appendable, public Traits::Poppable
 {
 public:
   using data_t = std::string;
@@ -50,6 +50,7 @@ public:
   integral_t size() const override { return value.length(); }
   Value at(integral_t index) const override { return value[index]; }
   void put(Value v) override { value.append(v.svalue()); }
+  Value pop() override { auto last = value.back(); value.pop_back(); return last; } //TODO: push error if string empty
   Iterator iterator() const override { return Iterator(new IteratorWrapper<std::string>(value)); }
   
   const std::string& raw() const { return value; }
@@ -142,7 +143,7 @@ public:
   const RangeVector& raw() const { return data; }
 };
 
-class List : public TCollection, public Traits::Iterable, public Traits::Appendable, public Traits::Lookupable
+class List : public TCollection, public Traits::Iterable, public Traits::Appendable, public Traits::Poppable, public Traits::Lookupable
 {
 public:
   using list_t = std::list<Value>;
@@ -157,6 +158,7 @@ public:
   virtual integral_t size() const override { return data.size(); }
   virtual bool empty() const override { return data.empty(); }
   void put(Value value) override { data.push_back(value); }
+  Value pop() override { auto last = data.back(); data.pop_back(); return last; } //TODO: push error if string empty
   Iterator iterator() const override { return Iterator(new IteratorWrapper<std::list<Value>>(data)); }
   std::pair<bool, Value> find(const Value& v) const override { return std::make_pair(std::find(data.begin(), data.end(), v) != data.end(), v); }
   
@@ -193,10 +195,13 @@ public:
 class Stack : public List
 {
 public:
+  //TODO: push and pop are not efficient since they're going front, we sohuld use push_back and iterate it in reverse order
   Stack() : List() { }
   Stack(const std::list<Value>& data) : List(data) { }
 
   void put(Value value) override { data.push_front(value); }
+  Value pop() override { auto last = data.back(); data.pop_front(); return last; } //TODO: push error if string empty
+
 };
 
 class Queue : public List
@@ -206,10 +211,11 @@ public:
   Queue(const std::list<Value>& data) : List(data) { }
 
   void put(Value value) override { data.push_back(value); }
+  Value pop() override { auto last = data.back(); data.pop_back(); return last; } //TODO: push error if string empty
 };
 
 #pragma mark Array
-class Array : public TCollection, public Traits::Indexable, public Traits::Iterable, public Traits::Appendable
+class Array : public TCollection, public Traits::Indexable, public Traits::Iterable, public Traits::Poppable, public Traits::Appendable
 {
 public:
   using array_t = std::vector<Value>;
@@ -229,6 +235,7 @@ public:
   virtual bool empty() const override { return this->data.empty(); }
   
   void put(Value v) override { this->data.push_back(v); }
+  Value pop() override { auto last = data.back(); data.pop_back(); return last; } //TODO: push error if string empty
   Value at(integral_t index) const override { return data[index]; }
   Iterator iterator() const override { return Iterator(new IteratorWrapper<std::vector<Value>>(data)); }
   

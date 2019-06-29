@@ -326,13 +326,21 @@ void registerFunctions(MicroCode& mc)
                    vm->push(true);
                  });
 
-  registerBinary(mc, Topic::COLLECTIONS, "append", "add an element to an appendable collection, following semantics of the collection", {}, 
+  registerBinary(mc, Topic::COLLECTIONS, "append", "add an element to an appendable collection, according to semantics", {}, 
                  { OP_HASH, TRAIT_ITERABLE, TRAIT_ANY_TYPE }, { TRAIT_ITERABLE },
                  [](VM* vm, V v1, V v2) {
                    Traits::Appendable* appendable = v1.appendable();
                    appendable->put(v2);
                    vm->pushCollection(v1);
                  });
+
+  registerUnary(mc, Topic::COLLECTIONS, "pop", "pop an element from a poppable collection, according to semantics", {},
+                 { OP_AT, TRAIT_POPPABLE }, { TRAIT_POPPABLE, TRAIT_ANY_TYPE },
+                 [](VM* vm, V v1) {
+                   Traits::Poppable* poppable = v1.poppable();
+                   vm->pushCollection(v1);
+                   vm->push(poppable->pop());
+                });
 
   registerBinary(mc, Topic::COLLECTIONS, "partition", "partition an iterable collection according to a predicate", {},
                  { OP_WHILE, TRAIT_ITERABLE, TYPE_LAMBDA }, { TYPE_MAP },

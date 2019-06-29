@@ -38,6 +38,11 @@ public:
   {
   public: virtual void put(Value value) = 0;
   };
+
+  class Poppable
+  {
+  public: virtual Value pop() = 0;
+  };
   
   class Iterable
   {

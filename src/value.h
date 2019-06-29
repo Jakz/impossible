@@ -154,6 +154,7 @@ public:
   Traits::Indexable* indexable() const;
   Traits::Iterable* iterable() const;
   Traits::Appendable* appendable() const;
+  Traits::Poppable* poppable() const;
 
   Lambda* lambda() const;
   

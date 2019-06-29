@@ -261,82 +261,54 @@ void Instruction::execute(VM *vm) const
       
     case OP_AT:
     {
-      if (vm->popOne(v2))
+      if (vm->popTwo(v1, v2))
       {
-        if (v2.type == TYPE_STACK)
+        if (v1.type == TYPE_MAP)
         {
-          List::list_t& stack = v2.stack()->raw();
-          vm->push(v2);
-          
-          if (!stack.empty())
-          {
-            vm->push(stack.front());
-            stack.pop_front();
-          }
-        }
-        else if (v2.type == TYPE_QUEUE)
-        {
-          List::list_t& queue = v2.queue()->raw();
-          vm->push(v2);
-          
-          if (!queue.empty())
-          {
-            vm->push(queue.front());
-            queue.pop_front();
-          }
+          const Map::map_t& map = v1.map()->raw();
+          vm->push(v1);
+              
+          auto it = map.find(v2);
+              
+          vm->push(it != map.end() ? it->second : Value());
         }
         else
-        {
-          if (vm->popOne(v1))
+        {            
+          switch (TYPES(v1.type, v2.type))
           {
-            if (v1.type == TYPE_MAP)
+            case TYPES(TYPE_LAZY_ARRAY, TYPE_INT):
             {
-              const Map::map_t& map = v1.map()->raw();
+              LazyArray *array = v1.lazyArray();
+              integral_t i = v2.integral();
+                  
+              const Value& v = array->raw().at(vm, i);
+                  
               vm->push(v1);
-              
-              auto it = map.find(v2);
-              
-              vm->push(it != map.end() ? it->second : Value());
+              vm->push(v);
+              break;
             }
-            else
-            {            
-              switch (TYPES(v1.type, v2.type))
+            case TYPES(TYPE_LAZY_ARRAY, TYPE_RANGE):
+            {
+              const RangeVector& r = v2.range()->raw();
+              Array::utype_t nv;
+              LazyArray *ov = v1.lazyArray();
+                  
+              std::vector<integral_t> iv = r.concretize();
+              nv.reserve(iv.size());
+                  
+              for (size_t i = 0; i < iv.size(); ++i)
               {
-                case TYPES(TYPE_LAZY_ARRAY, TYPE_INT):
-                {
-                  LazyArray *array = v1.lazyArray();
-                  integral_t i = v2.integral();
-                  
-                  const Value& v = array->raw().at(vm, i);
-                  
-                  vm->push(v1);
-                  vm->push(v);
-                  break;
-                }
-                case TYPES(TYPE_LAZY_ARRAY, TYPE_RANGE):
-                {
-                  const RangeVector& r = v2.range()->raw();
-                  Array::utype_t nv;
-                  LazyArray *ov = v1.lazyArray();
-                  
-                  std::vector<integral_t> iv = r.concretize();
-                  nv.reserve(iv.size());
-                  
-                  for (size_t i = 0; i < iv.size(); ++i)
-                  {
-                    integral_t j = iv[i];
+                integral_t j = iv[i];
                     
-                    if (j < 0)
-                      continue;
+                if (j < 0)
+                  continue;
                     
-                    nv.push_back(ov->raw().at(vm, j));
-                  }
-                  
-                  vm->push(v1);
-                  vm->push(new Array(nv));            
-                  break;
-                }
+                nv.push_back(ov->raw().at(vm, j));
               }
+                  
+              vm->push(v1);
+              vm->push(new Array(nv));            
+              break;
             }
           }
         }

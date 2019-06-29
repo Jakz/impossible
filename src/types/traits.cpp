@@ -107,7 +107,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
   
   { TYPE_STRING,
-    { TYPE_STRING, { TRAIT_COUNTABLE, TRAIT_INDEXABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "string",
+    { TYPE_STRING, { TRAIT_COUNTABLE, TRAIT_INDEXABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE, TRAIT_POPPABLE }, "string",
       [] (const Value& v) { return v.string()->raw(); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STRING && v2.string()->raw() == v1.string()->raw(); },
       [] (const Value& v) { return std::hash<std::string>()(v.string()->raw()); },
@@ -161,7 +161,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
   
   { TYPE_LIST,
-    { TYPE_LIST, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "list",
+    { TYPE_LIST, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE, TRAIT_POPPABLE }, "list",
       [] (const Value& v) { return ListPrinter.svalue(v.list()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_LIST && v2.list()->raw() == v1.list()->raw(); },
       null_hasher,
@@ -171,7 +171,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
   },
   
   { TYPE_ARRAY,
-    { TYPE_ARRAY, { TRAIT_COUNTABLE, TRAIT_INDEXABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "array",
+    { TYPE_ARRAY, { TRAIT_COUNTABLE, TRAIT_INDEXABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE, TRAIT_POPPABLE }, "array",
       [] (const Value& v) { return ArrayPrinter.svalue(v.array()); },
       binary_false,
       null_hasher,
@@ -190,7 +190,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     }
   },
   { TYPE_STACK,
-    { TYPE_STACK, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "stack",
+    { TYPE_STACK, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE, TRAIT_POPPABLE }, "stack",
       [] (const Value& v) { return StackPrinter.svalue(v.stack()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STACK && v2.list()->raw() == v1.list()->raw(); },
       null_hasher,
@@ -199,7 +199,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
     }
   },
   { TYPE_QUEUE,
-    { TYPE_QUEUE, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE }, "queue",
+    { TYPE_QUEUE, { TRAIT_COUNTABLE, TRAIT_ITERABLE, TRAIT_APPENDABLE, TRAIT_POPPABLE }, "queue",
       [] (const Value& v) { return QueuePrinter.svalue(v.queue()); },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_QUEUE && v2.list()->raw() == v1.list()->raw(); },
       null_hasher,

@@ -25,19 +25,24 @@ bool MicroCode::execute(VM* vm, Opcode opcode) const
   }
   
   if (data.hasBinary && stackSize >= 2)
-  {
+  {    
+    Value *pv1, *pv2;
+    
     if (v3.valid())
     {
-      v2 = v3;
-      v1 = v2;
+      pv2 = &v3;
+      pv1 = &v2;
     }
     else
     {
       v2 = vm->pop();
       v1 = vm->pop();
+
+      pv2 = &v2;
+      pv1 = &v1;
     }
     
-    auto function = findBestOverload({ opcode, v1.type, v2.type, TYPE_NONE });
+    auto function = findBestOverload({ opcode, pv1->type, pv2->type, TYPE_NONE });
     
     if (function)
     {
@@ -48,14 +53,19 @@ bool MicroCode::execute(VM* vm, Opcode opcode) const
   
   if (data.hasUnary && stackSize >= 1)
   {
+    Value* v;
+
     if (v3.valid())
-      v1 = v3;
+      v = &v3;
     else if (v2.valid())
-      v1 = v2;
+      v = &v2;
     else
+    {
       v1 = vm->pop();
+      v = &v1;
+    }
     
-    auto function = findBestOverload({ opcode, v1.type, TYPE_NONE, TYPE_NONE });
+    auto function = findBestOverload({ opcode, v->type, TYPE_NONE, TYPE_NONE });
     
     if (function)
     {

@@ -465,12 +465,12 @@ void Instruction::execute(VM *vm) const
     }
     case OP_WHILE:
     {
-      if (vm->record().lazy)
+      if (vm->context().lazy)
       {
         if (vm->popOne(v1) && v1.type == TYPE_INT)
         {
-          auto&& index = vm->record().lazy->index - v1.integral();
-          auto&& value = vm->record().lazy->at(vm, index);
+          auto&& index = vm->context().index - v1.integral();
+          auto&& value = vm->context().lazy->at(vm, index);
           vm->push(value);
         }
       }

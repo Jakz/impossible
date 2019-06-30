@@ -505,6 +505,15 @@ void registerFunctions(MicroCode& mc)
                   }
                 });
   
+  /* reverse ordered collections */
+
+  /*
+  const List::list_t& data = v1.list()->raw();
+  List::list_t nv = List::list_t(data.rbegin(), data.rend());
+  vm->push(new List(nv));
+  break;
+  */
+
   /* set related */
   registerBinary(mc,
                  Topic::COLLECTIONS, "intersection", "computes intersection between two sets",

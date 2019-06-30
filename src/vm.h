@@ -27,16 +27,20 @@ class LazyArrayHolder;
 struct ActivationRecord
 {
   Code* code;
-  const LazyArrayHolder* lazy;
   size_t pc;
 
-  ActivationRecord() : code(nullptr), lazy(nullptr), pc(0) { }
-  ActivationRecord(Code *code) : code(code), lazy(nullptr), pc(0) { }
-  ActivationRecord(const LazyArrayHolder* lazy) : code(nullptr), lazy(lazy), pc(0) { }
+  ActivationRecord() : code(nullptr), pc(0) { }
+  ActivationRecord(Code *code) : code(code), pc(0) { }
 
-  operator bool() const { return lazy || code; }
-  
-  //void set(Code *code) { this->code = code; pc = 0; }
+  operator bool() const { return code != nullptr; }
+ };
+
+struct Context
+{
+  const LazyArrayHolder* lazy;
+  integral_t index;
+
+  Context(const LazyArrayHolder* lazy, integral_t index) : lazy(lazy), index(index) { }
 };
 
 class VM
@@ -50,6 +54,7 @@ private:
   std::array<Value, 26> memory;
   
   std::stack<ActivationRecord> callStack;
+  std::stack<Context> contextStack;
   ActivationRecord exec;
   
   bool running;
@@ -61,6 +66,7 @@ public:
   VM(MicroCode& microcode) : valueStack(new stack_t()), exec(ActivationRecord()), running(false), stackPreserve(true), memory(),
   microcode(microcode)
   {
+    contextStack.push(Context(nullptr, 0));
   }
   
   Code *code()
@@ -72,6 +78,10 @@ public:
 
   void pushRecord(ActivationRecord&& record);
   void popRecord();
+
+  void pushContext(Context context) { contextStack.push(context); }
+  void popContext() { if (!contextStack.empty()) contextStack.pop(); }
+  const Context& context() { return contextStack.top(); }
 
   const auto& record() const { return exec; }
   

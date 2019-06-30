@@ -58,7 +58,7 @@ void VM::run()
 
 void VM::pushRecord(ActivationRecord&& record)
 {
-  VM_LOG("Pushing record " << (record.lazy ? "lazy" : "code"));
+  VM_LOG("Pushing activating record ");
   
   if (exec.code)
     callStack.push(exec);
@@ -70,7 +70,7 @@ void VM::popRecord()
 {
   if (!callStack.empty())
   {
-    VM_LOG("Popping record");
+    VM_LOG("Popping activating record");
     
     exec = callStack.top();
     callStack.pop();

@@ -40,8 +40,7 @@ public:
   void generateNth(VM* vm, integral_t index) const;
   //TODO: must become reference
   const Value& at(VM* vm, integral_t index) const;
-  mutable integral_t index;
-  
+
   Lambda *code() const { return lambda; }
   const data_t& data() const { return values; }
   size_t size() const { return values.size(); }

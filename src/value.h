@@ -151,6 +151,8 @@ public:
   LazyArray* lazyArray() const;
   Error* error() const;
   
+  template<typename T> T* as() const;
+
   Traits::Indexable* indexable() const;
   Traits::Iterable* iterable() const;
   Traits::Appendable* appendable() const;
@@ -162,6 +164,10 @@ public:
   
   struct hash { size_t operator()(const Value&) const; };
 };
+
+template<> inline String* Value::as<String>() const { return string(); }
+template<> inline Array* Value::as<Array>() const { return array(); }
+template<> inline List* Value::as<List>() const { return list(); }
 
 class TCollection : public managed_object, public Traits::Countable
 {

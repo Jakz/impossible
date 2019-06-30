@@ -41,7 +41,7 @@ void LazyArrayHolder::generateUpTo(VM* vm, integral_t index)
 
 void LazyArrayHolder::generateNth(VM* vm, integral_t index) const
 {
-  //std::cout << "generating lazy at " << index << endl;
+  std::cout << "generating lazy at " << index << std::endl;
 
   if (useIndices)
     vm->push(index);
@@ -49,23 +49,20 @@ void LazyArrayHolder::generateNth(VM* vm, integral_t index) const
   auto it = indices.find(index);
   
   //TODO: hack, make self-reentrant
-  vm->pushRecord(ActivationRecord(this));
-
-  this->index = index;
+  vm->pushContext(Context(this, index));
   
   if (it != indices.end())
     vm->execute(it->second->code());
   else
     vm->execute(lambda->code());
   
-  
   vm->popOne(values[index]);
-  vm->popRecord();
+  vm->popContext();
 }
 
 const Value& LazyArrayHolder::at(VM* vm, integral_t index) const
 {
-  //std::cout << "request for lazy at " << index << endl;
+  std::cout << "request for lazy at " << index << std::endl;
   
   if (values.size() <= index)
   {

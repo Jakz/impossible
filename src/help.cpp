@@ -104,9 +104,7 @@ void Help::init()
   addOperator("!", OpHelpEntry::unary(TYPE_LAMBDA, TYPE_UNKNOWN, "apply", Topic::FUNCTIONAL, "pop first value from stack and executes it as a lambda", "1 [2+] !", "3"));
   addOperator("!", OpHelpEntry::unary(TYPE_INT, TYPE_FLOAT, "factorial", Topic::NUMERICS, "computes factorial", "", ""));
   addOperator("=", OpHelpEntry::binary(TYPE_GENERIC, TYPE_GENERIC, TYPE_BOOL, "eq", Topic::LOGIC, "push true on stack if two topmost values are equal", "", ""));
-  
-  addOperator("^", OpHelpEntry::unary(TYPE_GENERIC, "peek", Topic::UTILITY, "prints stack topmost value", "", ""));
-  
+    
    addOperator("s", OpHelpEntry::unary(TYPE_GENERIC, TYPE_STRING, "string cast", Topic::TEXT, "convert the value to string", "", ""));
   
   addOperator("?", OpHelpEntry::binary(TYPE_BOOL, TYPE_LAMBDA, TYPE_UNKNOWN, "if", Topic::LOGIC, "executes lambda if boolean value is true", "", ""));

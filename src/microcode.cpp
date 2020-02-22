@@ -73,6 +73,14 @@ void registerTernary(MicroCode& mc, Topic topic, const std::string& name, const 
   Help::addOperator(signature.opcode, signature.args, retn, topic, name, desc, examples);
 }
 
+template<typename T>
+void reverseCollection(VM* vm, const Value& v)
+{
+  const auto& data = v->as<T>->raw();
+  auto nv = T::utype_t(data.rbegin(), data.rend());
+  vm->push(new T(nv));
+}
+
 void registerFunctions(MicroCode& mc)
 {
   registerBinary(mc,
@@ -666,7 +674,24 @@ void registerStackFunctions(MicroCode& mc)
                 { OP_DROP, TRAIT_ANY_TYPE }, { },
                 [] (VM* vm, const Value& v) { }
                 );
-  
+
+  registerUnary(mc,
+                Topic::UTILITY, "peek", "prints stack topmost value",
+                {},
+                { OP_PEEK, TRAIT_ANY_TYPE }, { },
+                [](VM* vm, const Value& v) {
+                   /* TODO: optimize by avoiding popping and pushing */
+                   if (v.valid())
+                     std::cout << v.svalue();
+
+                   vm->push(v);
+
+                }
+  );
+
+  registerNullary(mc, Topic::UTILITY, "raise-stack", "switch to higher stack", {}, { OP_RAISE_STACK }, { }, [](VM* vm) { vm->raiseStack(); });
+  registerNullary(mc, Topic::UTILITY, "lower-stack", "switch to lower stack", {}, { OP_LOWER_STACK }, { }, [](VM* vm) { vm->lowerStack(); });
+
   //TODO: check return signature for rise and sink
   registerTernary(mc,
                   Topic::STACK, "rise", "cycle top three stack element left",

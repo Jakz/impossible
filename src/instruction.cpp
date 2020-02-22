@@ -158,16 +158,6 @@ void Instruction::execute(VM *vm) const
       break;
     }
 
-    case OP_PEEK:
-    {
-      Value v = vm->peek();
-      
-      if (v.valid())
-        std::cout << v.svalue();
-      
-      break;
-    }
-      
     case OP_RAND:
     {
       if (vm->popOne(v1))
@@ -561,10 +551,7 @@ void Instruction::execute(VM *vm) const
       }
       break;
     }
-      
-    case OP_RAISE_STACK: { vm->raiseStack(); break; }
-    case OP_LOWER_STACK: { vm->lowerStack(); break; }
-      
+
     case OP_RAISE_STACKV:
     { 
       if (vm->popOne(v1) && v1.type == TYPE_INT)

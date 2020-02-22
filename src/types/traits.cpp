@@ -59,6 +59,7 @@ static const CollectionPrinter<Value> TuplePrinter = { "[[", "]]", " ", [] (cons
 
 static const auto unary_false = [](const Value&) { return false; };
 static const auto binary_false = [](const Value&, const Value&) { return false; };
+static const auto to_zero = [](const Value&) { return 0; };
 static const auto null_hasher = [](const Value&) { return 0UL; };
 static const auto default_collector = [](size_t hint) { return std::make_pair(TYPE_NONE, nullptr); };
 
@@ -71,6 +72,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_INT && v2.data.i == v1.data.i; },
       [] (const Value& v) { return std::hash<integral_t>()(v.integral()); },
       unary_false,
+      [](const Value& v) { return v.integral(); },
       default_collector,
     }
   },
@@ -83,7 +85,8 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       },
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_FLOAT && v2.data.f == v1.data.f; },
       [] (const Value& v) { return std::hash<real_t>()(v.real()); },
-      unary_false
+      unary_false,
+      [](const Value& v) { return (int)v.real(); } 
     }
   },
   { TYPE_BOOL,
@@ -112,6 +115,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STRING && v2.string()->raw() == v1.string()->raw(); },
       [] (const Value& v) { return std::hash<std::string>()(v.string()->raw()); },
       unary_false,
+      to_zero,
       [] (size_t hint) { return std::make_pair(TYPE_STRING, new String()); }
     }
   },
@@ -156,6 +160,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       binary_false,
       null_hasher,
       unary_false,
+      to_zero,
       [] (size_t hint) { return std::make_pair(TYPE_ARRAY, new Array()); }
     }
   },
@@ -166,6 +171,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_LIST && v2.list()->raw() == v1.list()->raw(); },
       null_hasher,
       unary_false,
+      to_zero,
       [] (size_t hint) { return std::make_pair(TYPE_LIST, new List()); }
     }
   },
@@ -176,6 +182,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       binary_false,
       null_hasher,
       unary_false,
+      to_zero,
       [] (size_t hint) { return std::make_pair(TYPE_ARRAY, new Array()); }
     }
   },
@@ -186,6 +193,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       binary_false,
       null_hasher,
       unary_false,
+      to_zero,
       [] (size_t hint) { return std::make_pair(TYPE_SET, new Set()); }
     }
   },
@@ -195,6 +203,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_STACK && v2.list()->raw() == v1.list()->raw(); },
       null_hasher,
       unary_false,
+      to_zero,
       [] (size_t hint) { return std::make_pair(TYPE_LIST, new List()); }
     }
   },
@@ -204,6 +213,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       [] (const Value& v1, const Value& v2) { return v2.type == TYPE_QUEUE && v2.list()->raw() == v1.list()->raw(); },
       null_hasher,
       unary_false,
+      to_zero,
       [] (size_t hint) { return std::make_pair(TYPE_LIST, new List()); }
     }
   },
@@ -221,6 +231,7 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
       binary_false,
       null_hasher,
       unary_false,
+      to_zero,
       [] (size_t hint) { return std::make_pair(TYPE_ARRAY, new Array()); }
     }
   },
@@ -355,6 +366,9 @@ const std::unordered_map<Type, TypeTraits::TypeSpec, enum_hash> TypeTraits::spec
             case OP_RECUR: return "[#]";
             case OP_RECURV: return "{#}";
             case OP_WHILE: return "<>";
+
+            case OP_RAISE_STACK: return "R";
+            case OP_LOWER_STACK: return "L";
          }
 
          assert(false);

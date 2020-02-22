@@ -106,6 +106,7 @@ public:
     std::function<size_t(const Value&)> hasher;
     
     std::function<bool(const Value&)> to_bool = [] (const Value& ) { return false; };
+    std::function<int(const Value&)> to_int = [](const Value&) { return 0; };
     
     std::function<std::pair<Type, Traits::Appendable*>(size_t)> to_collector = [] (size_t) { return std::make_pair(TYPE_NONE, nullptr); };
     

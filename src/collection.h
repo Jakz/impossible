@@ -37,6 +37,7 @@ class String final : public TCollection, public Traits::Indexable, public Traits
 {
 public:
   using data_t = std::string;
+  using utype_t = data_t;
   
 private:
   data_t value;
